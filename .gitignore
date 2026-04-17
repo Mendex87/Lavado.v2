@@ -1,0 +1,31 @@
+# OpenClaw / local workspace
+.openclaw/
+
+# Personal workspace memory / identity
+MEMORY.md
+memory/
+USER.md
+SOUL.md
+TOOLS.md
+AGENTS.md
+BOOT.md
+BOOTSTRAP.md
+HEARTBEAT.md
+IDENTITY.md
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# Env / secrets
+.env
+.env.*
+
+# OS / editor
+.DS_Store
+.vscode/
+.idea/
+
+# Runtime
+*.log
