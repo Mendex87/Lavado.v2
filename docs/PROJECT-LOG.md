@@ -52,6 +52,16 @@ Registro paso a paso de decisiones, cambios y entregables del proyecto.
   - configuración
 - Decisión de diseño: UI guiada para operador, con acciones críticas visibles y confirmadas, y sin formularios gigantes.
 
+### [APP-PREVIEW v0.1]
+- Se creó una primera vista previa navegable en `app-preview/`.
+- Pantallas incluidas en esta primera iteración:
+  - dashboard operativo
+  - abrir proceso guiado
+  - proceso activo
+  - stock de canteras
+- Stack usado para la preview: HTML + CSS + JS plano, priorizando velocidad de validación.
+- Objetivo de esta preview: validar estructura operativa y jerarquía visual antes de pasar a implementación real de app.
+
 ## Convención de versionado
 - Mientras estemos definiendo arquitectura y datos, versionamos por componente.
 - Formato inicial: `DB-SCHEMA vX.Y`.
