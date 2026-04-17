@@ -63,6 +63,7 @@ Registro paso a paso de decisiones, cambios y entregables del proyecto.
 - Objetivo de esta preview: validar estructura operativa y jerarquía visual antes de pasar a implementación real de app.
 - Ajuste posterior: se agregó `<base href="/app-preview/">` en `app-preview/index.html` para que CSS y JS carguen correctamente al servir la preview detrás de una subruta de Tailscale Serve.
 - Mejora posterior: la preview pasó de estática a interactiva con estado mock en `app-preview/app.js`, permitiendo simular apertura de proceso, avance de producción, ajuste de stock, registro de eventos y cierre de proceso.
+- Ajuste adicional: se agregaron query strings de versión en `index.html` para forzar recarga real de `app.js` y `styles.css` y evitar que el navegador siguiera usando una copia cacheada de la preview estática.
 
 ## Convención de versionado
 - Mientras estemos definiendo arquitectura y datos, versionamos por componente.
