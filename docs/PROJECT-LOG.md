@@ -100,6 +100,12 @@ Registro paso a paso de decisiones, cambios y entregables del proyecto.
   - mantener la capa MES/app entre ERP/planificación y PLC/SCADA
   - tratar alertas, evidencia, calidad y trazabilidad como entidades centrales
 
+### [TRACEABILITY 2026-04-17]
+- Se creó `docs/TECH-TRACE.md` como bitácora técnica específica para fallas, debugging y cambios delicados.
+- Se agregó `backend/.gitignore` para evitar ensuciar el repo con cachés, entornos y secretos locales.
+- Se agregó `backend/app/core/logging.py` y se activó logging base en `backend/app/main.py`.
+- Decisión práctica: desde ahora cualquier falla significativa de preview, backend, migraciones o integración PLC debe dejar rastro técnico en `TECH-TRACE.md`, además del resumen general en `PROJECT-LOG.md`.
+
 ## Convención de versionado
 - Mientras estemos definiendo arquitectura y datos, versionamos por componente.
 - Formato inicial: `DB-SCHEMA vX.Y`.
