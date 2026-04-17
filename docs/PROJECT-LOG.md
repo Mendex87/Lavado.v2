@@ -67,6 +67,22 @@ Registro paso a paso de decisiones, cambios y entregables del proyecto.
 - Se agregó una prueba visible de ejecución JavaScript en la UI (`debug-banner`) para verificar sin ambigüedad si la preview está cargando el JS correcto o si sigue sirviendo archivos viejos/cacheados.
 - Corrección funcional posterior: la simulación ahora soporta un proceso activo por línea, evita abrir un segundo proceso sobre una línea ocupada, desactiva blend en Línea 1 y oculta opciones no válidas según línea/modo.
 
+### [BACKEND v0.1]
+- Se creó `backend/` como scaffold real del backend.
+- Stack inicial elegido: FastAPI + SQLAlchemy 2 + PostgreSQL + Alembic.
+- Se agregaron archivos base:
+  - `backend/app/main.py`
+  - `backend/app/core/config.py`
+  - `backend/app/db/session.py`
+  - `backend/app/api/router.py`
+  - rutas iniciales de `health`, `processes`, `stock`
+  - schemas Pydantic y estado mock inicial
+  - `backend/requirements.txt`
+  - `backend/.env.example`
+  - `backend/README.md`
+  - `docs/backend_v0_1.md`
+- Decisión práctica: arrancar con backend ejecutable y mocks internos para luego reemplazar capa por DB real y conexión PLC, en vez de seguir solo con especificaciones.
+
 ## Convención de versionado
 - Mientras estemos definiendo arquitectura y datos, versionamos por componente.
 - Formato inicial: `DB-SCHEMA vX.Y`.
