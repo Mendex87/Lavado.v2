@@ -17,10 +17,19 @@ Dejar una base real de backend para empezar a reemplazar mocks por datos de base
   - `GET /api/v1/stock/quarries`
 - estado mock interno para pruebas tempranas
 
+## Avance adicional
+- Se agregaron modelos ORM base para:
+  - catálogos y usuarios
+  - procesos
+  - stock
+  - PLC / totalizadores
+  - eventos, alarmas y auditoría
+- Se agregó `backend/app/db/init_db.py` para inicialización rápida de metadata en entorno de desarrollo.
+
 ## Próximos pasos recomendados
-1. conectar SQLAlchemy al schema real
-2. crear modelos ORM base
-3. agregar Alembic
+1. alinear tipos/campos ORM con schema SQL final y restricciones faltantes
+2. agregar Alembic
+3. migrar rutas mock a servicios con sesión DB real
 4. autenticación JWT
 5. capa de integración PLC
-6. reemplazar estado mock por servicios + repositorios
+6. reemplazar estado mock por repositorios y casos de uso

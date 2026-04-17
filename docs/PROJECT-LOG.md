@@ -82,6 +82,19 @@ Registro paso a paso de decisiones, cambios y entregables del proyecto.
   - `backend/README.md`
   - `docs/backend_v0_1.md`
 - Decisión práctica: arrancar con backend ejecutable y mocks internos para luego reemplazar capa por DB real y conexión PLC, en vez de seguir solo con especificaciones.
+- Avance posterior:
+  - se agregaron modelos ORM base alineados al schema `DB-SCHEMA v1.1`
+  - se cubrieron catálogos, usuarios, procesos, stock, PLC, eventos, alarmas y auditoría
+  - se agregó `backend/app/db/init_db.py` para inicialización rápida en desarrollo
+
+### [RESEARCH 2026-04-17]
+- Se revisaron referencias externas de UX y arquitectura MES/industrial.
+- Documento generado: `docs/research_2026-04-17_mes_ui_backend.md`
+- Hallazgos clave incorporados:
+  - separar dashboards operativos en tiempo real vs análisis histórico
+  - diseñar por rol y acción, no por volumen de datos
+  - mantener la capa MES/app entre ERP/planificación y PLC/SCADA
+  - tratar alertas, evidencia, calidad y trazabilidad como entidades centrales
 
 ## Convención de versionado
 - Mientras estemos definiendo arquitectura y datos, versionamos por componente.
