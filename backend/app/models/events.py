@@ -1,6 +1,6 @@
 from sqlalchemy import DateTime, ForeignKey, String, Text
-from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column
+from app.db.types import JSONVariant
 from app.models.base import BaseModelORM
 
 
@@ -12,7 +12,7 @@ class ProcessEvent(BaseModelORM):
     event_type: Mapped[str] = mapped_column(String, nullable=False)
     severity: Mapped[str] = mapped_column(String, nullable=False)
     message: Mapped[str] = mapped_column(Text, nullable=False)
-    payload_json: Mapped[dict | None] = mapped_column(JSONB)
+    payload_json: Mapped[dict | None] = mapped_column(JSONVariant)
 
 
 class Alarm(BaseModelORM):
@@ -36,5 +36,5 @@ class AuditLog(BaseModelORM):
     entity_name: Mapped[str] = mapped_column(String, nullable=False)
     entity_id: Mapped[str] = mapped_column(String, nullable=False)
     action: Mapped[str] = mapped_column(String, nullable=False)
-    before_json: Mapped[dict | None] = mapped_column(JSONB)
-    after_json: Mapped[dict | None] = mapped_column(JSONB)
+    before_json: Mapped[dict | None] = mapped_column(JSONVariant)
+    after_json: Mapped[dict | None] = mapped_column(JSONVariant)

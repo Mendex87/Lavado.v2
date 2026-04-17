@@ -93,6 +93,7 @@ Registro paso a paso de decisiones, cambios y entregables del proyecto.
   - se agregó contrato PLC simulado en backend (`variables`, `context`, `publish-context`, `reset-partials`)
   - se agregó `admin/seed` para poblar catálogos mínimos de desarrollo
   - se agregó capa de simulación productiva por línea con TPH y splits configurables para testear comportamiento de planta antes de conectar PLC real
+  - se dejó backend ejecutable en modo desarrollo con SQLite local para pruebas rápidas sin depender todavía de PostgreSQL levantado
 
 ### [RESEARCH 2026-04-17]
 - Se revisaron referencias externas de UX y arquitectura MES/industrial.

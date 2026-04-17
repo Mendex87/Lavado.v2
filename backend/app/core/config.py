@@ -8,6 +8,7 @@ class Settings(BaseSettings):
     app_debug: bool = True
     api_v1_prefix: str = '/api/v1'
 
+    database_url: str | None = None
     postgres_server: str = 'localhost'
     postgres_port: int = 5432
     postgres_db: str = 'plant_app'
@@ -21,7 +22,10 @@ class Settings(BaseSettings):
 
     @property
     def sqlalchemy_database_uri(self) -> str:
+        if self.database_url:
+            return self.database_url
         return (
+            f'sqlite+pysqlite:///./plant_app.db' if self.app_env == 'development' else
             f'postgresql+psycopg://{self.postgres_user}:{self.postgres_password}'
             f'@{self.postgres_server}:{self.postgres_port}/{self.postgres_db}'
         )

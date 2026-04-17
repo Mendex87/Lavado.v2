@@ -1,0 +1,39 @@
+# Run backend locally
+
+## Desarrollo rápido
+Desde `backend/`:
+
+```bash
+python3 -m pip install --break-system-packages --user -r requirements.txt
+cp .env.example .env
+python3 -m app.db.init_db
+python3 -m uvicorn app.main:app --reload --host 0.0.0.0 --port 8010
+```
+
+## Base por defecto
+En desarrollo queda usando SQLite local:
+- `DATABASE_URL=sqlite+pysqlite:///./plant_app.db`
+
+Luego se puede volver a PostgreSQL cambiando `DATABASE_URL` o las variables `POSTGRES_*`.
+
+## Endpoints útiles para prueba
+- `GET /api/v1/health`
+- `POST /api/v1/admin/seed`
+- `GET /api/v1/processes/active`
+- `GET /api/v1/stock/quarries`
+- `GET /api/v1/simulation/line/1`
+- `POST /api/v1/simulation/start`
+- `POST /api/v1/simulation/step`
+
+## Ejemplo de simulación línea 1
+Payload inicial sugerido:
+
+```json
+{
+  "line": 1,
+  "tph_input": 120,
+  "split_product_a_pct": 70,
+  "split_product_b_pct": 20,
+  "split_discard_pct": 10
+}
+```

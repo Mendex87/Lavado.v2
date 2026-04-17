@@ -44,6 +44,11 @@ Dejar una base real de backend para empezar a reemplazar mocks por datos de base
   - `POST /api/v1/simulation/line/{line}/stop`
   - `POST /api/v1/simulation/line/{line}/reset`
 
+## Ejecución rápida en desarrollo
+- se habilitó modo de desarrollo simple usando `SQLite` local cuando no se define `DATABASE_URL`
+- esto permite levantar backend y probar endpoints sin depender todavía de PostgreSQL
+- los tipos JSON quedaron compatibles con SQLite en desarrollo y con JSONB en PostgreSQL
+
 ## Próximos pasos recomendados
 1. conectar la simulación a procesos/stock/eventos reales del backend
 2. ampliar migración inicial hasta cubrir schema real relevante
