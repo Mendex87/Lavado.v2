@@ -21,6 +21,7 @@ Luego se puede volver a PostgreSQL cambiando `DATABASE_URL` o las variables `POS
 - `POST /api/v1/admin/seed`
 - `GET /api/v1/processes/active`
 - `GET /api/v1/stock/quarries`
+- `GET /api/v1/dashboard/overview`
 - `GET /api/v1/simulation/line/1`
 - `POST /api/v1/simulation/start`
 - `POST /api/v1/simulation/step`
