@@ -43,7 +43,12 @@ cd backend
 python3 -m plc_poller.main
 ```
 
-Completar luego `backend/plc_poller/mapping.example.json` con DB/bytes/bits reales del S7-1200.
+Primera prueba real ya aterrizada en `backend/plc_poller/mapping.example.json` con:
+- `DB13` para parciales
+- `DB2` para totalizadores
+- una sola balanza inicial (`l1_input_main`)
+
+Si los offsets en TIA difieren, ajustar bytes en ese archivo.
 
 ## Ejemplo de simulación línea 1
 Payload inicial sugerido:

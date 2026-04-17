@@ -5,43 +5,11 @@
       "channels": [
         {
           "code": "l1_input_main",
-          "partial": { "db": 10, "byte": 0, "type": "real" },
-          "totalizer": { "db": 10, "byte": 4, "type": "real" }
-        },
-        {
-          "code": "l1_output_1",
-          "partial": { "db": 10, "byte": 8, "type": "real" },
-          "totalizer": { "db": 10, "byte": 12, "type": "real" }
-        },
-        {
-          "code": "l1_output_2",
-          "partial": { "db": 10, "byte": 16, "type": "real" },
-          "totalizer": { "db": 10, "byte": 20, "type": "real" }
-        }
-      ]
-    },
-    {
-      "line": 2,
-      "channels": [
-        {
-          "code": "l2_input_hopper_1",
-          "partial": { "db": 20, "byte": 0, "type": "real" },
-          "totalizer": { "db": 20, "byte": 4, "type": "real" }
-        },
-        {
-          "code": "l2_input_hopper_2",
-          "partial": { "db": 20, "byte": 8, "type": "real" },
-          "totalizer": { "db": 20, "byte": 12, "type": "real" }
-        },
-        {
-          "code": "l2_output_1",
-          "partial": { "db": 20, "byte": 16, "type": "real" },
-          "totalizer": { "db": 20, "byte": 20, "type": "real" }
+          "partial": { "db": 13, "byte": 0, "type": "real" },
+          "totalizer": { "db": 2, "byte": 0, "type": "real" }
         }
       ]
     }
   ],
-  "flags": {
-    "reset_partials_ack": { "db": 30, "byte": 0, "bit": 0, "type": "bool" }
-  }
+  "flags": {}
 }

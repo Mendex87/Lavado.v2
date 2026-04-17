@@ -8,32 +8,21 @@ from plc_poller.publisher import post_json
 from plc_poller.runtime import read_line_payloads
 
 
-def build_demo_payloads() -> list[dict]:
+def build_demo_payloads(mapping: dict) -> list[dict]:
     now = datetime.now(timezone.utc).isoformat()
-    return [
-        {
+    payloads = []
+    for line_cfg in mapping.get('lines', []):
+        payloads.append({
             'captured_at': now,
-            'line': 1,
+            'line': line_cfg['line'],
             'source': 'plc',
             'reset_partials_ack': False,
             'channels': [
-                {'code': 'l1_input_main', 'partial_ton': 0.0, 'totalizer_ton': 0.0},
-                {'code': 'l1_output_1', 'partial_ton': 0.0, 'totalizer_ton': 0.0},
-                {'code': 'l1_output_2', 'partial_ton': 0.0, 'totalizer_ton': 0.0},
+                {'code': channel['code'], 'partial_ton': 0.0, 'totalizer_ton': 0.0}
+                for channel in line_cfg.get('channels', [])
             ],
-        },
-        {
-            'captured_at': now,
-            'line': 2,
-            'source': 'plc',
-            'reset_partials_ack': False,
-            'channels': [
-                {'code': 'l2_input_hopper_1', 'partial_ton': 0.0, 'totalizer_ton': 0.0},
-                {'code': 'l2_input_hopper_2', 'partial_ton': 0.0, 'totalizer_ton': 0.0},
-                {'code': 'l2_output_1', 'partial_ton': 0.0, 'totalizer_ton': 0.0},
-            ],
-        },
-    ]
+        })
+    return payloads
 
 
 def main() -> None:
@@ -52,7 +41,7 @@ def main() -> None:
     except RuntimeError as exc:
         print(str(exc))
         print('Modo demo, payloads esperados:')
-        for payload in build_demo_payloads():
+        for payload in build_demo_payloads(mapping):
             print(json.dumps(payload, indent=2))
     time.sleep(0.1)
 
