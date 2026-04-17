@@ -106,6 +106,12 @@ Registro paso a paso de decisiones, cambios y entregables del proyecto.
 - Se agregó `backend/app/core/logging.py` y se activó logging base en `backend/app/main.py`.
 - Decisión práctica: desde ahora cualquier falla significativa de preview, backend, migraciones o integración PLC debe dejar rastro técnico en `TECH-TRACE.md`, además del resumen general en `PROJECT-LOG.md`.
 
+### [GITHUB PREP 2026-04-17]
+- Se creó `.gitignore` en raíz para separar código del proyecto vs archivos personales/operativos del workspace OpenClaw.
+- Se creó `docs/github_publishing.md` con guía concreta para publicar el repo y seguir desde otra PC.
+- Se creó `docs/repo_scope.md` para dejar explícito qué entra y qué no entra al repo compartido.
+- Decisión práctica: el repo GitHub será la fuente central del código; VPS para demo/continuidad, PC del taller para desarrollo y pruebas reales con PLC.
+
 ## Convención de versionado
 - Mientras estemos definiendo arquitectura y datos, versionamos por componente.
 - Formato inicial: `DB-SCHEMA vX.Y`.
