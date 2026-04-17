@@ -25,11 +25,17 @@ Dejar una base real de backend para empezar a reemplazar mocks por datos de base
   - PLC / totalizadores
   - eventos, alarmas y auditoría
 - Se agregó `backend/app/db/init_db.py` para inicialización rápida de metadata en entorno de desarrollo.
+- Se preparó Alembic con:
+  - `backend/alembic.ini`
+  - `backend/alembic/env.py`
+  - `backend/alembic/versions/20260417_0001_initial_models.py`
+- Se agregaron repositorios y servicios iniciales para procesos y stock.
+- Las rutas `processes` y `stock` ya dejaron de leer directo del mock central y ahora pasan por servicios/repositorios.
 
 ## Próximos pasos recomendados
-1. alinear tipos/campos ORM con schema SQL final y restricciones faltantes
-2. agregar Alembic
-3. migrar rutas mock a servicios con sesión DB real
+1. ampliar migración inicial hasta cubrir schema real relevante
+2. alinear tipos/campos ORM con restricciones faltantes del schema SQL
+3. seed inicial de catálogos mínimos
 4. autenticación JWT
 5. capa de integración PLC
-6. reemplazar estado mock por repositorios y casos de uso
+6. reemplazar el resto de los mocks por casos de uso con DB real

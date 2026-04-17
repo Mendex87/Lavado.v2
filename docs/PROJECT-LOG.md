@@ -86,6 +86,10 @@ Registro paso a paso de decisiones, cambios y entregables del proyecto.
   - se agregaron modelos ORM base alineados al schema `DB-SCHEMA v1.1`
   - se cubrieron catálogos, usuarios, procesos, stock, PLC, eventos, alarmas y auditoría
   - se agregó `backend/app/db/init_db.py` para inicialización rápida en desarrollo
+  - se preparó Alembic base para migraciones
+  - se agregó primera migración inicial mínima (`roles`, `users`)
+  - se incorporaron repositorios y servicios iniciales para `processes` y `stock`
+  - las rutas de procesos y stock dejaron de depender directamente del mock central
 
 ### [RESEARCH 2026-04-17]
 - Se revisaron referencias externas de UX y arquitectura MES/industrial.

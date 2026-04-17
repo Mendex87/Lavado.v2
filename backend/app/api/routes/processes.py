@@ -1,42 +1,55 @@
-from datetime import datetime
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy.orm import Session
+from app.db.session import get_db
+from app.repositories.process_repository import ProcessRepository
 from app.schemas.process import ProcessCloseRequest, ProcessCreateRequest, ProcessSummary
-from app.services.mock_state import mock_state
+from app.services.process_service import ProcessService
 
 router = APIRouter(prefix='/processes', tags=['processes'])
 
 
 @router.get('/active', response_model=list[ProcessSummary])
-def list_active_processes():
-    return [p for p in mock_state['processes'] if p['status'] == 'active']
+def list_active_processes(db: Session = Depends(get_db)):
+    service = ProcessService(ProcessRepository(db))
+    processes = service.list_active()
+    return [
+        ProcessSummary(
+            code=p.code,
+            line=p.line_id,
+            mode=p.mode,
+            status=p.status,
+            operator='Operador',
+            started_at=p.started_at,
+        )
+        for p in processes
+    ]
 
 
 @router.post('', response_model=ProcessSummary, status_code=201)
-def create_process(payload: ProcessCreateRequest):
-    existing = next((p for p in mock_state['processes'] if p['line'] == payload.line and p['status'] == 'active'), None)
-    if existing:
-        raise HTTPException(status_code=409, detail=f'La línea {payload.line} ya tiene un proceso activo')
-    if payload.line == 1 and payload.mode != 'simple':
-        raise HTTPException(status_code=422, detail='La línea 1 solo permite modo simple')
-    code = f"PR-2026-{len(mock_state['processes']) + 22:05d}"
-    process = {
-        'code': code,
-        'line': payload.line,
-        'mode': payload.mode,
-        'status': 'active',
-        'operator': payload.operator,
-        'started_at': datetime.utcnow(),
-    }
-    mock_state['processes'].append(process)
-    return process
+def create_process(payload: ProcessCreateRequest, db: Session = Depends(get_db)):
+    service = ProcessService(ProcessRepository(db))
+    try:
+        process = service.create(payload)
+        db.commit()
+        db.refresh(process)
+    except ValueError as exc:
+        db.rollback()
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
+    return ProcessSummary(
+        code=process.code,
+        line=process.line_id,
+        mode=process.mode,
+        status=process.status,
+        operator=payload.operator,
+        started_at=process.started_at,
+    )
 
 
 @router.post('/{code}/close')
-def close_process(code: str, payload: ProcessCloseRequest):
-    process = next((p for p in mock_state['processes'] if p['code'] == code), None)
-    if not process:
-        raise HTTPException(status_code=404, detail='Proceso no encontrado')
-    process['status'] = 'closed'
-    process['closed_reason'] = payload.reason
-    process['closed_at'] = datetime.utcnow()
-    return {'ok': True, 'code': code, 'status': 'closed'}
+def close_process(code: str, payload: ProcessCloseRequest, db: Session = Depends(get_db)):
+    service = ProcessService(ProcessRepository(db))
+    try:
+        process = service.close(code, payload.reason)
+    except LookupError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    return {'ok': True, 'code': process.code, 'status': process.status}
