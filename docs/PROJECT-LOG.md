@@ -61,6 +61,7 @@ Registro paso a paso de decisiones, cambios y entregables del proyecto.
   - stock de canteras
 - Stack usado para la preview: HTML + CSS + JS plano, priorizando velocidad de validación.
 - Objetivo de esta preview: validar estructura operativa y jerarquía visual antes de pasar a implementación real de app.
+- Ajuste posterior: se agregó `<base href="/app-preview/">` en `app-preview/index.html` para que CSS y JS carguen correctamente al servir la preview detrás de una subruta de Tailscale Serve.
 
 ## Convención de versionado
 - Mientras estemos definiendo arquitectura y datos, versionamos por componente.
