@@ -100,6 +100,7 @@ Registro paso a paso de decisiones, cambios y entregables del proyecto.
   - se agregó auto simulación cada 1 segundo para no depender de avance manual por click
   - se conectó la simulación al proceso activo de la línea: ahora genera eventos backend y descuenta stock cuando el proceso tiene entradas configuradas
   - se expuso `GET /api/v1/events/recent` para consumir eventos reales desde la UI unificada
+  - se ejecutó una reestructura visual grande en la preview v0.7: dashboard con ambas líneas siempre visibles, tn/h como dato protagonista, logout simple, eventos y alarmas separados, y simulación dual por línea en paneles paralelos
 
 ### [RESEARCH 2026-04-17]
 - Se revisaron referencias externas de UX y arquitectura MES/industrial.
