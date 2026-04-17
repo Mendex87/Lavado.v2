@@ -27,9 +27,21 @@ Luego se puede volver a PostgreSQL cambiando `DATABASE_URL` o las variables `POS
 - `GET /api/v1/plc/line/1/contract`
 - `POST /api/v1/plc/publish-context`
 - `POST /api/v1/plc/reset-partials`
+- `GET /api/v1/measurements/points`
+- `POST /api/v1/measurements/ingest`
 - `GET /api/v1/simulation/line/1`
 - `POST /api/v1/simulation/start`
 - `POST /api/v1/simulation/step`
+
+## Proceso Python separado para PLC
+Base inicial en `backend/plc_poller/`.
+
+Ejecutar placeholder:
+
+```bash
+cd backend
+python3 -m plc_poller.main
+```
 
 ## Ejemplo de simulación línea 1
 Payload inicial sugerido:
