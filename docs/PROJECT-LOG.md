@@ -36,6 +36,22 @@ Registro paso a paso de decisiones, cambios y entregables del proyecto.
   - dashboard operativo resumido
 - Decisión de diseño: la API se organiza alrededor del `proceso`, no alrededor de CRUDs sueltos.
 
+### [UI v0.1]
+- Se creó `docs/ui_v0_1.md` como estructura funcional inicial de pantallas.
+- Se definieron las vistas principales:
+  - login
+  - dashboard
+  - abrir proceso guiado
+  - proceso activo
+  - cerrar proceso
+  - producción
+  - stock
+  - canteras
+  - alarmas y eventos
+  - PLC/diagnóstico
+  - configuración
+- Decisión de diseño: UI guiada para operador, con acciones críticas visibles y confirmadas, y sin formularios gigantes.
+
 ## Convención de versionado
 - Mientras estemos definiendo arquitectura y datos, versionamos por componente.
 - Formato inicial: `DB-SCHEMA vX.Y`.
