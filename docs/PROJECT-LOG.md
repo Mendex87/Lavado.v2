@@ -90,6 +90,8 @@ Registro paso a paso de decisiones, cambios y entregables del proyecto.
   - se agregó primera migración inicial mínima (`roles`, `users`)
   - se incorporaron repositorios y servicios iniciales para `processes` y `stock`
   - las rutas de procesos y stock dejaron de depender directamente del mock central
+  - se agregó contrato PLC simulado en backend (`variables`, `context`, `publish-context`, `reset-partials`)
+  - se agregó `admin/seed` para poblar catálogos mínimos de desarrollo
 
 ### [RESEARCH 2026-04-17]
 - Se revisaron referencias externas de UX y arquitectura MES/industrial.

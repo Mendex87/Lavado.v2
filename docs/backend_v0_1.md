@@ -31,11 +31,17 @@ Dejar una base real de backend para empezar a reemplazar mocks por datos de base
   - `backend/alembic/versions/20260417_0001_initial_models.py`
 - Se agregaron repositorios y servicios iniciales para procesos y stock.
 - Las rutas `processes` y `stock` ya dejaron de leer directo del mock central y ahora pasan por servicios/repositorios.
+- Se agregaron rutas y servicios iniciales para contrato PLC simulado:
+  - `GET /api/v1/plc/variables`
+  - `GET /api/v1/plc/context`
+  - `POST /api/v1/plc/publish-context`
+  - `POST /api/v1/plc/reset-partials`
+- Se agregó `POST /api/v1/admin/seed` para sembrado mínimo de catálogos base en desarrollo.
 
 ## Próximos pasos recomendados
 1. ampliar migración inicial hasta cubrir schema real relevante
 2. alinear tipos/campos ORM con restricciones faltantes del schema SQL
-3. seed inicial de catálogos mínimos
+3. endurecer seed inicial y valores por defecto
 4. autenticación JWT
-5. capa de integración PLC
+5. capa de integración PLC real (snap7/opc/modbus según estrategia)
 6. reemplazar el resto de los mocks por casos de uso con DB real
