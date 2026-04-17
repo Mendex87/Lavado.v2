@@ -2,6 +2,8 @@ const screens = document.querySelectorAll('.screen');
 const links = document.querySelectorAll('.nav-link');
 const title = document.getElementById('screen-title');
 const toast = document.getElementById('toast');
+const debugStatus = document.getElementById('debug-status');
+const previewVersion = document.getElementById('preview-version');
 
 const titles = {
   dashboard: 'Dashboard operativo',
@@ -278,6 +280,14 @@ document.getElementById('register-event-btn').addEventListener('click', register
 document.getElementById('plc-detail-btn').addEventListener('click', () => notify('Detalle PLC simulado próximamente'));
 document.getElementById('stock-adjust-btn').addEventListener('click', adjustStock);
 document.getElementById('stock-in-btn').addEventListener('click', registerIngress);
+document.getElementById('debug-test-btn').addEventListener('click', () => {
+  debugStatus.textContent = 'JS OK, botón respondió';
+  debugStatus.className = 'debug-ok';
+  notify('JS funcionando');
+});
 
 updateFormVisibility();
 renderAll();
+debugStatus.textContent = 'JS cargado';
+debugStatus.className = 'debug-ok';
+previewVersion.textContent = 'Plant App Preview v0.3';

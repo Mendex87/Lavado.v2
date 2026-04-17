@@ -64,6 +64,7 @@ Registro paso a paso de decisiones, cambios y entregables del proyecto.
 - Ajuste posterior: se agregó `<base href="/app-preview/">` en `app-preview/index.html` para que CSS y JS carguen correctamente al servir la preview detrás de una subruta de Tailscale Serve.
 - Mejora posterior: la preview pasó de estática a interactiva con estado mock en `app-preview/app.js`, permitiendo simular apertura de proceso, avance de producción, ajuste de stock, registro de eventos y cierre de proceso.
 - Ajuste adicional: se agregaron query strings de versión en `index.html` para forzar recarga real de `app.js` y `styles.css` y evitar que el navegador siguiera usando una copia cacheada de la preview estática.
+- Se agregó una prueba visible de ejecución JavaScript en la UI (`debug-banner`) para verificar sin ambigüedad si la preview está cargando el JS correcto o si sigue sirviendo archivos viejos/cacheados.
 
 ## Convención de versionado
 - Mientras estemos definiendo arquitectura y datos, versionamos por componente.
