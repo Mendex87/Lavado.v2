@@ -23,6 +23,19 @@ Registro paso a paso de decisiones, cambios y entregables del proyecto.
   10. Se mantiene soporte futuro para sensores de humedad y snapshots de rendimiento por cantera.
 - Decisión operativa asociada: desde ahora todo cambio estructural importante se registra en este archivo.
 
+### [API v0.1]
+- Se creó `docs/api_v0_1.md` como contrato base inicial del backend.
+- Se definieron endpoints para:
+  - autenticación y sesión de operador
+  - catálogos principales
+  - apertura/cierre/cancelación de procesos
+  - sincronización de lecturas y totalizadores
+  - stock y consumo por proceso
+  - integración PLC y reset de parciales
+  - eventos, alarmas, humedad y rendimiento
+  - dashboard operativo resumido
+- Decisión de diseño: la API se organiza alrededor del `proceso`, no alrededor de CRUDs sueltos.
+
 ## Convención de versionado
 - Mientras estemos definiendo arquitectura y datos, versionamos por componente.
 - Formato inicial: `DB-SCHEMA vX.Y`.
