@@ -1,5 +1,6 @@
 from sqlalchemy.orm import Session
 from app.models.catalog import Line, Quarry, Product, Role, Shift, User
+from app.models.stock import QuarryStock
 
 
 class SeedService:
@@ -37,6 +38,23 @@ class SeedService:
                 Product(code='P4', name='Producto 4', is_active=True),
             ])
         if not self.db.query(User).first():
-            self.db.add(User(username='admin', full_name='Administrador', password_hash='change-me', is_active=True))
+            self.db.add_all([
+                User(username='admin', full_name='Administrador', password_hash='change-me', is_active=True),
+                User(username='diego', full_name='Diego', password_hash='change-me', is_active=True),
+                User(username='juan', full_name='Juan', password_hash='change-me', is_active=True),
+                User(username='eze', full_name='Eze', password_hash='change-me', is_active=True),
+            ])
+
+        self.db.flush()
+        stock_defaults = {
+            'RIO_NEGRO': 420.0,
+            'DOLAVON': 140.0,
+            'TRELEW_NORTE': 190.0,
+        }
+        for quarry in self.db.query(Quarry).all():
+            row = self.db.query(QuarryStock).filter(QuarryStock.quarry_id == quarry.id).first()
+            if not row:
+                self.db.add(QuarryStock(quarry_id=quarry.id, current_ton=stock_defaults.get(quarry.code, 0.0)))
+
         self.db.commit()
         return {'ok': True}

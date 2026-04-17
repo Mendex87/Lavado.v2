@@ -50,11 +50,17 @@ Dejar una base real de backend para empezar a reemplazar mocks por datos de base
 - los tipos JSON quedaron compatibles con SQLite en desarrollo y con JSONB en PostgreSQL
 - se habilitó CORS configurable (`BACKEND_CORS_ORIGINS`) para permitir que la preview/app de prueba consuma la API desde otro origen durante desarrollo
 
+## Avance adicional
+- la simulación ya se vincula con el proceso activo de la línea cuando existe
+- cada paso de simulación puede generar eventos persistidos en backend
+- si el proceso tiene entradas configuradas, la simulación descuenta stock y deja movimiento asociado
+- se agregó `GET /api/v1/events/recent` para alimentar la UI con eventos reales
+
 ## Próximos pasos recomendados
-1. conectar más fuerte la simulación a procesos/stock/eventos reales del backend
+1. persistir resúmenes de producción y lecturas por balanza en cada step relevante
 2. ampliar migración inicial hasta cubrir schema real relevante
 3. alinear tipos/campos ORM con restricciones faltantes del schema SQL
 4. endurecer seed inicial y valores por defecto
 5. autenticación JWT
-6. consumo real de stock y eventos persistidos desde simulación
+6. enriquecer relación stock/eventos con más detalle operativo
 7. capa de integración PLC real (snap7/opc/modbus según estrategia)

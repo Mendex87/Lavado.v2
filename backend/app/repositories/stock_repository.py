@@ -14,13 +14,21 @@ class StockRepository:
             .join(QuarryStock, QuarryStock.quarry_id == Quarry.id)
             .order_by(Quarry.name.asc())
         )
-        return list(self.db.execute(stmt).all())
+        return self.db.execute(stmt).all()
 
-    def get_last_movement(self, quarry_id: int) -> QuarryStockMovement | None:
+    def get_stock_by_quarry_id(self, quarry_id: int) -> QuarryStock | None:
+        return self.db.scalar(select(QuarryStock).where(QuarryStock.quarry_id == quarry_id))
+
+    def add_movement(self, movement: QuarryStockMovement) -> QuarryStockMovement:
+        self.db.add(movement)
+        self.db.flush()
+        self.db.refresh(movement)
+        return movement
+
+    def get_last_movement_by_quarry_id(self, quarry_id: int) -> QuarryStockMovement | None:
         stmt = (
             select(QuarryStockMovement)
             .where(QuarryStockMovement.quarry_id == quarry_id)
-            .order_by(QuarryStockMovement.created_at.desc())
-            .limit(1)
+            .order_by(QuarryStockMovement.id.desc())
         )
         return self.db.scalar(stmt)

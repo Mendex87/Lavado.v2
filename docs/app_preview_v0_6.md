@@ -28,10 +28,10 @@ La simulación quedó en una pestaña propia para que más adelante se pueda apa
 - auto simulación cada 1 segundo
 - pausa
 - reset
+- si hay proceso activo válido en la línea, el step ya genera evento backend y descuenta stock
 
 ## Pendientes naturales
 - auth real backend
-- relación fuerte entre proceso, stock y simulación
-- eventos persistidos en DB
-- consumo real de stock por simulación
+- persistencia más rica de lecturas y resúmenes de producción
+- dashboard más industrial y detallado
 - integración con PLC real

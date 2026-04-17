@@ -98,6 +98,8 @@ Registro paso a paso de decisiones, cambios y entregables del proyecto.
   - se habilitó CORS en backend para permitir pruebas de preview desde otro origen/puerto en desarrollo
   - se unificó la preview en v0.6, recuperando gestión de planta (dashboard, alta de proceso, proceso activo, stock, eventos) y dejando simulación en una pestaña separada
   - se agregó auto simulación cada 1 segundo para no depender de avance manual por click
+  - se conectó la simulación al proceso activo de la línea: ahora genera eventos backend y descuenta stock cuando el proceso tiene entradas configuradas
+  - se expuso `GET /api/v1/events/recent` para consumir eventos reales desde la UI unificada
 
 ### [RESEARCH 2026-04-17]
 - Se revisaron referencias externas de UX y arquitectura MES/industrial.

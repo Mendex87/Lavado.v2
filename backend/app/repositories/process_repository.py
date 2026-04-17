@@ -11,6 +11,10 @@ class ProcessRepository:
         stmt = select(Process).where(Process.status == 'active').order_by(Process.line_id.asc())
         return list(self.db.scalars(stmt).all())
 
+    def get_by_id(self, process_id: int) -> Process | None:
+        stmt = select(Process).where(Process.id == process_id)
+        return self.db.scalar(stmt)
+
     def get_by_code(self, code: str) -> Process | None:
         stmt = select(Process).where(Process.code == code)
         return self.db.scalar(stmt)

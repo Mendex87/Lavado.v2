@@ -306,6 +306,7 @@
             <div class="warning-box" style="margin-top:14px;">
               <strong>Estado del proyecto</strong>
               <p class="muted">Gestión principal conectada al backend actual. Login todavía en modo demo. Simulación separada para poder apagarla cuando el PLC real entre.</p>
+              <p class="muted">Ahora la simulación ya descuenta stock y genera eventos si existe un proceso activo en esa línea.</p>
             </div>
           </div>
         </div>
@@ -498,6 +499,7 @@
         'Preview v0.6 cargada',
         'Login de demo separado del auth real futuro',
       ],
+      backendEvents: [],
       autoSim: { enabled: false, timer: null, line: 1 },
     };
 
@@ -617,12 +619,18 @@
       renderActiveProcesses();
     }
 
+    async function refreshBackendEvents() {
+      state.backendEvents = await request('/events/recent');
+      renderEvents();
+      renderDashboardEvents();
+    }
+
     async function refreshAll() {
       if (!state.connectionOk) {
         const ok = await testConnection();
         if (!ok) return;
       }
-      await Promise.all([refreshProcesses(), refreshStock(), refreshSimulation(1), refreshSimulation(2)]);
+      await Promise.all([refreshProcesses(), refreshStock(), refreshSimulation(1), refreshSimulation(2), refreshBackendEvents()]);
       addEvent('Datos actualizados');
     }
 
@@ -713,10 +721,18 @@
     }
 
     function renderEvents() {
-      $('event-list').innerHTML = state.events.map(e => `<li>${e}</li>`).join('');
+      const merged = [
+        ...state.events.map(e => ({ source: 'ui', text: e })),
+        ...state.backendEvents.map(e => ({ source: 'backend', text: `${e.created_at} · ${e.process_code ? e.process_code + ' · ' : ''}${e.message}` })),
+      ].slice(0, 60);
+      $('event-list').innerHTML = merged.map(e => `<li><strong>${e.source === 'backend' ? 'BACKEND' : 'UI'}</strong><br>${e.text}</li>`).join('');
     }
     function renderDashboardEvents() {
-      $('dashboard-event-list').innerHTML = state.events.slice(0, 6).map(e => `<li>${e}</li>`).join('');
+      const merged = [
+        ...state.events.map(e => ({ source: 'ui', text: e })),
+        ...state.backendEvents.map(e => ({ source: 'backend', text: `${e.process_code ? e.process_code + ' · ' : ''}${e.message}` })),
+      ].slice(0, 6);
+      $('dashboard-event-list').innerHTML = merged.map(e => `<li><strong>${e.source === 'backend' ? 'BACKEND' : 'UI'}</strong><br>${e.text}</li>`).join('');
     }
     function renderAttention() {
       const attention = [];
