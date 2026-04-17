@@ -4,300 +4,940 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <base href="/app-preview/" />
-  <title>OpenClaudio Plant App Preview v0.5</title>
+  <title>OpenClaudio Plant App Preview v0.6</title>
   <style>
     :root {
-      --bg: #0f1723;
-      --panel: #17212f;
-      --panel-2: #1d2939;
-      --border: #2c3a4d;
-      --text: #e7eef8;
-      --muted: #98a7bb;
-      --green: #22c55e;
-      --yellow: #eab308;
-      --red: #ef4444;
-      --blue: #38bdf8;
+      --bg: #09111d;
+      --panel: #101b2b;
+      --panel-2: #162337;
+      --panel-3: #0e1623;
+      --border: #24344a;
+      --text: #e6eef8;
+      --muted: #93a4bb;
+      --blue: #4cc6ff;
+      --green: #3ddc97;
+      --yellow: #f7c948;
+      --red: #ff6b6b;
+      --shadow: 0 20px 50px rgba(0,0,0,.25);
     }
     * { box-sizing: border-box; }
-    body { margin: 0; font-family: Inter, system-ui, sans-serif; background: var(--bg); color: var(--text); }
-    .app { max-width: 1280px; margin: 0 auto; padding: 24px; }
-    .topbar, .row, .actions, .kpi-grid, .two-col { display: grid; gap: 16px; }
-    .topbar { grid-template-columns: 1.4fr 1fr; align-items: start; margin-bottom: 16px; }
+    body {
+      margin: 0;
+      font-family: Inter, Segoe UI, system-ui, sans-serif;
+      background: linear-gradient(180deg, #08111b 0%, #0d1724 100%);
+      color: var(--text);
+    }
+    .layout {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 280px 1fr;
+    }
+    .sidebar {
+      background: rgba(8, 16, 28, .95);
+      border-right: 1px solid var(--border);
+      padding: 22px;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+    }
+    .brand {
+      display: flex;
+      gap: 14px;
+      align-items: center;
+      margin-bottom: 28px;
+    }
+    .brand-mark {
+      width: 48px;
+      height: 48px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, #4cc6ff, #3ddc97);
+      color: #062032;
+      display: grid;
+      place-items: center;
+      font-weight: 900;
+      box-shadow: var(--shadow);
+    }
+    .brand h1 { margin: 0; font-size: 20px; }
+    .brand p, .muted { margin: 4px 0 0; color: var(--muted); }
+    .nav, .stack { display: grid; gap: 10px; }
+    .nav button, .btn {
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: var(--panel-3);
+      color: var(--text);
+      padding: 12px 14px;
+      cursor: pointer;
+      font-weight: 700;
+    }
+    .nav button.active, .nav button:hover, .btn.primary {
+      background: linear-gradient(135deg, rgba(76,198,255,.18), rgba(61,220,151,.12));
+      border-color: rgba(76,198,255,.5);
+    }
+    .btn.secondary { background: #243346; }
+    .btn.danger { background: rgba(255,107,107,.14); border-color: rgba(255,107,107,.4); color: #ffc0c0; }
+    .btn.success { background: rgba(61,220,151,.14); border-color: rgba(61,220,151,.4); color: #bff5dd; }
+    .btn:disabled { opacity: .55; cursor: not-allowed; }
+    .sidebar-box {
+      margin-top: 18px;
+      padding: 14px;
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      background: var(--panel);
+    }
+    .main {
+      padding: 24px;
+    }
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      align-items: center;
+      margin-bottom: 18px;
+      flex-wrap: wrap;
+    }
+    .user-chip, .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border-radius: 999px;
+      padding: 9px 12px;
+      border: 1px solid var(--border);
+      background: var(--panel);
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--green); }
+    .badge.blue { color: #a9ecff; background: rgba(76,198,255,.14); }
+    .badge.green { color: #bff5dd; background: rgba(61,220,151,.14); }
+    .badge.yellow { color: #ffe7a6; background: rgba(247,201,72,.14); }
+    .badge.red { color: #ffc0c0; background: rgba(255,107,107,.14); }
+    .screen { display: none; }
+    .screen.active { display: block; }
+    .grid { display: grid; gap: 16px; }
     .two-col { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    .kpi-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-    .card { background: var(--panel); border: 1px solid var(--border); border-radius: 18px; padding: 18px; }
-    .card h1, .card h2, .card h3, .card h4, p { margin-top: 0; }
-    .muted { color: var(--muted); }
-    .badge { display: inline-block; padding: 6px 10px; border-radius: 999px; font-size: 12px; font-weight: 700; }
-    .green { background: rgba(34,197,94,.15); color: #8ef0a5; }
-    .yellow { background: rgba(234,179,8,.15); color: #f4dd72; }
-    .red { background: rgba(239,68,68,.15); color: #ff9d9d; }
-    .blue { background: rgba(56,189,248,.15); color: #97e6ff; }
-    .form-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
-    label span { display: block; font-size: 13px; color: var(--muted); margin-bottom: 6px; }
-    input, select { width: 100%; padding: 12px; background: #0d1725; color: var(--text); border: 1px solid var(--border); border-radius: 12px; }
-    .btn { border: 0; border-radius: 12px; padding: 12px 16px; font-weight: 700; cursor: pointer; }
-    .btn.primary { background: var(--blue); color: #012030; }
-    .btn.secondary { background: #334155; color: var(--text); }
-    .btn.danger { background: var(--red); color: white; }
-    .actions { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-    .kpi { background: var(--panel-2); border: 1px solid var(--border); border-radius: 14px; padding: 12px; }
+    .three-col { grid-template-columns: 1.1fr 1fr 1fr; }
+    .four-col { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .card {
+      background: linear-gradient(180deg, rgba(19,31,49,.96), rgba(15,24,39,.98));
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 18px;
+      box-shadow: var(--shadow);
+    }
+    .card h2, .card h3, .card h4 { margin: 0 0 12px; }
+    .card-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+    }
+    .kpi-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+    .kpi {
+      background: var(--panel-2);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 14px;
+    }
     .kpi span { display: block; color: var(--muted); font-size: 12px; }
-    .kpi strong { display: block; margin-top: 6px; font-size: 20px; }
+    .kpi strong { display: block; margin-top: 8px; font-size: 22px; }
+    .stats-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+    .stats-grid label, .field span { display: block; color: var(--muted); font-size: 12px; margin-bottom: 6px; }
+    .field strong { font-size: 15px; }
+    .form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+    .form-grid.three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    label span { display: block; color: var(--muted); font-size: 12px; margin-bottom: 6px; }
+    input, select, textarea {
+      width: 100%;
+      background: #091321;
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 12px 13px;
+      font: inherit;
+    }
+    textarea { min-height: 92px; resize: vertical; }
+    .actions { display: flex; gap: 10px; flex-wrap: wrap; }
     table { width: 100%; border-collapse: collapse; }
-    th, td { text-align: left; padding: 12px; border-bottom: 1px solid var(--border); }
+    th, td { padding: 12px; border-bottom: 1px solid var(--border); text-align: left; }
     th { color: var(--muted); font-size: 12px; }
-    .log { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; max-height: 320px; overflow: auto; }
-    .log li { background: var(--panel-2); border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px; }
-    .toast { position: fixed; right: 24px; bottom: 24px; z-index: 10; background: #0b1220; border: 1px solid var(--border); border-radius: 12px; padding: 12px 16px; display: none; }
-    .small { font-size: 12px; }
-    @media (max-width: 980px) {
-      .topbar, .two-col, .kpi-grid, .form-grid, .actions { grid-template-columns: 1fr; }
+    .list, .timeline { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+    .list li, .timeline li {
+      background: var(--panel-2);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 12px 14px;
+    }
+    .split { display: flex; justify-content: space-between; gap: 12px; align-items: center; }
+    .warning-box {
+      padding: 14px;
+      border-radius: 16px;
+      border: 1px solid rgba(247,201,72,.35);
+      background: rgba(247,201,72,.08);
+    }
+    .hidden { display: none !important; }
+    .login-shell {
+      max-width: 460px;
+      margin: 7vh auto;
+      padding: 28px;
+    }
+    .login-grid { display: grid; gap: 14px; }
+    .toast {
+      position: fixed;
+      right: 22px;
+      bottom: 22px;
+      z-index: 1000;
+      background: #08111b;
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 12px 14px;
+      border-radius: 14px;
+      display: none;
+    }
+    code { color: #a9ecff; }
+    @media (max-width: 1180px) {
+      .layout { grid-template-columns: 1fr; }
+      .sidebar { height: auto; position: relative; border-right: 0; border-bottom: 1px solid var(--border); }
+      .two-col, .three-col, .four-col, .kpi-grid, .stats-grid, .form-grid, .form-grid.three { grid-template-columns: 1fr; }
     }
   </style>
 </head>
 <body>
-  <div class="app">
-    <div class="topbar">
-      <div class="card">
-        <span class="badge blue">Preview v0.5</span>
-        <h1>App de prueba operativa</h1>
-        <p class="muted">Preparada para afinar la lógica desde tu PC con simulación de toneladas por línea y backend real.</p>
-      </div>
-      <div class="card">
-        <h3>Conexión backend</h3>
-        <label>
-          <span>API base URL</span>
-          <input id="api-base" value="/api/v1" />
-        </label>
-        <div class="row" style="margin-top:12px;">
-          <button class="btn primary" id="connect-btn">Probar conexión</button>
-          <div>
-            <span id="connection-badge" class="badge yellow">Sin probar</span>
-          </div>
-        </div>
-        <p class="small muted">Si la app corre local en tu PC, puedes cambiar esto a algo como <code>http://localhost:8010/api/v1</code>.</p>
+  <div id="login-screen" class="login-shell card">
+    <div class="brand" style="margin-bottom:20px;">
+      <div class="brand-mark">OC</div>
+      <div>
+        <h1>OpenClaudio</h1>
+        <p class="muted">Gestión operativa + simulación separada</p>
       </div>
     </div>
-
-    <div class="two-col">
-      <div class="card">
-        <h2>Configuración de simulación</h2>
-        <div class="form-grid">
-          <label><span>Línea</span><select id="line"><option value="1">Línea 1</option><option value="2">Línea 2</option></select></label>
-          <label><span>TPH entrada</span><input id="tph" type="number" value="120" min="1" step="1" /></label>
-          <label><span>Avance por paso (seg)</span><input id="step-seconds" type="number" value="300" min="1" step="1" /></label>
-          <label><span>% Producto A</span><input id="pct-a" type="number" value="70" min="0" max="100" step="0.1" /></label>
-          <label><span>% Producto B</span><input id="pct-b" type="number" value="20" min="0" max="100" step="0.1" /></label>
-          <label><span>% Descarte</span><input id="pct-d" type="number" value="10" min="0" max="100" step="0.1" /></label>
-        </div>
-        <div class="actions" style="margin-top:16px;">
-          <button class="btn primary" id="start-btn">Activar simulación</button>
-          <button class="btn secondary" id="step-btn">Avanzar un paso</button>
-          <button class="btn secondary" id="refresh-btn">Actualizar estado</button>
-          <button class="btn danger" id="reset-btn">Resetear línea</button>
-        </div>
-      </div>
-
-      <div class="card">
-        <h2>Estado actual</h2>
-        <div class="kpi-grid">
-          <div class="kpi"><span>Línea</span><strong id="k-line">1</strong></div>
-          <div class="kpi"><span>Estado</span><strong id="k-running">Parada</strong></div>
-          <div class="kpi"><span>Entrada</span><strong id="k-input">0.0 t</strong></div>
-          <div class="kpi"><span>TPH</span><strong id="k-tph">120.0</strong></div>
-          <div class="kpi"><span>Producto A</span><strong id="k-a">0.0 t</strong></div>
-          <div class="kpi"><span>Producto B</span><strong id="k-b">0.0 t</strong></div>
-          <div class="kpi"><span>Descarte</span><strong id="k-d">0.0 t</strong></div>
-          <div class="kpi"><span>Split</span><strong id="k-split">70 / 20 / 10</strong></div>
-        </div>
-      </div>
-    </div>
-
-    <div class="two-col" style="margin-top:16px;">
-      <div class="card">
-        <h3>Lectura rápida para operador</h3>
-        <table>
-          <thead><tr><th>Indicador</th><th>Valor</th></tr></thead>
-          <tbody>
-            <tr><td>Entrada acumulada</td><td id="table-input">0.0 t</td></tr>
-            <tr><td>Producto A acumulado</td><td id="table-a">0.0 t</td></tr>
-            <tr><td>Producto B acumulado</td><td id="table-b">0.0 t</td></tr>
-            <tr><td>Descarte acumulado</td><td id="table-d">0.0 t</td></tr>
-          </tbody>
-        </table>
-      </div>
-      <div class="card">
-        <h3>Bitácora de prueba</h3>
-        <ul id="log-list" class="log"></ul>
+    <h2>Ingreso de operador</h2>
+    <p class="muted">Login de demo para la preview unificada. Más adelante esto se conecta al auth real del backend.</p>
+    <div class="login-grid">
+      <label>
+        <span>Usuario</span>
+        <select id="login-user">
+          <option value="diego|operador">Diego · Operador</option>
+          <option value="eze|supervisor">Eze · Supervisor</option>
+          <option value="juan|operador">Juan · Operador</option>
+        </select>
+      </label>
+      <label>
+        <span>Turno</span>
+        <select id="login-shift">
+          <option value="Turno 1">Turno 1</option>
+          <option value="Turno 2" selected>Turno 2</option>
+          <option value="Turno 3">Turno 3</option>
+        </select>
+      </label>
+      <label>
+        <span>API base URL</span>
+        <input id="api-base" value="http://localhost:8010/api/v1" />
+      </label>
+      <div class="actions">
+        <button class="btn primary" id="login-btn">Entrar a la app</button>
+        <button class="btn secondary" id="login-connect-btn">Probar API</button>
+        <span class="badge yellow" id="login-connection-badge">Sin probar</span>
       </div>
     </div>
   </div>
 
-  <div id="toast" class="toast"></div>
+  <div id="app-shell" class="layout hidden">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-mark">OC</div>
+        <div>
+          <h1>OpenClaudio</h1>
+          <p id="preview-version">Plant App Preview v0.6</p>
+        </div>
+      </div>
+      <div class="nav">
+        <button class="nav-link active" data-screen="dashboard">Dashboard</button>
+        <button class="nav-link" data-screen="new-process">Abrir proceso</button>
+        <button class="nav-link" data-screen="active-process">Proceso activo</button>
+        <button class="nav-link" data-screen="stock">Stock</button>
+        <button class="nav-link" data-screen="events">Eventos</button>
+        <button class="nav-link" data-screen="simulation">Simulación</button>
+      </div>
+      <div class="sidebar-box">
+        <strong>Módulo de simulación</strong>
+        <p class="muted">Está aislado en su propia pestaña para poder desactivarlo después sin tocar la gestión principal.</p>
+      </div>
+      <div class="sidebar-box">
+        <strong>Estado de conexión</strong>
+        <p class="muted">API: <span id="sidebar-api-label">http://localhost:8010/api/v1</span></p>
+        <div class="actions" style="margin-top:10px;">
+          <span class="badge yellow" id="sidebar-connection-badge">Sin probar</span>
+          <span class="badge blue" id="auto-sim-badge">Auto sim OFF</span>
+        </div>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div>
+          <h2 id="screen-title">Dashboard operativo</h2>
+          <p class="muted" id="screen-subtitle">Vista unificada de procesos, stock, eventos y simulación.</p>
+        </div>
+        <div class="actions">
+          <button class="btn secondary" id="refresh-all-btn">Actualizar todo</button>
+          <button class="btn secondary" id="seed-btn">Seed catálogos</button>
+          <div class="user-chip"><span class="dot"></span><span id="current-user-chip">-</span></div>
+        </div>
+      </header>
+
+      <div id="toast" class="toast"></div>
+
+      <section id="dashboard" class="screen active">
+        <div class="grid two-col">
+          <div class="card">
+            <div class="card-head"><h3>Resumen de líneas</h3><span class="badge blue">Tiempo real</span></div>
+            <div id="line-cards" class="grid"></div>
+          </div>
+          <div class="card">
+            <div class="card-head"><h3>Resumen general</h3><span class="badge green">Operativo</span></div>
+            <div class="kpi-grid">
+              <div class="kpi"><span>Procesos activos</span><strong id="summary-active-count">0</strong></div>
+              <div class="kpi"><span>Stock bajo</span><strong id="summary-low-stock">0</strong></div>
+              <div class="kpi"><span>Usuario</span><strong id="summary-user-role">-</strong></div>
+              <div class="kpi"><span>Auto simulación</span><strong id="summary-auto-sim">OFF</strong></div>
+            </div>
+            <div class="warning-box" style="margin-top:14px;">
+              <strong>Estado del proyecto</strong>
+              <p class="muted">Gestión principal conectada al backend actual. Login todavía en modo demo. Simulación separada para poder apagarla cuando el PLC real entre.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid two-col" style="margin-top:16px;">
+          <div class="card">
+            <div class="card-head"><h3>Alarmas / atención</h3><span class="badge yellow" id="attention-badge">0</span></div>
+            <ul id="attention-list" class="list"></ul>
+          </div>
+          <div class="card">
+            <div class="card-head"><h3>Eventos recientes</h3><span class="badge blue">Bitácora</span></div>
+            <ul id="dashboard-event-list" class="timeline"></ul>
+          </div>
+        </div>
+      </section>
+
+      <section id="new-process" class="screen">
+        <div class="card">
+          <div class="card-head"><h3>Abrir proceso</h3><span class="badge green">Gestión</span></div>
+          <div class="form-grid three">
+            <label>
+              <span>Línea</span>
+              <select id="form-line">
+                <option value="1">Línea 1</option>
+                <option value="2" selected>Línea 2</option>
+              </select>
+            </label>
+            <label>
+              <span>Modo</span>
+              <select id="form-mode">
+                <option value="simple">Simple</option>
+                <option value="blend">Blend</option>
+              </select>
+            </label>
+            <label>
+              <span>Salida principal</span>
+              <select id="form-main-product">
+                <option value="30/70">30/70</option>
+                <option value="50/140">50/140</option>
+                <option value="Producto 4">Producto 4</option>
+              </select>
+            </label>
+            <label>
+              <span>Cantera A</span>
+              <select id="form-quarry-a">
+                <option value="Río Negro">Río Negro</option>
+                <option value="Dolavon">Dolavon</option>
+                <option value="Trelew Norte">Trelew Norte</option>
+              </select>
+            </label>
+            <label id="form-quarry-b-wrap">
+              <span>Cantera B</span>
+              <select id="form-quarry-b">
+                <option value="Dolavon">Dolavon</option>
+                <option value="Río Negro">Río Negro</option>
+                <option value="Trelew Norte">Trelew Norte</option>
+              </select>
+            </label>
+            <label>
+              <span>Salida configurable</span>
+              <select id="form-cfg-output">
+                <option value="discard">Descarte</option>
+                <option value="product">Producto útil</option>
+              </select>
+            </label>
+            <label id="form-blend-a-wrap">
+              <span>Blend A %</span>
+              <input id="form-blend-a" type="number" value="80" min="0" max="100" />
+            </label>
+            <label id="form-blend-b-wrap">
+              <span>Blend B %</span>
+              <input id="form-blend-b" type="number" value="20" min="0" max="100" />
+            </label>
+            <label>
+              <span>Notas</span>
+              <textarea id="form-notes" placeholder="Observaciones del arranque"></textarea>
+            </label>
+          </div>
+          <div class="warning-box" style="margin-top:16px;">
+            <strong>Regla operativa</strong>
+            <p class="muted">Si cambia línea, cantera o modo, se debe cerrar el proceso actual y abrir otro. Línea 1 solo permite simple.</p>
+          </div>
+          <div class="actions" style="margin-top:16px;">
+            <button class="btn primary" id="create-process-btn">Confirmar y abrir proceso</button>
+            <button class="btn secondary" id="jump-simulation-btn">Ir a simulación</button>
+          </div>
+        </div>
+      </section>
+
+      <section id="active-process" class="screen">
+        <div class="card">
+          <div class="card-head"><h3>Procesos activos</h3><span class="badge blue" id="active-process-badge">0 activos</span></div>
+          <div id="active-process-container" class="grid"></div>
+        </div>
+      </section>
+
+      <section id="stock" class="screen">
+        <div class="card">
+          <div class="card-head"><h3>Stock de canteras</h3><span class="badge blue">Backend</span></div>
+          <table>
+            <thead>
+              <tr><th>Cantera</th><th>Toneladas</th><th>Estado</th><th>Último movimiento</th></tr>
+            </thead>
+            <tbody id="stock-table-body"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="events" class="screen">
+        <div class="card">
+          <div class="card-head"><h3>Eventos operativos</h3><span class="badge green">UI + backend</span></div>
+          <ul id="event-list" class="timeline"></ul>
+        </div>
+      </section>
+
+      <section id="simulation" class="screen">
+        <div class="grid two-col">
+          <div class="card">
+            <div class="card-head"><h3>Simulación por línea</h3><span class="badge yellow">Módulo separable</span></div>
+            <div class="form-grid three">
+              <label>
+                <span>Línea</span>
+                <select id="sim-line"><option value="1">Línea 1</option><option value="2">Línea 2</option></select>
+              </label>
+              <label>
+                <span>TPH entrada</span>
+                <input id="sim-tph" type="number" value="120" min="1" step="1" />
+              </label>
+              <label>
+                <span>Segundos por tick</span>
+                <input id="sim-step-seconds" type="number" value="1" min="1" step="1" />
+              </label>
+              <label>
+                <span>% Producto A</span>
+                <input id="sim-pct-a" type="number" value="70" min="0" max="100" step="0.1" />
+              </label>
+              <label>
+                <span>% Producto B</span>
+                <input id="sim-pct-b" type="number" value="20" min="0" max="100" step="0.1" />
+              </label>
+              <label>
+                <span>% Descarte</span>
+                <input id="sim-pct-d" type="number" value="10" min="0" max="100" step="0.1" />
+              </label>
+            </div>
+            <div class="actions" style="margin-top:16px;">
+              <button class="btn primary" id="sim-start-btn">Iniciar simulación</button>
+              <button class="btn success" id="sim-auto-btn">Auto cada 1 s</button>
+              <button class="btn secondary" id="sim-step-btn">Paso manual</button>
+              <button class="btn secondary" id="sim-stop-btn">Pausar</button>
+              <button class="btn danger" id="sim-reset-btn">Resetear</button>
+            </div>
+            <p class="muted" style="margin-top:12px;">La auto simulación solo afecta este módulo. Más adelante se apaga y la app principal sigue viva.</p>
+          </div>
+          <div class="card">
+            <div class="card-head"><h3>Estado de simulación</h3><span class="badge blue" id="sim-status-badge">Parada</span></div>
+            <div class="kpi-grid">
+              <div class="kpi"><span>Línea</span><strong id="sim-k-line">1</strong></div>
+              <div class="kpi"><span>Entrada</span><strong id="sim-k-input">0.0 t</strong></div>
+              <div class="kpi"><span>Producto A</span><strong id="sim-k-a">0.0 t</strong></div>
+              <div class="kpi"><span>Producto B</span><strong id="sim-k-b">0.0 t</strong></div>
+              <div class="kpi"><span>Descarte</span><strong id="sim-k-d">0.0 t</strong></div>
+              <div class="kpi"><span>TPH</span><strong id="sim-k-tph">120.0</strong></div>
+              <div class="kpi"><span>Split</span><strong id="sim-k-split">70 / 20 / 10</strong></div>
+              <div class="kpi"><span>Tick</span><strong id="sim-k-tick">1 s</strong></div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
 
   <script>
-    const els = {
-      apiBase: document.getElementById('api-base'),
-      line: document.getElementById('line'),
-      tph: document.getElementById('tph'),
-      stepSeconds: document.getElementById('step-seconds'),
-      pctA: document.getElementById('pct-a'),
-      pctB: document.getElementById('pct-b'),
-      pctD: document.getElementById('pct-d'),
-      connectionBadge: document.getElementById('connection-badge'),
-      toast: document.getElementById('toast'),
-      logList: document.getElementById('log-list'),
-      kLine: document.getElementById('k-line'),
-      kRunning: document.getElementById('k-running'),
-      kInput: document.getElementById('k-input'),
-      kTph: document.getElementById('k-tph'),
-      kA: document.getElementById('k-a'),
-      kB: document.getElementById('k-b'),
-      kD: document.getElementById('k-d'),
-      kSplit: document.getElementById('k-split'),
-      tableInput: document.getElementById('table-input'),
-      tableA: document.getElementById('table-a'),
-      tableB: document.getElementById('table-b'),
-      tableD: document.getElementById('table-d'),
+    const titles = {
+      dashboard: ['Dashboard operativo', 'Vista unificada de procesos, stock, eventos y simulación.'],
+      'new-process': ['Abrir proceso', 'Alta operativa con reglas de línea, modo y canteras.'],
+      'active-process': ['Proceso activo', 'Seguimiento de procesos abiertos desde backend.'],
+      stock: ['Stock', 'Lectura actual de stock de canteras desde backend.'],
+      events: ['Eventos', 'Bitácora visible de acciones y novedades de la app.'],
+      simulation: ['Simulación', 'Módulo separado para testear toneladas sin contaminar la app final.'],
     };
 
-    const state = { current: null, log: [] };
+    const state = {
+      user: null,
+      connectionOk: false,
+      activeProcesses: [],
+      stock: [],
+      simulation: {},
+      events: [
+        'Preview v0.6 cargada',
+        'Login de demo separado del auth real futuro',
+      ],
+      autoSim: { enabled: false, timer: null, line: 1 },
+    };
 
-    function api(path) {
-      return `${els.apiBase.value.replace(/\/$/, '')}${path}`;
+    const $ = id => document.getElementById(id);
+    const screens = [...document.querySelectorAll('.screen')];
+    const navLinks = [...document.querySelectorAll('.nav-link')];
+
+    function apiBase() { return $('api-base').value.replace(/\/$/, ''); }
+    function api(path) { return `${apiBase()}${path}`; }
+    function formatTon(v) { return `${Number(v || 0).toFixed(1)} t`; }
+    function formatDate(v) {
+      if (!v) return '-';
+      try { return new Date(v).toLocaleString('es-AR', { hour12: false }); } catch { return v; }
     }
-
-    function notify(message) {
-      els.toast.textContent = message;
-      els.toast.style.display = 'block';
+    function notify(msg) {
+      const toast = $('toast');
+      toast.textContent = msg;
+      toast.style.display = 'block';
       clearTimeout(notify.timer);
-      notify.timer = setTimeout(() => { els.toast.style.display = 'none'; }, 2200);
+      notify.timer = setTimeout(() => toast.style.display = 'none', 2300);
     }
-
-    function log(message) {
-      const time = new Date().toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
-      state.log.unshift(`${time} · ${message}`);
-      els.logList.innerHTML = state.log.slice(0, 12).map(item => `<li>${item}</li>`).join('');
+    function addEvent(msg) {
+      const stamp = new Date().toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
+      state.events.unshift(`${stamp} · ${msg}`);
+      renderEvents();
+      renderDashboardEvents();
     }
-
-    function formatTon(value) {
-      return `${Number(value || 0).toFixed(1)} t`;
-    }
-
-    function render(sim) {
-      state.current = sim;
-      els.kLine.textContent = sim.line;
-      els.kRunning.textContent = sim.running ? 'Activa' : 'Parada';
-      els.kInput.textContent = formatTon(sim.input_ton);
-      els.kTph.textContent = Number(sim.tph_input).toFixed(1);
-      els.kA.textContent = formatTon(sim.product_a_ton);
-      els.kB.textContent = formatTon(sim.product_b_ton);
-      els.kD.textContent = formatTon(sim.discard_ton);
-      els.kSplit.textContent = `${sim.split_product_a_pct} / ${sim.split_product_b_pct} / ${sim.split_discard_pct}`;
-      els.tableInput.textContent = formatTon(sim.input_ton);
-      els.tableA.textContent = formatTon(sim.product_a_ton);
-      els.tableB.textContent = formatTon(sim.product_b_ton);
-      els.tableD.textContent = formatTon(sim.discard_ton);
-    }
-
     async function request(path, options = {}) {
-      const res = await fetch(api(path), {
-        headers: { 'Content-Type': 'application/json' },
-        ...options,
-      });
-      if (!res.ok) {
-        const text = await res.text();
-        throw new Error(text || `HTTP ${res.status}`);
-      }
+      const res = await fetch(api(path), { headers: { 'Content-Type': 'application/json' }, ...options });
+      if (!res.ok) throw new Error(await res.text() || `HTTP ${res.status}`);
       return res.json();
     }
+    function setConnectionBadge(ok) {
+      state.connectionOk = ok;
+      const ids = ['login-connection-badge', 'sidebar-connection-badge'];
+      ids.forEach(id => {
+        const el = $(id);
+        if (!el) return;
+        el.className = `badge ${ok ? 'green' : 'red'}`;
+        el.textContent = ok ? 'Conectado' : 'Sin conexión';
+      });
+    }
+    function setAutoSimBadge() {
+      const badge = $('auto-sim-badge');
+      const summary = $('summary-auto-sim');
+      if (state.autoSim.enabled) {
+        badge.className = 'badge green';
+        badge.textContent = `Auto sim ON L${state.autoSim.line}`;
+        summary.textContent = `ON L${state.autoSim.line}`;
+      } else {
+        badge.className = 'badge blue';
+        badge.textContent = 'Auto sim OFF';
+        summary.textContent = 'OFF';
+      }
+    }
+    function screenJump(target) {
+      navLinks.forEach(btn => btn.classList.toggle('active', btn.dataset.screen === target));
+      screens.forEach(screen => screen.classList.toggle('active', screen.id === target));
+      $('screen-title').textContent = titles[target][0];
+      $('screen-subtitle').textContent = titles[target][1];
+    }
+    function currentOperator() {
+      if (!state.user) return 'Operador';
+      return state.user.name;
+    }
+    function activeProcessByLine(line) {
+      return state.activeProcesses.find(p => Number(p.line) === Number(line)) || null;
+    }
 
-    async function testConnection() {
+    async function testConnection(seed = false) {
       try {
         await request('/health');
-        els.connectionBadge.className = 'badge green';
-        els.connectionBadge.textContent = 'Conectado';
-        log('Conexión backend OK');
+        setConnectionBadge(true);
+        $('sidebar-api-label').textContent = apiBase();
+        if (seed) await runSeed();
+        addEvent('Conexión backend OK');
         notify('Backend conectado');
-        await refreshState();
+        return true;
       } catch (error) {
-        els.connectionBadge.className = 'badge red';
-        els.connectionBadge.textContent = 'Sin conexión';
-        log(`Fallo de conexión: ${error.message}`);
-        notify('No pude conectar con backend');
+        setConnectionBadge(false);
+        addEvent(`Fallo de conexión: ${error.message}`);
+        notify('No pude conectar con el backend');
+        return false;
       }
     }
 
-    async function refreshState() {
-      const line = Number(els.line.value);
-      const sim = await request(`/simulation/line/${line}`);
-      render(sim);
-      log(`Estado actualizado línea ${line}`);
+    async function runSeed() {
+      try {
+        await request('/admin/seed', { method: 'POST' });
+        addEvent('Seed de catálogos ejecutado');
+      } catch (error) {
+        addEvent(`Seed no ejecutado: ${error.message}`);
+      }
     }
 
-    function validateSplit() {
-      const total = Number(els.pctA.value) + Number(els.pctB.value) + Number(els.pctD.value);
-      if (Math.abs(total - 100) > 0.01) {
-        throw new Error('La suma de los porcentajes debe dar 100');
+    async function refreshProcesses() {
+      state.activeProcesses = await request('/processes/active');
+      $('active-process-badge').textContent = `${state.activeProcesses.length} activos`;
+      $('summary-active-count').textContent = String(state.activeProcesses.length);
+      renderLineCards();
+      renderActiveProcesses();
+      renderAttention();
+    }
+
+    async function refreshStock() {
+      state.stock = await request('/stock/quarries');
+      renderStock();
+      renderAttention();
+      $('summary-low-stock').textContent = String(state.stock.filter(s => s.status !== 'normal').length);
+    }
+
+    async function refreshSimulation(line = Number($('sim-line').value)) {
+      const data = await request(`/simulation/line/${line}`);
+      state.simulation[line] = data;
+      renderSimulation(data);
+      renderLineCards();
+      renderActiveProcesses();
+    }
+
+    async function refreshAll() {
+      if (!state.connectionOk) {
+        const ok = await testConnection();
+        if (!ok) return;
       }
+      await Promise.all([refreshProcesses(), refreshStock(), refreshSimulation(1), refreshSimulation(2)]);
+      addEvent('Datos actualizados');
+    }
+
+    function renderLineCards() {
+      const wrap = $('line-cards');
+      wrap.innerHTML = '';
+      [1, 2].forEach(line => {
+        const p = activeProcessByLine(line);
+        const sim = state.simulation[line];
+        const card = document.createElement('div');
+        card.className = 'card';
+        const status = p ? '<span class="badge green">Proceso activo</span>' : '<span class="badge yellow">Sin proceso</span>';
+        const mode = p ? (p.mode === 'blend' ? 'Blend' : 'Simple') : '-';
+        const operator = p ? p.operator : '-';
+        const input = sim ? formatTon(sim.input_ton) : '0.0 t';
+        const outA = sim ? formatTon(sim.product_a_ton) : '0.0 t';
+        const outB = sim ? formatTon(sim.product_b_ton) : '0.0 t';
+        const discard = sim ? formatTon(sim.discard_ton) : '0.0 t';
+        card.innerHTML = `
+          <div class="card-head"><h4>Línea ${line}</h4>${status}</div>
+          <div class="stats-grid">
+            <div class="field"><span>Operador</span><strong>${operator}</strong></div>
+            <div class="field"><span>Modo</span><strong>${mode}</strong></div>
+            <div class="field"><span>Proceso</span><strong>${p ? p.code : '-'}</strong></div>
+            <div class="field"><span>Inicio</span><strong>${p ? formatDate(p.started_at) : '-'}</strong></div>
+          </div>
+          <div class="kpi-grid" style="margin-top:12px;">
+            <div class="kpi"><span>Entrada</span><strong>${input}</strong></div>
+            <div class="kpi"><span>Producto A</span><strong>${outA}</strong></div>
+            <div class="kpi"><span>Producto B</span><strong>${outB}</strong></div>
+            <div class="kpi"><span>Descarte</span><strong>${discard}</strong></div>
+          </div>
+        `;
+        wrap.appendChild(card);
+      });
+    }
+
+    function renderActiveProcesses() {
+      const wrap = $('active-process-container');
+      wrap.innerHTML = '';
+      if (!state.activeProcesses.length) {
+        wrap.innerHTML = '<div class="warning-box">No hay procesos activos. Puedes abrir uno desde la pestaña correspondiente.</div>';
+        return;
+      }
+      state.activeProcesses.forEach(p => {
+        const sim = state.simulation[p.line] || {};
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.innerHTML = `
+          <div class="card-head">
+            <div>
+              <h3>${p.code}</h3>
+              <p class="muted">Línea ${p.line} · ${p.mode === 'blend' ? 'Blend' : 'Simple'} · ${p.operator}</p>
+            </div>
+            <span class="badge green">${p.status}</span>
+          </div>
+          <div class="kpi-grid">
+            <div class="kpi"><span>Entrada</span><strong>${formatTon(sim.input_ton || 0)}</strong></div>
+            <div class="kpi"><span>Prod A</span><strong>${formatTon(sim.product_a_ton || 0)}</strong></div>
+            <div class="kpi"><span>Prod B</span><strong>${formatTon(sim.product_b_ton || 0)}</strong></div>
+            <div class="kpi"><span>Descarte</span><strong>${formatTon(sim.discard_ton || 0)}</strong></div>
+          </div>
+          <div class="actions" style="margin-top:14px;">
+            <button class="btn secondary" data-open-sim="${p.line}">Abrir simulación L${p.line}</button>
+            <button class="btn danger" data-close-process="${p.code}">Cerrar proceso</button>
+          </div>
+        `;
+        wrap.appendChild(card);
+      });
+      wrap.querySelectorAll('[data-open-sim]').forEach(btn => btn.addEventListener('click', async () => {
+        $('sim-line').value = btn.dataset.openSim;
+        screenJump('simulation');
+        await refreshSimulation(Number(btn.dataset.openSim));
+      }));
+      wrap.querySelectorAll('[data-close-process]').forEach(btn => btn.addEventListener('click', () => closeProcess(btn.dataset.closeProcess)));
+    }
+
+    function renderStock() {
+      const body = $('stock-table-body');
+      body.innerHTML = '';
+      state.stock.forEach(item => {
+        const badgeClass = item.status === 'critical' ? 'red' : item.status === 'low' ? 'yellow' : 'green';
+        const label = item.status === 'critical' ? 'Crítico' : item.status === 'low' ? 'Bajo' : 'Normal';
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td>${item.quarry}</td><td>${formatTon(item.tons)}</td><td><span class="badge ${badgeClass}">${label}</span></td><td>${item.last_movement}</td>`;
+        body.appendChild(tr);
+      });
+    }
+
+    function renderEvents() {
+      $('event-list').innerHTML = state.events.map(e => `<li>${e}</li>`).join('');
+    }
+    function renderDashboardEvents() {
+      $('dashboard-event-list').innerHTML = state.events.slice(0, 6).map(e => `<li>${e}</li>`).join('');
+    }
+    function renderAttention() {
+      const attention = [];
+      state.stock.filter(s => s.status !== 'normal').forEach(s => attention.push(`Stock ${s.status === 'critical' ? 'crítico' : 'bajo'} en ${s.quarry}`));
+      [1, 2].forEach(line => {
+        if (!activeProcessByLine(line)) attention.push(`Línea ${line} sin proceso activo`);
+      });
+      $('attention-badge').textContent = String(attention.length);
+      $('attention-list').innerHTML = attention.length ? attention.map(a => `<li>${a}</li>`).join('') : '<li>Sin novedades relevantes.</li>';
+    }
+
+    function renderSimulation(sim) {
+      if (!sim) return;
+      $('sim-k-line').textContent = sim.line;
+      $('sim-k-input').textContent = formatTon(sim.input_ton);
+      $('sim-k-a').textContent = formatTon(sim.product_a_ton);
+      $('sim-k-b').textContent = formatTon(sim.product_b_ton);
+      $('sim-k-d').textContent = formatTon(sim.discard_ton);
+      $('sim-k-tph').textContent = Number(sim.tph_input || 0).toFixed(1);
+      $('sim-k-split').textContent = `${sim.split_product_a_pct} / ${sim.split_product_b_pct} / ${sim.split_discard_pct}`;
+      $('sim-k-tick').textContent = `${$('sim-step-seconds').value} s`;
+      const badge = $('sim-status-badge');
+      badge.className = `badge ${sim.running ? 'green' : 'yellow'}`;
+      badge.textContent = sim.running ? 'Activa' : 'Parada';
+    }
+
+    function updateProcessFormVisibility() {
+      const line = Number($('form-line').value);
+      const line1 = line === 1;
+      if (line1) $('form-mode').value = 'simple';
+      $('form-mode').disabled = line1;
+      const showBlend = !line1 && $('form-mode').value === 'blend';
+      $('form-quarry-b-wrap').classList.toggle('hidden', !showBlend);
+      $('form-blend-a-wrap').classList.toggle('hidden', !showBlend);
+      $('form-blend-b-wrap').classList.toggle('hidden', !showBlend);
+    }
+
+    async function createProcess() {
+      try {
+        const line = Number($('form-line').value);
+        const mode = line === 1 ? 'simple' : $('form-mode').value;
+        const inputs = [{ quarry: $('form-quarry-a').value, hopper_code: 'A' }];
+        if (mode === 'blend') {
+          const a = Number($('form-blend-a').value);
+          const b = Number($('form-blend-b').value);
+          if (Math.abs((a + b) - 100) > 0.01) throw new Error('El blend debe sumar 100%');
+          inputs[0].blend_target_pct = a;
+          inputs.push({ quarry: $('form-quarry-b').value, hopper_code: 'B', blend_target_pct: b });
+        }
+        const outputs = [
+          { product: $('form-main-product').value, classification: 'product', output_code: 'main' },
+          { product: null, classification: $('form-cfg-output').value, output_code: 'cfg' },
+        ];
+        const payload = { line, mode, operator: currentOperator(), inputs, outputs, notes: $('form-notes').value || null };
+        const created = await request('/processes', { method: 'POST', body: JSON.stringify(payload) });
+        addEvent(`Proceso ${created.code} abierto en línea ${created.line}`);
+        notify('Proceso abierto');
+        await refreshProcesses();
+        screenJump('active-process');
+      } catch (error) {
+        addEvent(`No se pudo abrir proceso: ${error.message}`);
+        notify(error.message);
+      }
+    }
+
+    async function closeProcess(code) {
+      try {
+        await request(`/processes/${code}/close`, { method: 'POST', body: JSON.stringify({ reason: 'Cierre desde preview', notes: null }) });
+        addEvent(`Proceso ${code} cerrado`);
+        notify('Proceso cerrado');
+        await refreshProcesses();
+      } catch (error) {
+        addEvent(`No se pudo cerrar ${code}: ${error.message}`);
+        notify('Falló el cierre');
+      }
+    }
+
+    function validateSimSplit() {
+      const total = Number($('sim-pct-a').value) + Number($('sim-pct-b').value) + Number($('sim-pct-d').value);
+      if (Math.abs(total - 100) > 0.01) throw new Error('La suma de porcentajes debe dar 100');
     }
 
     async function startSimulation() {
       try {
-        validateSplit();
+        validateSimSplit();
         const payload = {
-          line: Number(els.line.value),
-          tph_input: Number(els.tph.value),
-          split_product_a_pct: Number(els.pctA.value),
-          split_product_b_pct: Number(els.pctB.value),
-          split_discard_pct: Number(els.pctD.value),
+          line: Number($('sim-line').value),
+          tph_input: Number($('sim-tph').value),
+          split_product_a_pct: Number($('sim-pct-a').value),
+          split_product_b_pct: Number($('sim-pct-b').value),
+          split_discard_pct: Number($('sim-pct-d').value),
         };
         const sim = await request('/simulation/start', { method: 'POST', body: JSON.stringify(payload) });
-        render(sim);
-        log(`Simulación activada L${payload.line}, ${payload.tph_input} tn/h`);
-        notify('Simulación activada');
+        state.simulation[payload.line] = sim;
+        renderSimulation(sim);
+        renderLineCards();
+        renderActiveProcesses();
+        addEvent(`Simulación iniciada L${payload.line} a ${payload.tph_input} tn/h`);
+        notify('Simulación activa');
       } catch (error) {
-        log(`No se pudo activar: ${error.message}`);
+        addEvent(`No se pudo iniciar simulación: ${error.message}`);
         notify(error.message);
       }
     }
 
     async function stepSimulation() {
       try {
-        const payload = { line: Number(els.line.value), seconds: Number(els.stepSeconds.value) };
+        const payload = { line: Number($('sim-line').value), seconds: Number($('sim-step-seconds').value) };
         const sim = await request('/simulation/step', { method: 'POST', body: JSON.stringify(payload) });
-        render(sim);
-        log(`Avance L${payload.line}: +${payload.seconds}s`);
-        notify('Avance aplicado');
+        state.simulation[payload.line] = sim;
+        renderSimulation(sim);
+        renderLineCards();
+        renderActiveProcesses();
       } catch (error) {
-        log(`No se pudo avanzar: ${error.message}`);
-        notify('Falló el avance');
+        addEvent(`No se pudo avanzar simulación: ${error.message}`);
+        throw error;
+      }
+    }
+
+    async function stopSimulation() {
+      try {
+        const line = Number($('sim-line').value);
+        const sim = await request(`/simulation/line/${line}/stop`, { method: 'POST' });
+        state.simulation[line] = sim;
+        renderSimulation(sim);
+        addEvent(`Simulación pausada L${line}`);
+        notify('Simulación pausada');
+      } catch (error) {
+        addEvent(`No se pudo pausar simulación: ${error.message}`);
       }
     }
 
     async function resetSimulation() {
       try {
-        const line = Number(els.line.value);
+        const line = Number($('sim-line').value);
         const sim = await request(`/simulation/line/${line}/reset`, { method: 'POST' });
-        render(sim);
-        log(`Reset línea ${line}`);
-        notify('Línea reseteada');
+        state.simulation[line] = sim;
+        if (state.autoSim.enabled && state.autoSim.line === line) toggleAutoSim(false);
+        renderSimulation(sim);
+        renderLineCards();
+        renderActiveProcesses();
+        addEvent(`Simulación reseteada L${line}`);
+        notify('Simulación reseteada');
       } catch (error) {
-        log(`No se pudo resetear: ${error.message}`);
-        notify('Falló el reset');
+        addEvent(`No se pudo resetear simulación: ${error.message}`);
       }
     }
 
-    document.getElementById('connect-btn').addEventListener('click', testConnection);
-    document.getElementById('refresh-btn').addEventListener('click', refreshState);
-    document.getElementById('start-btn').addEventListener('click', startSimulation);
-    document.getElementById('step-btn').addEventListener('click', stepSimulation);
-    document.getElementById('reset-btn').addEventListener('click', resetSimulation);
-    els.line.addEventListener('change', refreshState);
+    function toggleAutoSim(force) {
+      const enable = force ?? !state.autoSim.enabled;
+      if (!enable) {
+        clearInterval(state.autoSim.timer);
+        state.autoSim.timer = null;
+        state.autoSim.enabled = false;
+        setAutoSimBadge();
+        addEvent('Auto simulación detenida');
+        notify('Auto simulación OFF');
+        return;
+      }
+      state.autoSim.line = Number($('sim-line').value);
+      state.autoSim.enabled = true;
+      clearInterval(state.autoSim.timer);
+      state.autoSim.timer = setInterval(async () => {
+        try {
+          await stepSimulation();
+        } catch {
+          toggleAutoSim(false);
+        }
+      }, 1000);
+      setAutoSimBadge();
+      addEvent(`Auto simulación activada L${state.autoSim.line}, tick cada 1 s`);
+      notify('Auto simulación ON');
+    }
 
-    log('UI cargada');
-    testConnection();
+    function loginIntoApp() {
+      const [name, role] = $('login-user').value.split('|');
+      state.user = { name: name.charAt(0).toUpperCase() + name.slice(1), role, shift: $('login-shift').value };
+      $('current-user-chip').textContent = `${state.user.name} · ${role} · ${state.user.shift}`;
+      $('summary-user-role').textContent = `${state.user.name} / ${role}`;
+      $('login-screen').classList.add('hidden');
+      $('app-shell').classList.remove('hidden');
+      screenJump('dashboard');
+      addEvent(`Ingreso a la app: ${state.user.name} (${role})`);
+      refreshAll();
+    }
+
+    navLinks.forEach(btn => btn.addEventListener('click', () => screenJump(btn.dataset.screen)));
+    $('login-connect-btn').addEventListener('click', () => testConnection(true));
+    $('login-btn').addEventListener('click', async () => {
+      const ok = await testConnection(true);
+      if (ok) loginIntoApp();
+    });
+    $('refresh-all-btn').addEventListener('click', refreshAll);
+    $('seed-btn').addEventListener('click', async () => { await runSeed(); await refreshStock(); });
+    $('form-line').addEventListener('change', updateProcessFormVisibility);
+    $('form-mode').addEventListener('change', updateProcessFormVisibility);
+    $('create-process-btn').addEventListener('click', createProcess);
+    $('jump-simulation-btn').addEventListener('click', () => screenJump('simulation'));
+    $('sim-line').addEventListener('change', async () => { await refreshSimulation(Number($('sim-line').value)); });
+    $('sim-start-btn').addEventListener('click', startSimulation);
+    $('sim-step-btn').addEventListener('click', async () => {
+      try {
+        await stepSimulation();
+        addEvent(`Paso manual de simulación L${$('sim-line').value}`);
+        notify('Paso aplicado');
+      } catch {
+        notify('No se pudo avanzar');
+      }
+    });
+    $('sim-stop-btn').addEventListener('click', async () => { toggleAutoSim(false); await stopSimulation(); });
+    $('sim-reset-btn').addEventListener('click', resetSimulation);
+    $('sim-auto-btn').addEventListener('click', async () => {
+      if (!state.simulation[Number($('sim-line').value)]?.running) await startSimulation();
+      toggleAutoSim();
+    });
+
+    updateProcessFormVisibility();
+    renderEvents();
+    renderDashboardEvents();
+    renderAttention();
+    setAutoSimBadge();
   </script>
 </body>
 </html>
