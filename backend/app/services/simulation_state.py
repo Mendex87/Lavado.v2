@@ -1,0 +1,26 @@
+simulation_state = {
+    1: {
+        'line': 1,
+        'running': False,
+        'tph_input': 120.0,
+        'split_product_a_pct': 70.0,
+        'split_product_b_pct': 20.0,
+        'split_discard_pct': 10.0,
+        'input_ton': 0.0,
+        'product_a_ton': 0.0,
+        'product_b_ton': 0.0,
+        'discard_ton': 0.0,
+    },
+    2: {
+        'line': 2,
+        'running': False,
+        'tph_input': 80.0,
+        'split_product_a_pct': 85.0,
+        'split_product_b_pct': 0.0,
+        'split_discard_pct': 15.0,
+        'input_ton': 0.0,
+        'product_a_ton': 0.0,
+        'product_b_ton': 0.0,
+        'discard_ton': 0.0,
+    },
+}

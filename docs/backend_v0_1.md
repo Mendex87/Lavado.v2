@@ -37,11 +37,17 @@ Dejar una base real de backend para empezar a reemplazar mocks por datos de base
   - `POST /api/v1/plc/publish-context`
   - `POST /api/v1/plc/reset-partials`
 - Se agregó `POST /api/v1/admin/seed` para sembrado mínimo de catálogos base en desarrollo.
+- Se agregó capa inicial de simulación operativa:
+  - `GET /api/v1/simulation/line/{line}`
+  - `POST /api/v1/simulation/start`
+  - `POST /api/v1/simulation/step`
+  - `POST /api/v1/simulation/line/{line}/stop`
+  - `POST /api/v1/simulation/line/{line}/reset`
 
 ## Próximos pasos recomendados
-1. ampliar migración inicial hasta cubrir schema real relevante
-2. alinear tipos/campos ORM con restricciones faltantes del schema SQL
-3. endurecer seed inicial y valores por defecto
-4. autenticación JWT
-5. capa de integración PLC real (snap7/opc/modbus según estrategia)
-6. reemplazar el resto de los mocks por casos de uso con DB real
+1. conectar la simulación a procesos/stock/eventos reales del backend
+2. ampliar migración inicial hasta cubrir schema real relevante
+3. alinear tipos/campos ORM con restricciones faltantes del schema SQL
+4. endurecer seed inicial y valores por defecto
+5. autenticación JWT
+6. capa de integración PLC real (snap7/opc/modbus según estrategia)
