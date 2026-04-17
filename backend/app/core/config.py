@@ -7,6 +7,7 @@ class Settings(BaseSettings):
     app_env: str = 'development'
     app_debug: bool = True
     api_v1_prefix: str = '/api/v1'
+    backend_cors_origins: str = '*'
 
     database_url: str | None = None
     postgres_server: str = 'localhost'

@@ -94,6 +94,8 @@ Registro paso a paso de decisiones, cambios y entregables del proyecto.
   - se agregó `admin/seed` para poblar catálogos mínimos de desarrollo
   - se agregó capa de simulación productiva por línea con TPH y splits configurables para testear comportamiento de planta antes de conectar PLC real
   - se dejó backend ejecutable en modo desarrollo con SQLite local para pruebas rápidas sin depender todavía de PostgreSQL levantado
+  - se rehizo la preview v0.5 para conectarla al backend real de simulación, con controles para activar, avanzar, refrescar y resetear por línea
+  - se habilitó CORS en backend para permitir pruebas de preview desde otro origen/puerto en desarrollo
 
 ### [RESEARCH 2026-04-17]
 - Se revisaron referencias externas de UX y arquitectura MES/industrial.

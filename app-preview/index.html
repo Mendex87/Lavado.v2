@@ -4,776 +4,300 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <base href="/app-preview/" />
-  <title>OpenClaudio Plant App Preview v0.4</title>
+  <title>OpenClaudio Plant App Preview v0.5</title>
   <style>
-:root {
-  --bg: #0f1723;
-  --panel: #17212f;
-  --panel-2: #1d2939;
-  --border: #2c3a4d;
-  --text: #e7eef8;
-  --muted: #98a7bb;
-  --green: #22c55e;
-  --yellow: #eab308;
-  --red: #ef4444;
-  --blue: #38bdf8;
-}
-* { box-sizing: border-box; }
-body {
-  margin: 0;
-  font-family: Inter, system-ui, sans-serif;
-  background: var(--bg);
-  color: var(--text);
-}
-.app-shell { display: grid; grid-template-columns: 260px 1fr; min-height: 100vh; }
-.sidebar {
-  background: #0b1220;
-  border-right: 1px solid var(--border);
-  padding: 20px;
-}
-.brand { display: flex; gap: 12px; align-items: center; margin-bottom: 28px; }
-.brand-mark {
-  width: 44px; height: 44px; border-radius: 12px; background: var(--blue); color: #00131f;
-  display: grid; place-items: center; font-weight: 800;
-}
-.brand h1 { margin: 0; font-size: 18px; }
-.brand p { margin: 2px 0 0; color: var(--muted); font-size: 12px; }
-nav { display: grid; gap: 10px; }
-.sidebar-box {
-  margin-top: 18px; padding: 14px; border-radius: 14px; background: var(--panel); border: 1px solid var(--border);
-}
-.sidebar-box p { color: var(--muted); font-size: 13px; margin: 8px 0 0; }
-.nav-link {
-  background: transparent; color: var(--text); border: 1px solid var(--border); border-radius: 12px;
-  padding: 12px 14px; text-align: left; cursor: pointer;
-}
-.nav-link.active, .nav-link:hover { background: var(--panel); }
-.content { padding: 24px; }
-.topbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; gap: 12px; }
-.topbar-actions { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
-.topbar h2 { margin: 0 0 4px; }
-.topbar p { margin: 0; color: var(--muted); }
-.user-chip {
-  background: var(--panel); border: 1px solid var(--border); border-radius: 999px; padding: 10px 14px;
-  display: flex; align-items: center; gap: 8px;
-}
-.dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
-.online { background: var(--green); }
-.screen { display: none; }
-.screen.active { display: block; }
-.grid { display: grid; gap: 16px; }
-.two-col { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-.card {
-  background: var(--panel);
-  border: 1px solid var(--border);
-  border-radius: 18px;
-  padding: 18px;
-}
-.card-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; gap: 12px; }
-.card h3 { margin: 0; }
-.stats-row { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 12px; margin-bottom: 14px; }
-.stats-row label, .kpi span, .mini-card p { display: block; color: var(--muted); font-size: 12px; }
-.kpi-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
-.kpi, .mini-card {
-  background: var(--panel-2); border: 1px solid var(--border); border-radius: 14px; padding: 12px;
-}
-.kpi strong { display: block; margin-top: 6px; font-size: 20px; }
-.badge {
-  padding: 6px 10px; border-radius: 999px; font-size: 12px; font-weight: 700;
-}
-.green { background: rgba(34,197,94,.15); color: #8ef0a5; }
-.yellow { background: rgba(234,179,8,.15); color: #f4dd72; }
-.red { background: rgba(239,68,68,.15); color: #ff9d9d; }
-.blue { background: rgba(56,189,248,.15); color: #97e6ff; }
-.list, .stock-list { margin: 0; padding-left: 0; list-style: none; display: grid; gap: 12px; }
-.severity { width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-right: 8px; }
-.stock-list li, .list li { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
-.warn { color: #f4dd72; }
-.bottom-gap { margin-bottom: 16px; }
-.quick-actions { display: flex; gap: 12px; flex-wrap: wrap; }
-.debug-banner {
-  display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
-  margin-bottom: 16px; padding: 14px 16px; border-radius: 14px;
-  background: rgba(56,189,248,.08); border: 1px solid rgba(56,189,248,.3);
-}
-.debug-ok { color: #8ef0a5; font-weight: 700; }
-.wizard { display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
-.wizard-step { padding: 10px 12px; border-radius: 999px; border: 1px solid var(--border); color: var(--muted); }
-.wizard-step.active { background: rgba(56,189,248,.12); color: var(--text); }
-.wizard-step.done { background: rgba(34,197,94,.12); color: var(--text); }
-.form-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 14px; margin-top: 18px; }
-label span { display: block; font-size: 13px; color: var(--muted); margin-bottom: 6px; }
-input, select {
-  width: 100%; padding: 12px; background: #0d1725; color: var(--text); border: 1px solid var(--border); border-radius: 12px;
-}
-.confirm-box { margin-top: 18px; padding: 16px; border-radius: 16px; border: 1px solid rgba(234,179,8,.35); background: rgba(234,179,8,.08); }
-.actions { display: flex; gap: 10px; flex-wrap: wrap; }
-.toast {
-  position: fixed; right: 24px; bottom: 24px; z-index: 1000; background: #0b1220; color: var(--text);
-  border: 1px solid var(--border); border-radius: 12px; padding: 12px 16px; box-shadow: 0 10px 30px rgba(0,0,0,.35);
-}
-.hidden { display: none; }
-.btn {
-  border: 0; border-radius: 12px; padding: 12px 16px; font-weight: 700; cursor: pointer;
-}
-.btn.primary { background: var(--blue); color: #012030; }
-.btn.secondary { background: #334155; color: var(--text); }
-.btn.danger { background: var(--red); color: white; }
-.action-stack { display: grid; gap: 12px; }
-.wide { width: 100%; }
-table { width: 100%; border-collapse: collapse; overflow: hidden; }
-th, td { text-align: left; padding: 12px; border-bottom: 1px solid var(--border); }
-th { color: var(--muted); font-size: 12px; }
-.timeline { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
-.timeline li { padding: 12px 14px; border-radius: 12px; background: var(--panel-2); border: 1px solid var(--border); }
-@media (max-width: 1100px) {
-  .app-shell { grid-template-columns: 1fr; }
-  .sidebar { border-right: 0; border-bottom: 1px solid var(--border); }
-  .two-col, .kpi-grid, .stats-row, .form-grid { grid-template-columns: 1fr; }
-  .debug-banner { align-items: flex-start; }
-}
-
+    :root {
+      --bg: #0f1723;
+      --panel: #17212f;
+      --panel-2: #1d2939;
+      --border: #2c3a4d;
+      --text: #e7eef8;
+      --muted: #98a7bb;
+      --green: #22c55e;
+      --yellow: #eab308;
+      --red: #ef4444;
+      --blue: #38bdf8;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: Inter, system-ui, sans-serif; background: var(--bg); color: var(--text); }
+    .app { max-width: 1280px; margin: 0 auto; padding: 24px; }
+    .topbar, .row, .actions, .kpi-grid, .two-col { display: grid; gap: 16px; }
+    .topbar { grid-template-columns: 1.4fr 1fr; align-items: start; margin-bottom: 16px; }
+    .two-col { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .kpi-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .card { background: var(--panel); border: 1px solid var(--border); border-radius: 18px; padding: 18px; }
+    .card h1, .card h2, .card h3, .card h4, p { margin-top: 0; }
+    .muted { color: var(--muted); }
+    .badge { display: inline-block; padding: 6px 10px; border-radius: 999px; font-size: 12px; font-weight: 700; }
+    .green { background: rgba(34,197,94,.15); color: #8ef0a5; }
+    .yellow { background: rgba(234,179,8,.15); color: #f4dd72; }
+    .red { background: rgba(239,68,68,.15); color: #ff9d9d; }
+    .blue { background: rgba(56,189,248,.15); color: #97e6ff; }
+    .form-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+    label span { display: block; font-size: 13px; color: var(--muted); margin-bottom: 6px; }
+    input, select { width: 100%; padding: 12px; background: #0d1725; color: var(--text); border: 1px solid var(--border); border-radius: 12px; }
+    .btn { border: 0; border-radius: 12px; padding: 12px 16px; font-weight: 700; cursor: pointer; }
+    .btn.primary { background: var(--blue); color: #012030; }
+    .btn.secondary { background: #334155; color: var(--text); }
+    .btn.danger { background: var(--red); color: white; }
+    .actions { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .kpi { background: var(--panel-2); border: 1px solid var(--border); border-radius: 14px; padding: 12px; }
+    .kpi span { display: block; color: var(--muted); font-size: 12px; }
+    .kpi strong { display: block; margin-top: 6px; font-size: 20px; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { text-align: left; padding: 12px; border-bottom: 1px solid var(--border); }
+    th { color: var(--muted); font-size: 12px; }
+    .log { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; max-height: 320px; overflow: auto; }
+    .log li { background: var(--panel-2); border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px; }
+    .toast { position: fixed; right: 24px; bottom: 24px; z-index: 10; background: #0b1220; border: 1px solid var(--border); border-radius: 12px; padding: 12px 16px; display: none; }
+    .small { font-size: 12px; }
+    @media (max-width: 980px) {
+      .topbar, .two-col, .kpi-grid, .form-grid, .actions { grid-template-columns: 1fr; }
+    }
   </style>
 </head>
 <body>
-  <div class="app-shell">
-    <aside class="sidebar">
-      <div class="brand">
-        <div class="brand-mark">OC</div>
-        <div>
-          <h1>OpenClaudio</h1>
-          <p id="preview-version">Plant App Preview v0.4</p>
+  <div class="app">
+    <div class="topbar">
+      <div class="card">
+        <span class="badge blue">Preview v0.5</span>
+        <h1>App de prueba operativa</h1>
+        <p class="muted">Preparada para afinar la lógica desde tu PC con simulación de toneladas por línea y backend real.</p>
+      </div>
+      <div class="card">
+        <h3>Conexión backend</h3>
+        <label>
+          <span>API base URL</span>
+          <input id="api-base" value="/api/v1" />
+        </label>
+        <div class="row" style="margin-top:12px;">
+          <button class="btn primary" id="connect-btn">Probar conexión</button>
+          <div>
+            <span id="connection-badge" class="badge yellow">Sin probar</span>
+          </div>
+        </div>
+        <p class="small muted">Si la app corre local en tu PC, puedes cambiar esto a algo como <code>http://localhost:8010/api/v1</code>.</p>
+      </div>
+    </div>
+
+    <div class="two-col">
+      <div class="card">
+        <h2>Configuración de simulación</h2>
+        <div class="form-grid">
+          <label><span>Línea</span><select id="line"><option value="1">Línea 1</option><option value="2">Línea 2</option></select></label>
+          <label><span>TPH entrada</span><input id="tph" type="number" value="120" min="1" step="1" /></label>
+          <label><span>Avance por paso (seg)</span><input id="step-seconds" type="number" value="300" min="1" step="1" /></label>
+          <label><span>% Producto A</span><input id="pct-a" type="number" value="70" min="0" max="100" step="0.1" /></label>
+          <label><span>% Producto B</span><input id="pct-b" type="number" value="20" min="0" max="100" step="0.1" /></label>
+          <label><span>% Descarte</span><input id="pct-d" type="number" value="10" min="0" max="100" step="0.1" /></label>
+        </div>
+        <div class="actions" style="margin-top:16px;">
+          <button class="btn primary" id="start-btn">Activar simulación</button>
+          <button class="btn secondary" id="step-btn">Avanzar un paso</button>
+          <button class="btn secondary" id="refresh-btn">Actualizar estado</button>
+          <button class="btn danger" id="reset-btn">Resetear línea</button>
         </div>
       </div>
-      <nav>
-        <button class="nav-link active" data-screen="dashboard">Inicio</button>
-        <button class="nav-link" data-screen="new-process">Abrir proceso</button>
-        <button class="nav-link" data-screen="active-process">Proceso activo</button>
-        <button class="nav-link" data-screen="stock">Stock</button>
-        <button class="nav-link" data-screen="events">Eventos</button>
-      </nav>
-      <div class="sidebar-box">
-        <strong>Simulación</strong>
-        <p>Flujo mock para testear apertura, avance y cierre de proceso.</p>
+
+      <div class="card">
+        <h2>Estado actual</h2>
+        <div class="kpi-grid">
+          <div class="kpi"><span>Línea</span><strong id="k-line">1</strong></div>
+          <div class="kpi"><span>Estado</span><strong id="k-running">Parada</strong></div>
+          <div class="kpi"><span>Entrada</span><strong id="k-input">0.0 t</strong></div>
+          <div class="kpi"><span>TPH</span><strong id="k-tph">120.0</strong></div>
+          <div class="kpi"><span>Producto A</span><strong id="k-a">0.0 t</strong></div>
+          <div class="kpi"><span>Producto B</span><strong id="k-b">0.0 t</strong></div>
+          <div class="kpi"><span>Descarte</span><strong id="k-d">0.0 t</strong></div>
+          <div class="kpi"><span>Split</span><strong id="k-split">70 / 20 / 10</strong></div>
+        </div>
       </div>
-    </aside>
+    </div>
 
-    <main class="content">
-      <header class="topbar">
-        <div>
-          <h2 id="screen-title">Dashboard operativo</h2>
-          <p>Vista previa funcional para validar operación de planta</p>
-        </div>
-        <div class="topbar-actions">
-          <button class="btn secondary" id="simulate-btn">Simular avance +5 t</button>
-          <div class="user-chip">
-            <span class="dot online"></span>
-            Eze · Supervisor
-          </div>
-        </div>
-      </header>
-
-      <div id="toast" class="toast hidden"></div>
-
-      <section id="debug-banner" class="debug-banner">
-        <strong>Estado JS:</strong>
-        <span id="debug-status">pendiente</span>
-        <button class="btn primary" id="debug-test-btn">Probar JS</button>
-      </section>
-
-      <section id="dashboard" class="screen active">
-        <div class="card bottom-gap quick-actions">
-          <button class="btn primary" data-screen-jump="new-process">Abrir nuevo proceso</button>
-          <button class="btn secondary" data-screen-jump="active-process">Ir a proceso activo</button>
-          <button class="btn secondary" data-screen-jump="stock">Ver stock</button>
-        </div>
-
-        <div class="grid two-col">
-          <div class="card">
-            <div class="card-head">
-              <h3>Línea 1</h3>
-              <span class="badge" id="l1-badge">Proceso activo</span>
-            </div>
-            <div class="stats-row">
-              <div><label>Operador</label><strong id="l1-operator">Turno A · Juan</strong></div>
-              <div><label>Modo</label><strong id="l1-mode">Simple</strong></div>
-            </div>
-            <div class="stats-row">
-              <div><label>Cantera</label><strong id="l1-quarries">Río Negro</strong></div>
-              <div><label>Producto</label><strong id="l1-product">30/70</strong></div>
-            </div>
-            <div class="kpi-grid">
-              <div class="kpi"><span>Entrada</span><strong id="l1-entry">128.0 t</strong></div>
-              <div class="kpi"><span>Salida 1</span><strong id="l1-out1">64.0 t</strong></div>
-              <div class="kpi"><span>Salida 2</span><strong id="l1-out2">32.0 t</strong></div>
-              <div class="kpi"><span>Salida 3</span><strong id="l1-out3">18.0 t</strong></div>
-            </div>
-          </div>
-
-          <div class="card">
-            <div class="card-head">
-              <h3>Línea 2</h3>
-              <span class="badge" id="l2-badge">Atención</span>
-            </div>
-            <div class="stats-row">
-              <div><label>Operador</label><strong id="l2-operator">Turno B · Diego</strong></div>
-              <div><label>Modo</label><strong id="l2-mode">Blend</strong></div>
-            </div>
-            <div class="stats-row">
-              <div><label>Canteras</label><strong id="l2-quarries">Dolavon + Río Negro</strong></div>
-              <div><label>Blend</label><strong id="l2-blend">80 / 20</strong></div>
-            </div>
-            <div class="kpi-grid">
-              <div class="kpi"><span>Tolva A</span><strong id="l2-in-a">84.0 t</strong></div>
-              <div class="kpi"><span>Tolva B real</span><strong id="l2-in-b">21.0 t</strong></div>
-              <div class="kpi"><span>Salida</span><strong id="l2-out-main">77.0 t</strong></div>
-              <div class="kpi"><span>Cfg Out</span><strong id="l2-out-cfg">8.0 t</strong></div>
-            </div>
-          </div>
-        </div>
-
-        <div class="grid two-col bottom-gap">
-          <div class="card">
-            <div class="card-head"><h3>Alarmas activas</h3><span class="badge red" id="alarm-count">2</span></div>
-            <ul class="list" id="alarm-list"></ul>
-          </div>
-          <div class="card">
-            <div class="card-head"><h3>Stock resumido</h3><span class="badge blue">Canteras</span></div>
-            <ul class="stock-list" id="stock-summary-list"></ul>
-          </div>
-        </div>
-      </section>
-
-      <section id="new-process" class="screen">
-        <div class="wizard">
-          <div class="wizard-step done">1. Línea</div>
-          <div class="wizard-step done">2. Modo</div>
-          <div class="wizard-step active">3. Canteras</div>
-          <div class="wizard-step">4. Salidas</div>
-          <div class="wizard-step">5. Confirmación</div>
-        </div>
-
-        <div class="card bottom-gap">
-          <h3>Abrir proceso guiado</h3>
-          <div class="form-grid">
-            <label>
-              <span>Línea</span>
-              <select id="form-line">
-                <option value="2">Línea 2</option>
-                <option value="1">Línea 1</option>
-              </select>
-            </label>
-            <label>
-              <span>Modo</span>
-              <select id="form-mode">
-                <option value="blend">Blend</option>
-                <option value="simple">Simple</option>
-              </select>
-            </label>
-            <label>
-              <span>Cantera A</span>
-              <select id="form-quarry-a">
-                <option value="Dolavon">Dolavon</option>
-                <option value="Río Negro">Río Negro</option>
-                <option value="Trelew Norte">Trelew Norte</option>
-              </select>
-            </label>
-            <label id="group-quarry-b">
-              <span>Cantera B</span>
-              <select id="form-quarry-b">
-                <option value="Río Negro">Río Negro</option>
-                <option value="Dolavon">Dolavon</option>
-                <option value="Trelew Norte">Trelew Norte</option>
-              </select>
-            </label>
-            <label id="group-blend-a">
-              <span>Blend A %</span>
-              <input id="form-blend-a" value="80" type="number" min="0" max="100" />
-            </label>
-            <label id="group-blend-b">
-              <span>Blend B %</span>
-              <input id="form-blend-b" value="20" type="number" min="0" max="100" />
-            </label>
-            <label>
-              <span>Salida principal</span>
-              <select id="form-main-product">
-                <option value="Producto 4">Producto 4</option>
-                <option value="30/70">30/70</option>
-                <option value="50/140">50/140</option>
-              </select>
-            </label>
-            <label>
-              <span>Salida configurable</span>
-              <select id="form-cfg-output">
-                <option value="Descarte">Descarte</option>
-                <option value="Malla gruesa">Malla gruesa</option>
-              </select>
-            </label>
-          </div>
-          <div class="confirm-box">
-            <h4>Confirmación operativa</h4>
-            <p>Esto reseteará los parciales del PLC antes de abrir el proceso.</p>
-            <div class="actions">
-              <button class="btn secondary" id="cancel-process-btn">Cancelar</button>
-              <button class="btn primary" id="confirm-process-btn">Confirmar y abrir proceso</button>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section id="active-process" class="screen">
-        <div class="card bottom-gap">
-          <div class="card-head">
-            <h3 id="process-code">Proceso PR-2026-00021</h3>
-            <span class="badge green">Activo</span>
-          </div>
-          <div class="actions bottom-gap" id="process-line-tabs"></div>
-          <div class="stats-row">
-            <div><label>Línea</label><strong id="process-line">Línea 2</strong></div>
-            <div><label>Operador</label><strong id="process-operator">Diego</strong></div>
-            <div><label>Turno</label><strong id="process-shift">Turno B</strong></div>
-            <div><label>Inicio</label><strong id="process-start">09:31</strong></div>
-          </div>
-          <div class="stats-row">
-            <div><label>Canteras</label><strong id="process-quarries">Dolavon + Río Negro</strong></div>
-            <div><label>Modo</label><strong id="process-mode">Blend</strong></div>
-            <div><label>Objetivo</label><strong id="process-target">80 / 20</strong></div>
-            <div><label>Salida cfg</label><strong id="process-cfg-output">Descarte</strong></div>
-          </div>
-        </div>
-
-        <div class="grid two-col">
-          <div class="card">
-            <h3>Producción en vivo</h3>
-            <table>
-              <thead><tr><th>Balanza</th><th>Parcial</th><th>Totalizador</th></tr></thead>
-              <tbody id="live-table-body"></tbody>
-            </table>
-          </div>
-          <div class="card">
-            <h3>Acciones</h3>
-            <div class="action-stack">
-              <button class="btn primary wide" id="register-event-btn">Registrar evento</button>
-              <button class="btn secondary wide" id="plc-detail-btn">Ver detalle PLC</button>
-              <button class="btn danger wide" id="close-process-btn">Cerrar proceso</button>
-            </div>
-            <div class="mini-card">
-              <strong>Humedad estimada</strong>
-              <p id="humidity-value">Producto 4, 7.4%</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section id="stock" class="screen">
-        <div class="card bottom-gap">
-          <div class="card-head">
-            <h3>Stock de canteras</h3>
-            <div class="actions">
-              <button class="btn secondary" id="stock-in-btn">Registrar ingreso</button>
-              <button class="btn primary" id="stock-adjust-btn">Ajustar stock</button>
-            </div>
-          </div>
-          <table>
-            <thead>
-              <tr>
-                <th>Cantera</th>
-                <th>Stock actual</th>
-                <th>Último movimiento</th>
-                <th>Estado</th>
-              </tr>
-            </thead>
-            <tbody id="stock-table-body"></tbody>
-          </table>
-        </div>
-      </section>
-
-      <section id="events" class="screen">
-        <div class="card bottom-gap">
-          <div class="card-head">
-            <h3>Eventos simulados</h3>
-            <span class="badge blue">Mock</span>
-          </div>
-          <ul class="timeline" id="event-list"></ul>
-        </div>
-      </section>
-    </main>
+    <div class="two-col" style="margin-top:16px;">
+      <div class="card">
+        <h3>Lectura rápida para operador</h3>
+        <table>
+          <thead><tr><th>Indicador</th><th>Valor</th></tr></thead>
+          <tbody>
+            <tr><td>Entrada acumulada</td><td id="table-input">0.0 t</td></tr>
+            <tr><td>Producto A acumulado</td><td id="table-a">0.0 t</td></tr>
+            <tr><td>Producto B acumulado</td><td id="table-b">0.0 t</td></tr>
+            <tr><td>Descarte acumulado</td><td id="table-d">0.0 t</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="card">
+        <h3>Bitácora de prueba</h3>
+        <ul id="log-list" class="log"></ul>
+      </div>
+    </div>
   </div>
+
+  <div id="toast" class="toast"></div>
+
   <script>
-const screens = document.querySelectorAll('.screen');
-const links = document.querySelectorAll('.nav-link');
-const title = document.getElementById('screen-title');
-const toast = document.getElementById('toast');
-const debugStatus = document.getElementById('debug-status');
-const previewVersion = document.getElementById('preview-version');
+    const els = {
+      apiBase: document.getElementById('api-base'),
+      line: document.getElementById('line'),
+      tph: document.getElementById('tph'),
+      stepSeconds: document.getElementById('step-seconds'),
+      pctA: document.getElementById('pct-a'),
+      pctB: document.getElementById('pct-b'),
+      pctD: document.getElementById('pct-d'),
+      connectionBadge: document.getElementById('connection-badge'),
+      toast: document.getElementById('toast'),
+      logList: document.getElementById('log-list'),
+      kLine: document.getElementById('k-line'),
+      kRunning: document.getElementById('k-running'),
+      kInput: document.getElementById('k-input'),
+      kTph: document.getElementById('k-tph'),
+      kA: document.getElementById('k-a'),
+      kB: document.getElementById('k-b'),
+      kD: document.getElementById('k-d'),
+      kSplit: document.getElementById('k-split'),
+      tableInput: document.getElementById('table-input'),
+      tableA: document.getElementById('table-a'),
+      tableB: document.getElementById('table-b'),
+      tableD: document.getElementById('table-d'),
+    };
 
-const titles = {
-  dashboard: 'Dashboard operativo',
-  'new-process': 'Abrir proceso',
-  'active-process': 'Proceso activo',
-  stock: 'Stock de canteras',
-  events: 'Eventos simulados'
-};
+    const state = { current: null, log: [] };
 
-const state = {
-  operator: 'Diego',
-  shift: 'Turno B',
-  nextProcessNumber: 22,
-  activeProcesses: {
-    1: {
-      code: 'PR-2026-00019',
-      line: 1,
-      mode: 'simple',
-      quarries: ['Río Negro'],
-      blendA: null,
-      blendB: null,
-      mainProduct: '30/70',
-      cfgOutput: 'Producto 2',
-      startedAt: '08:10',
-      humidity: 6.8,
-      readings: [
-        { label: 'Entrada', partial: 128.0, totalizer: 8410.0 },
-        { label: 'Salida 1', partial: 64.0, totalizer: 4210.0 },
-        { label: 'Salida 2', partial: 32.0, totalizer: 2740.0 },
-        { label: 'Salida 3', partial: 18.0, totalizer: 1130.0 },
-      ],
-    },
-    2: {
-      code: 'PR-2026-00021',
-      line: 2,
-      mode: 'blend',
-      quarries: ['Dolavon', 'Río Negro'],
-      blendA: 80,
-      blendB: 20,
-      mainProduct: 'Producto 4',
-      cfgOutput: 'Descarte',
-      startedAt: '09:31',
-      humidity: 7.4,
-      readings: [
-        { label: 'Tolva A', partial: 84.0, totalizer: 12484.0 },
-        { label: 'Tolva B real', partial: 21.0, totalizer: 6812.0 },
-        { label: 'Salida principal', partial: 77.0, totalizer: 19304.0 },
-        { label: 'Cfg Out', partial: 8.0, totalizer: 2115.0 },
-      ],
+    function api(path) {
+      return `${els.apiBase.value.replace(/\/$/, '')}${path}`;
     }
-  },
-  selectedProcessLine: 2,
-  stock: [
-    { name: 'Río Negro', tons: 420.0, lastMovement: 'Consumo proceso PR-2026-00019' },
-    { name: 'Dolavon', tons: 75.0, lastMovement: 'Ajuste manual AJ-2026-0003' },
-    { name: 'Trelew Norte', tons: 190.0, lastMovement: 'Ingreso camión ING-2026-0021' },
-  ],
-  alarms: [
-    'L2, aviso sin proceso válido hace 3 min',
-    'Stock bajo en cantera Dolavon',
-  ],
-  events: [
-    '09:31 · Proceso PR-2026-00021 iniciado en Línea 2',
-    '09:32 · Reset de parciales confirmado por operador',
-    '10:05 · Stock Dolavon marcado como bajo',
-  ]
-};
 
-function formatTon(v) { return `${v.toFixed(1)} t`; }
-function activeProcess(line) { return state.activeProcesses[line] || null; }
-function screenJump(target) {
-  links.forEach(l => l.classList.toggle('active', l.dataset.screen === target));
-  screens.forEach(screen => screen.classList.toggle('active', screen.id === target));
-  title.textContent = titles[target] || 'Vista previa';
-}
-function notify(msg) {
-  toast.textContent = msg;
-  toast.classList.remove('hidden');
-  clearTimeout(notify.timer);
-  notify.timer = setTimeout(() => toast.classList.add('hidden'), 2200);
-}
-function nowText() {
-  return new Date().toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit', hour12: false });
-}
-
-links.forEach(link => link.addEventListener('click', () => screenJump(link.dataset.screen)));
-document.querySelectorAll('[data-screen-jump]').forEach(btn => btn.addEventListener('click', () => screenJump(btn.dataset.screenJump)));
-
-function renderLineCard(line) {
-  const p = activeProcess(line);
-  if (!p) return;
-  const prefix = `l${line}`;
-  document.getElementById(`${prefix}-badge`).className = 'badge green';
-  document.getElementById(`${prefix}-badge`).textContent = 'Proceso activo';
-  document.getElementById(`${prefix}-operator`).textContent = `${state.shift} · ${state.operator}`;
-  document.getElementById(`${prefix}-mode`).textContent = p.mode === 'blend' ? 'Blend' : 'Simple';
-  document.getElementById(`${prefix}-quarries`).textContent = p.quarries.join(' + ');
-  if (line === 1) {
-    document.getElementById('l1-product').textContent = p.mainProduct;
-    document.getElementById('l1-entry').textContent = formatTon(p.readings[0].partial);
-    document.getElementById('l1-out1').textContent = formatTon(p.readings[1].partial);
-    document.getElementById('l1-out2').textContent = formatTon(p.readings[2].partial);
-    document.getElementById('l1-out3').textContent = formatTon(p.readings[3].partial);
-  } else {
-    document.getElementById('l2-blend').textContent = p.mode === 'blend' ? `${p.blendA} / ${p.blendB}` : 'Simple';
-    document.getElementById('l2-in-a').textContent = formatTon(p.readings[0].partial);
-    document.getElementById('l2-in-b').textContent = formatTon(p.readings[1].partial);
-    document.getElementById('l2-out-main').textContent = formatTon(p.readings[2].partial);
-    document.getElementById('l2-out-cfg').textContent = formatTon(p.readings[3].partial);
-  }
-}
-
-function renderDashboard() {
-  renderLineCard(1);
-  renderLineCard(2);
-
-  const alarmList = document.getElementById('alarm-list');
-  alarmList.innerHTML = '';
-  state.alarms.forEach((alarm, idx) => {
-    const li = document.createElement('li');
-    li.innerHTML = `<span><span class="severity ${idx === 0 ? 'red' : 'yellow'}"></span>${alarm}</span>`;
-    alarmList.appendChild(li);
-  });
-  document.getElementById('alarm-count').textContent = String(state.alarms.length);
-
-  const stockSummary = document.getElementById('stock-summary-list');
-  stockSummary.innerHTML = '';
-  state.stock.forEach(s => {
-    const li = document.createElement('li');
-    const klass = s.tons <= 80 ? 'warn' : '';
-    li.innerHTML = `<span>${s.name}</span><strong class="${klass}">${formatTon(s.tons)}</strong>`;
-    stockSummary.appendChild(li);
-  });
-}
-
-function renderProcessTabs() {
-  const wrap = document.getElementById('process-line-tabs');
-  if (!wrap) return;
-  wrap.innerHTML = '';
-  [1, 2].forEach(line => {
-    if (!activeProcess(line)) return;
-    const btn = document.createElement('button');
-    btn.className = `btn ${state.selectedProcessLine === line ? 'primary' : 'secondary'}`;
-    btn.textContent = `Línea ${line}`;
-    btn.addEventListener('click', () => {
-      state.selectedProcessLine = line;
-      renderProcess();
-    });
-    wrap.appendChild(btn);
-  });
-}
-
-function renderProcess() {
-  renderProcessTabs();
-  const p = activeProcess(state.selectedProcessLine) || activeProcess(1) || activeProcess(2);
-  if (!p) return;
-  state.selectedProcessLine = p.line;
-  document.getElementById('process-code').textContent = `Proceso ${p.code}`;
-  document.getElementById('process-line').textContent = `Línea ${p.line}`;
-  document.getElementById('process-operator').textContent = state.operator;
-  document.getElementById('process-shift').textContent = state.shift;
-  document.getElementById('process-start').textContent = p.startedAt;
-  document.getElementById('process-quarries').textContent = p.quarries.join(' + ');
-  document.getElementById('process-mode').textContent = p.mode === 'blend' ? 'Blend' : 'Simple';
-  document.getElementById('process-target').textContent = p.mode === 'blend' ? `${p.blendA} / ${p.blendB}` : 'Simple';
-  document.getElementById('process-cfg-output').textContent = p.cfgOutput;
-  document.getElementById('humidity-value').textContent = `${p.mainProduct}, ${p.humidity.toFixed(1)}%`;
-
-  const body = document.getElementById('live-table-body');
-  body.innerHTML = '';
-  p.readings.forEach(r => {
-    const tr = document.createElement('tr');
-    tr.innerHTML = `<td>${r.label}</td><td>${formatTon(r.partial)}</td><td>${formatTon(r.totalizer)}</td>`;
-    body.appendChild(tr);
-  });
-}
-
-function renderStock() {
-  const body = document.getElementById('stock-table-body');
-  body.innerHTML = '';
-  state.stock.forEach(s => {
-    let badge = '<span class="badge blue">OK</span>';
-    if (s.tons <= 80) badge = '<span class="badge yellow">Bajo</span>';
-    if (s.tons <= 40) badge = '<span class="badge red">Crítico</span>';
-    const tr = document.createElement('tr');
-    tr.innerHTML = `<td>${s.name}</td><td>${formatTon(s.tons)}</td><td>${s.lastMovement}</td><td>${badge}</td>`;
-    body.appendChild(tr);
-  });
-}
-
-function renderEvents() {
-  const list = document.getElementById('event-list');
-  list.innerHTML = '';
-  [...state.events].reverse().forEach(e => {
-    const li = document.createElement('li');
-    li.textContent = e;
-    list.appendChild(li);
-  });
-}
-
-function renderAll() {
-  renderDashboard();
-  renderProcess();
-  renderStock();
-  renderEvents();
-}
-
-function updateFormVisibility() {
-  const mode = document.getElementById('form-mode').value;
-  const line = document.getElementById('form-line').value;
-  const showBlend = line === '2' && mode === 'blend';
-  const line1 = line === '1';
-
-  document.getElementById('form-mode').disabled = line1;
-  if (line1) document.getElementById('form-mode').value = 'simple';
-
-  ['group-quarry-b','group-blend-a','group-blend-b'].forEach(id => {
-    document.getElementById(id).style.display = showBlend ? '' : 'none';
-  });
-}
-
-function openProcess() {
-  const line = Number(document.getElementById('form-line').value);
-  if (activeProcess(line)) {
-    notify(`La Línea ${line} ya tiene un proceso activo`);
-    return;
-  }
-
-  const mode = line === 1 ? 'simple' : document.getElementById('form-mode').value;
-  const qa = document.getElementById('form-quarry-a').value;
-  const qb = document.getElementById('form-quarry-b').value;
-  const mainProduct = document.getElementById('form-main-product').value;
-  const cfgOutput = document.getElementById('form-cfg-output').value;
-  const blendA = Number(document.getElementById('form-blend-a').value || 100);
-  const blendB = Number(document.getElementById('form-blend-b').value || 0);
-  const startedAt = nowText();
-
-  state.activeProcesses[line] = {
-    code: `PR-2026-${String(state.nextProcessNumber++).padStart(5,'0')}`,
-    line,
-    mode,
-    quarries: mode === 'blend' ? [qa, qb] : [qa],
-    blendA: mode === 'blend' ? blendA : null,
-    blendB: mode === 'blend' ? blendB : null,
-    mainProduct,
-    cfgOutput,
-    startedAt,
-    humidity: 7.4,
-    readings: line === 2 ? [
-      { label: 'Tolva A', partial: 0.0, totalizer: 12484.0 },
-      { label: mode === 'blend' ? 'Tolva B real' : 'Entrada', partial: 0.0, totalizer: 6812.0 },
-      { label: 'Salida principal', partial: 0.0, totalizer: 19304.0 },
-      { label: 'Cfg Out', partial: 0.0, totalizer: 2115.0 },
-    ] : [
-      { label: 'Entrada', partial: 0.0, totalizer: 8410.0 },
-      { label: 'Salida 1', partial: 0.0, totalizer: 4210.0 },
-      { label: 'Salida 2', partial: 0.0, totalizer: 2740.0 },
-      { label: 'Salida 3', partial: 0.0, totalizer: 1130.0 },
-    ],
-  };
-
-  state.selectedProcessLine = line;
-  state.events.push(`${startedAt} · Proceso ${state.activeProcesses[line].code} iniciado en Línea ${line}`);
-  state.events.push(`${startedAt} · Reset de parciales confirmado por operador`);
-  renderAll();
-  screenJump('active-process');
-  notify('Proceso simulado abierto');
-}
-
-function simulateAdvance() {
-  const p = activeProcess(state.selectedProcessLine) || activeProcess(1) || activeProcess(2);
-  if (!p) return;
-
-  const delta = 5;
-  if (p.line === 2) {
-    p.readings[0].partial += p.mode === 'blend' ? 4 : 5;
-    p.readings[0].totalizer += p.mode === 'blend' ? 4 : 5;
-    p.readings[1].partial += p.mode === 'blend' ? 1 : 0;
-    p.readings[1].totalizer += p.mode === 'blend' ? 1 : 0;
-    p.readings[2].partial += 3.8;
-    p.readings[2].totalizer += 3.8;
-    p.readings[3].partial += 0.4;
-    p.readings[3].totalizer += 0.4;
-    const quarryA = state.stock.find(s => s.name === p.quarries[0]);
-    if (quarryA) { quarryA.tons = Math.max(0, quarryA.tons - (p.mode === 'blend' ? 4 : 5)); quarryA.lastMovement = `Consumo proceso ${p.code}`; }
-    if (p.mode === 'blend') {
-      const quarryB = state.stock.find(s => s.name === p.quarries[1]);
-      if (quarryB) { quarryB.tons = Math.max(0, quarryB.tons - 1); quarryB.lastMovement = `Consumo proceso ${p.code}`; }
+    function notify(message) {
+      els.toast.textContent = message;
+      els.toast.style.display = 'block';
+      clearTimeout(notify.timer);
+      notify.timer = setTimeout(() => { els.toast.style.display = 'none'; }, 2200);
     }
-  } else {
-    p.readings[0].partial += delta;
-    p.readings[0].totalizer += delta;
-    p.readings[1].partial += 2.5;
-    p.readings[1].totalizer += 2.5;
-    p.readings[2].partial += 1.5;
-    p.readings[2].totalizer += 1.5;
-    p.readings[3].partial += 0.7;
-    p.readings[3].totalizer += 0.7;
-    const quarry = state.stock.find(s => s.name === p.quarries[0]);
-    if (quarry) { quarry.tons = Math.max(0, quarry.tons - delta); quarry.lastMovement = `Consumo proceso ${p.code}`; }
-  }
-  state.events.push(`${nowText()} · Simulación de avance en ${p.code} (+5 t)`);
-  if (state.stock.some(s => s.name === 'Dolavon' && s.tons <= 80) && !state.alarms.includes('Stock bajo en cantera Dolavon')) {
-    state.alarms.push('Stock bajo en cantera Dolavon');
-  }
-  renderAll();
-  notify('Producción simulada actualizada');
-}
 
-function closeProcess() {
-  const p = activeProcess(state.selectedProcessLine) || activeProcess(1) || activeProcess(2);
-  if (!p) return;
-  state.events.push(`${nowText()} · Proceso ${p.code} cerrado por operador`);
-  delete state.activeProcesses[p.line];
-  state.selectedProcessLine = activeProcess(1) ? 1 : 2;
-  notify('Proceso simulado cerrado');
-  screenJump('dashboard');
-  renderAll();
-}
+    function log(message) {
+      const time = new Date().toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
+      state.log.unshift(`${time} · ${message}`);
+      els.logList.innerHTML = state.log.slice(0, 12).map(item => `<li>${item}</li>`).join('');
+    }
 
-function registerEvent() {
-  const p = activeProcess(state.selectedProcessLine) || activeProcess(1) || activeProcess(2);
-  if (!p) return;
-  state.events.push(`${nowText()} · Evento manual registrado en ${p.code}`);
-  renderEvents();
-  notify('Evento manual simulado');
-}
+    function formatTon(value) {
+      return `${Number(value || 0).toFixed(1)} t`;
+    }
 
-function adjustStock() {
-  const quarry = state.stock.find(s => s.name === 'Dolavon');
-  quarry.tons += 25;
-  quarry.lastMovement = 'Ajuste manual AJ-MOCK-0001';
-  state.events.push(`${nowText()} · Ajuste de stock manual sobre Dolavon (+25 t)`);
-  state.alarms = state.alarms.filter(a => a !== 'Stock bajo en cantera Dolavon');
-  renderAll();
-  notify('Stock ajustado en simulación');
-}
+    function render(sim) {
+      state.current = sim;
+      els.kLine.textContent = sim.line;
+      els.kRunning.textContent = sim.running ? 'Activa' : 'Parada';
+      els.kInput.textContent = formatTon(sim.input_ton);
+      els.kTph.textContent = Number(sim.tph_input).toFixed(1);
+      els.kA.textContent = formatTon(sim.product_a_ton);
+      els.kB.textContent = formatTon(sim.product_b_ton);
+      els.kD.textContent = formatTon(sim.discard_ton);
+      els.kSplit.textContent = `${sim.split_product_a_pct} / ${sim.split_product_b_pct} / ${sim.split_discard_pct}`;
+      els.tableInput.textContent = formatTon(sim.input_ton);
+      els.tableA.textContent = formatTon(sim.product_a_ton);
+      els.tableB.textContent = formatTon(sim.product_b_ton);
+      els.tableD.textContent = formatTon(sim.discard_ton);
+    }
 
-function registerIngress() {
-  const quarry = state.stock.find(s => s.name === 'Trelew Norte');
-  quarry.tons += 40;
-  quarry.lastMovement = 'Ingreso camión ING-MOCK-0007';
-  state.events.push(`${nowText()} · Ingreso manual simulado en Trelew Norte (+40 t)`);
-  renderAll();
-  notify('Ingreso simulado registrado');
-}
+    async function request(path, options = {}) {
+      const res = await fetch(api(path), {
+        headers: { 'Content-Type': 'application/json' },
+        ...options,
+      });
+      if (!res.ok) {
+        const text = await res.text();
+        throw new Error(text || `HTTP ${res.status}`);
+      }
+      return res.json();
+    }
 
-document.getElementById('form-line').addEventListener('change', updateFormVisibility);
-document.getElementById('form-mode').addEventListener('change', updateFormVisibility);
-document.getElementById('confirm-process-btn').addEventListener('click', openProcess);
-document.getElementById('cancel-process-btn').addEventListener('click', () => { screenJump('dashboard'); notify('Apertura cancelada'); });
-document.getElementById('simulate-btn').addEventListener('click', simulateAdvance);
-document.getElementById('close-process-btn').addEventListener('click', closeProcess);
-document.getElementById('register-event-btn').addEventListener('click', registerEvent);
-document.getElementById('plc-detail-btn').addEventListener('click', () => notify('Detalle PLC simulado próximamente'));
-document.getElementById('stock-adjust-btn').addEventListener('click', adjustStock);
-document.getElementById('stock-in-btn').addEventListener('click', registerIngress);
-document.getElementById('debug-test-btn').addEventListener('click', () => {
-  debugStatus.textContent = 'JS OK, botón respondió';
-  debugStatus.className = 'debug-ok';
-  notify('JS funcionando');
-});
+    async function testConnection() {
+      try {
+        await request('/health');
+        els.connectionBadge.className = 'badge green';
+        els.connectionBadge.textContent = 'Conectado';
+        log('Conexión backend OK');
+        notify('Backend conectado');
+        await refreshState();
+      } catch (error) {
+        els.connectionBadge.className = 'badge red';
+        els.connectionBadge.textContent = 'Sin conexión';
+        log(`Fallo de conexión: ${error.message}`);
+        notify('No pude conectar con backend');
+      }
+    }
 
-updateFormVisibility();
-renderAll();
-debugStatus.textContent = 'JS cargado';
-debugStatus.className = 'debug-ok';
-previewVersion.textContent = 'Plant App Preview v0.4';
+    async function refreshState() {
+      const line = Number(els.line.value);
+      const sim = await request(`/simulation/line/${line}`);
+      render(sim);
+      log(`Estado actualizado línea ${line}`);
+    }
+
+    function validateSplit() {
+      const total = Number(els.pctA.value) + Number(els.pctB.value) + Number(els.pctD.value);
+      if (Math.abs(total - 100) > 0.01) {
+        throw new Error('La suma de los porcentajes debe dar 100');
+      }
+    }
+
+    async function startSimulation() {
+      try {
+        validateSplit();
+        const payload = {
+          line: Number(els.line.value),
+          tph_input: Number(els.tph.value),
+          split_product_a_pct: Number(els.pctA.value),
+          split_product_b_pct: Number(els.pctB.value),
+          split_discard_pct: Number(els.pctD.value),
+        };
+        const sim = await request('/simulation/start', { method: 'POST', body: JSON.stringify(payload) });
+        render(sim);
+        log(`Simulación activada L${payload.line}, ${payload.tph_input} tn/h`);
+        notify('Simulación activada');
+      } catch (error) {
+        log(`No se pudo activar: ${error.message}`);
+        notify(error.message);
+      }
+    }
+
+    async function stepSimulation() {
+      try {
+        const payload = { line: Number(els.line.value), seconds: Number(els.stepSeconds.value) };
+        const sim = await request('/simulation/step', { method: 'POST', body: JSON.stringify(payload) });
+        render(sim);
+        log(`Avance L${payload.line}: +${payload.seconds}s`);
+        notify('Avance aplicado');
+      } catch (error) {
+        log(`No se pudo avanzar: ${error.message}`);
+        notify('Falló el avance');
+      }
+    }
+
+    async function resetSimulation() {
+      try {
+        const line = Number(els.line.value);
+        const sim = await request(`/simulation/line/${line}/reset`, { method: 'POST' });
+        render(sim);
+        log(`Reset línea ${line}`);
+        notify('Línea reseteada');
+      } catch (error) {
+        log(`No se pudo resetear: ${error.message}`);
+        notify('Falló el reset');
+      }
+    }
+
+    document.getElementById('connect-btn').addEventListener('click', testConnection);
+    document.getElementById('refresh-btn').addEventListener('click', refreshState);
+    document.getElementById('start-btn').addEventListener('click', startSimulation);
+    document.getElementById('step-btn').addEventListener('click', stepSimulation);
+    document.getElementById('reset-btn').addEventListener('click', resetSimulation);
+    els.line.addEventListener('change', refreshState);
+
+    log('UI cargada');
+    testConnection();
   </script>
 </body>
 </html>

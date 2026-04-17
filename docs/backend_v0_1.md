@@ -48,6 +48,7 @@ Dejar una base real de backend para empezar a reemplazar mocks por datos de base
 - se habilitó modo de desarrollo simple usando `SQLite` local cuando no se define `DATABASE_URL`
 - esto permite levantar backend y probar endpoints sin depender todavía de PostgreSQL
 - los tipos JSON quedaron compatibles con SQLite en desarrollo y con JSONB en PostgreSQL
+- se habilitó CORS configurable (`BACKEND_CORS_ORIGINS`) para permitir que la preview/app de prueba consuma la API desde otro origen durante desarrollo
 
 ## Próximos pasos recomendados
 1. conectar la simulación a procesos/stock/eventos reales del backend
