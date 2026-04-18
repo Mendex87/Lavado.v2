@@ -176,6 +176,9 @@ Registro paso a paso de decisiones, cambios y entregables del proyecto.
 - Corrección de conexión API en móvil (preview v2.1):
   - `API base URL` por defecto ahora usa `/plant-api` (ruta real detrás del proxy)
   - autocorrección de API base en prueba de conexión cuando detecta ruta inválida
+- Ajuste visual rápido (preview v2.2):
+  - paleta revertida al esquema azul original previo al experimento arena
+  - se conserva la simplificación de UI (sin modo simulación) y la corrección de API móvil
 
 ### [GITHUB PREP 2026-04-17]
 - Se creó `.gitignore` en raíz para separar código del proyecto vs archivos personales/operativos del workspace OpenClaw.

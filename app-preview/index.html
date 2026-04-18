@@ -4,29 +4,29 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <base href="/app-preview/" />
-  <title>Prosil - Lavado | Plant App Preview v2.1</title>
+  <title>Prosil - Lavado | Plant App Preview v2.2</title>
   <style>
     :root {
-      --bg: #1f1a13;
-      --bg-2: #2a2218;
-      --panel: #2d2419;
-      --panel-2: #3a2e21;
-      --panel-3: #473827;
-      --border: #5a4730;
-      --text: #f5efe6;
-      --muted: #c9b9a2;
-      --blue: #55bfe8;
-      --green: #66c89f;
-      --yellow: #e8b56b;
-      --red: #e88484;
-      --cyan: #89dbf5;
+      --bg: #07101a;
+      --bg-2: #0b1624;
+      --panel: #101c2c;
+      --panel-2: #16263a;
+      --panel-3: #1a3049;
+      --border: #28415e;
+      --text: #e8f1fb;
+      --muted: #96abc4;
+      --blue: #53c7ff;
+      --green: #39d98a;
+      --yellow: #ffca5c;
+      --red: #ff7d7d;
+      --cyan: #7be7ff;
       --shadow: 0 18px 40px rgba(0, 0, 0, .28);
     }
     * { box-sizing: border-box; }
     body {
       margin: 0;
       font-family: Inter, Segoe UI, system-ui, sans-serif;
-      background: radial-gradient(circle at top, #3b2f22 0%, var(--bg) 55%);
+      background: radial-gradient(circle at top, #0d1b2b 0%, var(--bg) 52%);
       color: var(--text);
     }
     .hidden { display: none !important; }
@@ -69,7 +69,7 @@
     input, select, textarea {
       width: 100%;
       border: 1px solid var(--border);
-      background: #221b13;
+      background: #091321;
       color: var(--text);
       border-radius: 14px;
       padding: 12px 13px;
@@ -86,7 +86,7 @@
       font-weight: 700;
     }
     .btn.primary { background: linear-gradient(135deg, rgba(83,199,255,.18), rgba(57,217,138,.14)); border-color: rgba(83,199,255,.5); }
-    .btn.secondary { background: #4a3a28; }
+    .btn.secondary { background: #22364f; }
     .btn.danger { background: rgba(255,125,125,.14); border-color: rgba(255,125,125,.35); color: #ffd1d1; }
     .btn.success { background: rgba(57,217,138,.14); border-color: rgba(57,217,138,.35); color: #b7f4d5; }
     .btn.small { padding: 9px 12px; border-radius: 12px; font-size: 12px; }
@@ -96,7 +96,7 @@
       grid-template-columns: 290px 1fr;
     }
     .sidebar {
-      background: rgba(30, 24, 17, .95);
+      background: rgba(7, 14, 23, .94);
       border-right: 1px solid var(--border);
       padding: 22px;
       position: sticky;
@@ -106,7 +106,7 @@
     .nav { display: grid; gap: 10px; margin: 20px 0; }
     .nav button {
       text-align: left;
-      background: #2b2218;
+      background: #0b1624;
       color: var(--text);
       border: 1px solid var(--border);
       border-radius: 14px;
@@ -188,7 +188,7 @@
     .line-card {
       padding: 20px;
       border-radius: 24px;
-      background: linear-gradient(180deg, rgba(58,45,32,.97), rgba(38,30,22,.99));
+      background: linear-gradient(180deg, rgba(19,33,50,.96), rgba(11,19,31,.98));
       border: 1px solid var(--border);
       box-shadow: var(--shadow);
     }
@@ -205,7 +205,7 @@
       margin-top: 14px;
     }
     .feed-block {
-      background: linear-gradient(135deg, rgba(85,191,232,.22), rgba(137,219,245,.12));
+      background: linear-gradient(135deg, rgba(83,199,255,.16), rgba(123,231,255,.08));
       border: 1px solid rgba(83,199,255,.25);
       border-radius: 22px;
       padding: 16px;
@@ -315,7 +315,7 @@
         <div class="brand-mark">OC</div>
         <div>
           <h1>Prosil - Lavado</h1>
-          <div class="muted">Preview v2.1</div>
+          <div class="muted">Preview v2.2</div>
         </div>
       </div>
       <h2>Ingreso</h2>
@@ -339,7 +339,7 @@
         <div class="brand-mark">OC</div>
         <div>
           <h1>Prosil - Lavado</h1>
-          <div class="muted">Plant App Preview v2.1</div>
+          <div class="muted">Plant App Preview v2.2</div>
         </div>
       </div>
 
@@ -478,7 +478,7 @@
       stock: [],
       latestMeasurements: [],
       backendEvents: [],
-      uiEvents: ['Preview v2.1 cargada'],
+      uiEvents: ['Preview v2.2 cargada'],
       alarms: [],
       simulation: {
         1: { line: 1, running: false, tph_input: 120, split_product_a_pct: 70, split_product_b_pct: 20, split_discard_pct: 10, input_ton: 0, product_a_ton: 0, product_b_ton: 0, discard_ton: 0 },
