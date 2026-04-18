@@ -11,3 +11,4 @@ class TokenResponse(BaseModel):
     token_type: str = 'bearer'
     username: str
     full_name: str
+    role: str

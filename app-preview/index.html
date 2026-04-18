@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <base href="/app-preview/" />
-  <title>Prosil - Lavado | Plant App Preview v2.3</title>
+  <title>Prosil - Lavado | Plant App Preview v2.4</title>
   <style>
     :root {
       --bg: #07101a;
@@ -315,7 +315,7 @@
         <div class="brand-mark">OC</div>
         <div>
           <h1>Prosil - Lavado</h1>
-          <div class="muted">Preview v2.3</div>
+          <div class="muted">Preview v2.4</div>
         </div>
       </div>
       <h2>Ingreso</h2>
@@ -339,7 +339,7 @@
         <div class="brand-mark">OC</div>
         <div>
           <h1>Prosil - Lavado</h1>
-          <div class="muted">Plant App Preview v2.3</div>
+          <div class="muted">Plant App Preview v2.4</div>
         </div>
       </div>
 
@@ -478,7 +478,7 @@
       stock: [],
       latestMeasurements: [],
       backendEvents: [],
-      uiEvents: ['Preview v2.3 cargada'],
+      uiEvents: ['Preview v2.4 cargada'],
       token: null,
       alarms: [],
       simulation: {
@@ -982,7 +982,7 @@
           body: JSON.stringify({ username: $('login-user').value.trim(), password: $('login-pass').value }),
         });
         state.token = auth.access_token;
-        state.user = { name: auth.full_name, role: 'operador', shift: '-' };
+        state.user = { name: auth.full_name, role: auth.role || 'operador', shift: '-' };
       } catch {
         notify('Usuario o contraseña inválidos');
         return;

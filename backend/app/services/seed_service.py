@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from app.models.catalog import Line, Quarry, Product, Role, Shift, User
+from app.models.catalog import Line, Quarry, Product, Role, Shift, User, UserRole
 from app.models.measurement import MeasurementPoint
 from app.models.stock import QuarryStock
 from app.core.security import get_password_hash, is_password_hash
@@ -20,7 +20,12 @@ class SeedService:
             self.db.add_all([
                 Role(code='operador', name='Operador'),
                 Role(code='supervisor', name='Supervisor'),
+                Role(code='admin', name='Administrador'),
             ])
+        else:
+            role_codes = {r.code for r in self.db.query(Role).all()}
+            if 'admin' not in role_codes:
+                self.db.add(Role(code='admin', name='Administrador'))
         if not self.db.query(Shift).first():
             from datetime import time
             self.db.add_all([
@@ -63,6 +68,32 @@ class SeedService:
                 self.db.flush()
 
         self.db.flush()
+
+        roles_by_code = {r.code: r for r in self.db.query(Role).all()}
+        users_by_username = {u.username: u for u in self.db.query(User).all()}
+
+        default_assignments = {
+            'admin': ['admin'],
+            'eze': ['supervisor'],
+            'diego': ['operador'],
+            'juan': ['operador'],
+        }
+        for username, role_codes in default_assignments.items():
+            user = users_by_username.get(username)
+            if not user:
+                continue
+            for role_code in role_codes:
+                role = roles_by_code.get(role_code)
+                if not role:
+                    continue
+                exists = (
+                    self.db.query(UserRole)
+                    .filter(UserRole.user_id == user.id, UserRole.role_id == role.id)
+                    .first()
+                )
+                if not exists:
+                    self.db.add(UserRole(user_id=user.id, role_id=role.id))
+
         stock_defaults = {
             'RIO_NEGRO': 420.0,
             'DOLAVON': 140.0,

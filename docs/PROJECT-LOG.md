@@ -179,6 +179,13 @@ Registro paso a paso de decisiones, cambios y entregables del proyecto.
 - Ajuste visual rápido (preview v2.2):
   - paleta revertida al esquema azul original previo al experimento arena
   - se conserva la simplificación de UI (sin modo simulación) y la corrección de API móvil
+- Seguridad/auth por roles (bloque A, punto 1):
+  - login devuelve rol efectivo (`operador`, `supervisor`, `admin`)
+  - dependencias de autorización por rol en router
+  - `plc/*` y `simulation/*` restringidos a supervisor/admin
+  - `admin/*` restringido a admin
+  - seed actualizado con asignación de roles por usuario
+  - preview login actualizado para consumir rol real
 
 ### [GITHUB PREP 2026-04-17]
 - Se creó `.gitignore` en raíz para separar código del proyecto vs archivos personales/operativos del workspace OpenClaw.

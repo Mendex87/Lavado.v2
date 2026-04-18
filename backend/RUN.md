@@ -43,6 +43,18 @@ Luego se puede volver a PostgreSQL cambiando `DATABASE_URL` o las variables `POS
 - Expiración de token por defecto: `720` minutos (12 horas, un turno).
 - Configurar `SECRET_KEY` fuerte en `.env` para producción.
 
+### Roles por defecto (seed)
+
+- `admin` => rol `admin`
+- `eze` => rol `supervisor`
+- `diego`, `juan` => rol `operador`
+
+### Restricción de endpoints por rol
+
+- `admin/*`: solo `admin`
+- `plc/*`, `simulation/*`: `supervisor` o `admin`
+- resto de endpoints operativos: cualquier usuario autenticado
+
 ## Preview incluida en el backend
 Con el backend levantado, la UI preview queda servida desde el mismo proceso:
 
