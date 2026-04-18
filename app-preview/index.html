@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <base href="/app-preview/" />
-  <title>Prosil - Lavado | Plant App Preview v1.3</title>
+  <title>Prosil - Lavado | Plant App Preview v1.4</title>
   <style>
     :root {
       --bg: #07101a;
@@ -224,6 +224,18 @@
       height: 100%;
       background: linear-gradient(90deg, var(--cyan), var(--blue));
     }
+    .sparkline-wrap {
+      margin-top: 10px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 8px;
+      background: rgba(7, 16, 27, .65);
+    }
+    .sparkline {
+      width: 100%;
+      height: 72px;
+      display: block;
+    }
     .split-stack { display: flex; height: 100%; }
     .seg-a { background: var(--green); }
     .seg-b { background: var(--blue); }
@@ -295,7 +307,7 @@
         <div class="brand-mark">OC</div>
         <div>
           <h1>Prosil - Lavado</h1>
-          <div class="muted">Preview v1.3, operación + simulación desacoplada</div>
+          <div class="muted">Preview v1.4, operación + simulación desacoplada</div>
         </div>
       </div>
       <h2>Ingreso</h2>
@@ -319,7 +331,7 @@
         <div class="brand-mark">OC</div>
         <div>
           <h1>Prosil - Lavado</h1>
-          <div class="muted">Plant App Preview v1.3</div>
+          <div class="muted">Plant App Preview v1.4</div>
         </div>
       </div>
 
@@ -472,7 +484,7 @@
       stock: [],
       latestMeasurements: [],
       backendEvents: [],
-      uiEvents: ['Preview v1.3 cargada'],
+      uiEvents: ['Preview v1.4 cargada'],
       alarms: [],
       simulation: {
         1: { line: 1, running: false, tph_input: 120, split_product_a_pct: 70, split_product_b_pct: 20, split_discard_pct: 10, input_ton: 0, product_a_ton: 0, product_b_ton: 0, discard_ton: 0 },
@@ -486,6 +498,10 @@
         enabled: true,
         intervalMs: 1000,
         timer: null,
+      },
+      feedHistory: {
+        1: [],
+        2: [],
       },
       refreshBusy: false,
     };
@@ -527,6 +543,50 @@
         .filter(m => m.captured_at)
         .sort((a, b) => new Date(b.captured_at) - new Date(a.captured_at))[0];
       return latest ? formatDate(latest.captured_at) : null;
+    }
+
+    function minuteKey(date = new Date()) {
+      return `${date.getFullYear()}-${date.getMonth()+1}-${date.getDate()}-${date.getHours()}-${date.getMinutes()}`;
+    }
+
+    function pushFeedPoint(line, tph) {
+      const value = Number(tph || 0);
+      const now = new Date();
+      const key = minuteKey(now);
+      const bucket = state.feedHistory[line] || [];
+      const idx = bucket.findIndex(p => p.key === key);
+      const point = { key, ts: now.toISOString(), value };
+      if (idx >= 0) bucket[idx] = point;
+      else bucket.push(point);
+      state.feedHistory[line] = bucket.slice(-60);
+    }
+
+    function renderSparkline(line) {
+      const points = (state.feedHistory[line] || []).slice(-60);
+      if (!points.length) {
+        return '<div class="muted" style="font-size:12px;margin-top:6px;">Sin histórico aún</div>';
+      }
+      const width = 280;
+      const height = 72;
+      const pad = 6;
+      const values = points.map(p => Number(p.value || 0));
+      const min = Math.min(...values, 0);
+      const max = Math.max(...values, 1);
+      const span = Math.max(max - min, 1);
+      const toXY = (v, i) => {
+        const x = pad + (i * ((width - pad * 2) / Math.max(points.length - 1, 1)));
+        const y = height - pad - (((v - min) / span) * (height - pad * 2));
+        return `${x.toFixed(1)},${y.toFixed(1)}`;
+      };
+      const polyline = values.map((v, i) => toXY(v, i)).join(' ');
+      return `
+        <div class="sparkline-wrap">
+          <svg class="sparkline" viewBox="0 0 ${width} ${height}" preserveAspectRatio="none" aria-label="Caudal últimos minutos">
+            <polyline fill="none" stroke="#57d7ff" stroke-width="2" points="${polyline}" />
+          </svg>
+          <div class="muted" style="font-size:11px;">Últimos ${points.length} min · 1 punto/min</div>
+        </div>
+      `;
     }
 
     function notify(msg) {
@@ -635,13 +695,14 @@
           shownTph = l2FlowA ?? l2FlowLegacy ?? shownTph;
         }
       }
+      pushFeedPoint(line, shownTph);
+      const sparkline = renderSparkline(line);
       const l2BlendFeedDetails = isL2Blend ? `
         <div class="line-meta" style="margin-top:12px;">
           <div class="field"><span>B2 caudal/parcial</span><strong>${formatTph(l2FlowA)} · ${formatTon(l2PartialA)}</strong></div>
           <div class="field"><span>B3 caudal/parcial</span><strong>${formatTph(l2FlowB)} · ${formatTon(l2PartialB)}</strong></div>
         </div>
       ` : '';
-      const feedPct = Math.min(100, (Number(shownTph || 0) / 150) * 100);
       el.innerHTML = `
         <div class="card-head">
           <div>
@@ -655,8 +716,7 @@
             <div class="mini-label">ALIMENTACIÓN ACTUAL</div>
             <div class="feed-value">${formatTph(shownTph)}</div>
             <div class="muted">${isL2Blend ? 'Blend: suma de B2 + B3' : 'Dato protagonista de línea'}</div>
-            <div class="feed-bar"><div class="feed-fill" style="width:${feedPct}%"></div></div>
-            <div class="split-legend"><span><span class="legend-dot" style="background:var(--cyan)"></span>Escala visual de alimentación</span></div>
+            ${sparkline}
             ${l2BlendFeedDetails}
           </div>
         </div>

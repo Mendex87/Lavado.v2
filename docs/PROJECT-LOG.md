@@ -149,6 +149,9 @@ Registro paso a paso de decisiones, cambios y entregables del proyecto.
   - separación más clara entre bloque protagonista de alimentación y metadata/indicadores
   - bloque de split movido a franja horizontal inferior de cada tarjeta de línea
   - métricas clave centradas para lectura rápida
+- Evolución visual preview v1.4:
+  - se reemplazó la barra estática de escala de alimentación por mini gráfico lineal (sparkline)
+  - histórico local por línea con 1 punto por minuto (hasta 60 minutos)
 
 ### [GITHUB PREP 2026-04-17]
 - Se creó `.gitignore` en raíz para separar código del proyecto vs archivos personales/operativos del workspace OpenClaw.
