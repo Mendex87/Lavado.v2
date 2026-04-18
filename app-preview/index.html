@@ -571,6 +571,8 @@
       const plcTph = line === 1
         ? latestValue(1, 'l1_input_tph', 'partial_ton')
         : latestValue(2, 'l2_input_tph', 'partial_ton');
+      const l2FlowA = latestValue(2, 'l2_input_hopper_1', 'partial_ton');
+      const l2FlowB = latestValue(2, 'l2_input_hopper_2', 'partial_ton');
 
       const inputProcessPartial = line === 1
         ? latestValue(1, 'l1_input_main', 'partial_ton')
@@ -592,7 +594,16 @@
       const shownOutputA = outputA ?? sim.product_a_ton;
       const shownOutputB = outputB ?? sim.product_b_ton;
       const shownDiscard = discard ?? sim.discard_ton;
-      const shownTph = plcTph ?? sim.tph_input;
+      let shownTph = plcTph ?? sim.tph_input;
+      if (line === 2) {
+        if (p?.mode === 'blend') {
+          const a = l2FlowA ?? 0;
+          const b = l2FlowB ?? 0;
+          shownTph = (l2FlowA !== null || l2FlowB !== null) ? (a + b) : shownTph;
+        } else {
+          shownTph = l2FlowA ?? shownTph;
+        }
+      }
       const feedPct = Math.min(100, (Number(shownTph || 0) / 150) * 100);
       el.innerHTML = `
         <div class="card-head">
