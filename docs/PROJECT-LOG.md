@@ -145,6 +145,10 @@ Registro paso a paso de decisiones, cambios y entregables del proyecto.
   - parte superior enfocada en alimentación por línea (L1 y L2)
   - bloque inferior horizontal para salidas/productos (4 tarjetas)
   - branding y versión frontend actualizados
+- Pulido visual dashboard (preview v1.2):
+  - separación más clara entre bloque protagonista de alimentación y metadata/indicadores
+  - bloque de split movido a franja horizontal inferior de cada tarjeta de línea
+  - métricas clave centradas para lectura rápida
 
 ### [GITHUB PREP 2026-04-17]
 - Se creó `.gitignore` en raíz para separar código del proyecto vs archivos personales/operativos del workspace OpenClaw.

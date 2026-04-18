@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <base href="/app-preview/" />
-  <title>Prosil - Lavado | Plant App Preview v1.1</title>
+  <title>Prosil - Lavado | Plant App Preview v1.2</title>
   <style>
     :root {
       --bg: #07101a;
@@ -231,6 +231,22 @@
     .line-meta, .line-stats { display: grid; gap: 12px; }
     .line-meta { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .line-stats { grid-template-columns: repeat(4, minmax(0, 1fr)); margin-top: 14px; }
+    .line-divider {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(123, 231, 255, .35), transparent);
+      margin: 12px 0 6px;
+    }
+    .line-stats.centered .stat {
+      text-align: center;
+    }
+    .split-strip {
+      margin-top: 14px;
+      padding: 10px 12px;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      background: rgba(11, 21, 33, .75);
+    }
+    .split-strip .mini-label { margin-bottom: 8px; }
     .field, .stat { background: var(--panel-2); border: 1px solid var(--border); border-radius: 16px; padding: 12px; }
     .field strong, .stat strong { font-size: 15px; }
     .stat strong { display: block; font-size: 22px; margin-top: 6px; }
@@ -279,7 +295,7 @@
         <div class="brand-mark">OC</div>
         <div>
           <h1>Prosil - Lavado</h1>
-          <div class="muted">Preview v1.1, operación + simulación desacoplada</div>
+          <div class="muted">Preview v1.2, operación + simulación desacoplada</div>
         </div>
       </div>
       <h2>Ingreso</h2>
@@ -303,7 +319,7 @@
         <div class="brand-mark">OC</div>
         <div>
           <h1>Prosil - Lavado</h1>
-          <div class="muted">Plant App Preview v1.1</div>
+          <div class="muted">Plant App Preview v1.2</div>
         </div>
       </div>
 
@@ -456,7 +472,7 @@
       stock: [],
       latestMeasurements: [],
       backendEvents: [],
-      uiEvents: ['Preview v1.1 cargada'],
+      uiEvents: ['Preview v1.2 cargada'],
       alarms: [],
       simulation: {
         1: { line: 1, running: false, tph_input: 120, split_product_a_pct: 70, split_product_b_pct: 20, split_discard_pct: 10, input_ton: 0, product_a_ton: 0, product_b_ton: 0, discard_ton: 0 },
@@ -643,26 +659,27 @@
             <div class="split-legend"><span><span class="legend-dot" style="background:var(--cyan)"></span>Escala visual de alimentación</span></div>
             ${l2BlendFeedDetails}
           </div>
-          <div class="line-subcard">
-            <div class="mini-label">Salidas / split</div>
-            <div class="split-bar"><div class="split-stack"><div class="seg-a" style="width:${sim.split_product_a_pct}%"></div><div class="seg-b" style="width:${sim.split_product_b_pct}%"></div><div class="seg-d" style="width:${sim.split_discard_pct}%"></div></div></div>
-            <div class="split-legend">
-              <span><span class="legend-dot" style="background:var(--green)"></span>A ${sim.split_product_a_pct}%</span>
-              <span><span class="legend-dot" style="background:var(--blue)"></span>B ${sim.split_product_b_pct}%</span>
-              <span><span class="legend-dot" style="background:var(--yellow)"></span>Desc ${sim.split_discard_pct}%</span>
-            </div>
-          </div>
         </div>
+        <div class="line-divider"></div>
         <div class="line-meta">
           <div class="field"><span>Operador</span><strong>${p ? p.operator : '-'}</strong></div>
           <div class="field"><span>Inicio</span><strong>${p ? formatDate(p.started_at) : '-'}</strong></div>
           <div class="field"><span>Producto</span><strong>${line === 1 ? '30/70' : 'Producto 4 / variable'}</strong></div>
           <div class="field"><span>Proceso</span><strong>${p ? p.code : '-'}</strong></div>
         </div>
-        <div class="line-stats">
+        <div class="line-stats centered">
           <div class="stat"><span>Entrada proceso (parcial)</span><strong>${formatTon(shownInput)}</strong></div>
           <div class="stat"><span>Totalizador general</span><strong>${formatTon(inputTotalizer)}</strong></div>
           <div class="stat"><span>Alimentación actual</span><strong>${formatTph(shownTph)}</strong></div>
+        </div>
+        <div class="split-strip">
+          <div class="mini-label">Salidas / split</div>
+          <div class="split-bar"><div class="split-stack"><div class="seg-a" style="width:${sim.split_product_a_pct}%"></div><div class="seg-b" style="width:${sim.split_product_b_pct}%"></div><div class="seg-d" style="width:${sim.split_discard_pct}%"></div></div></div>
+          <div class="split-legend">
+            <span><span class="legend-dot" style="background:var(--green)"></span>A ${sim.split_product_a_pct}%</span>
+            <span><span class="legend-dot" style="background:var(--blue)"></span>B ${sim.split_product_b_pct}%</span>
+            <span><span class="legend-dot" style="background:var(--yellow)"></span>Desc ${sim.split_discard_pct}%</span>
+          </div>
         </div>
         <div class="actions" style="margin-top:14px;">
           <button class="btn small secondary" onclick="goToSimulation(${line})">Simulación L${line}</button>
