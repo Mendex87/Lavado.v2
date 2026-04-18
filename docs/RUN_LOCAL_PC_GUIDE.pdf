@@ -1,0 +1,559 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [6 0 R 8 0 R 10 0 R 12 0 R] /Count 4 >>
+endobj
+3 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+4 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>
+endobj
+5 0 obj
+<< /Length 2467 >>
+stream
+BT
+/F2 14 Tf
+50 800 Td (Guía rápida: ejecutar Prosil en PC local \(Windows\)) Tj
+0 0 Td
+/F1 10 Tf
+50 786 Td () Tj
+0 0 Td
+/F1 10 Tf
+50 772 Td () Tj
+0 0 Td
+/F2 11 Tf
+50 758 Td (Objetivo) Tj
+0 0 Td
+/F1 10 Tf
+50 744 Td (Levantar la app en tu PC del taller con código del repo, sin depender de la VPS.) Tj
+0 0 Td
+/F1 10 Tf
+50 730 Td () Tj
+0 0 Td
+/F1 10 Tf
+50 716 Td (---) Tj
+0 0 Td
+/F1 10 Tf
+50 702 Td () Tj
+0 0 Td
+/F2 11 Tf
+50 688 Td (1\) Requisitos) Tj
+0 0 Td
+/F1 10 Tf
+50 674 Td () Tj
+0 0 Td
+/F1 10 Tf
+50 660 Td (- Python 3.11+ \(ideal 3.12\)) Tj
+0 0 Td
+/F1 10 Tf
+50 646 Td (- Git) Tj
+0 0 Td
+/F1 10 Tf
+50 632 Td (- Acceso de red al PLC S7-1200) Tj
+0 0 Td
+/F1 10 Tf
+50 618 Td (- \(Opcional\) entorno virtual de Python) Tj
+0 0 Td
+/F1 10 Tf
+50 604 Td () Tj
+0 0 Td
+/F1 10 Tf
+50 590 Td (Verificación rápida en CMD:) Tj
+0 0 Td
+/F1 10 Tf
+50 576 Td () Tj
+0 0 Td
+/F1 10 Tf
+50 562 Td (```bat) Tj
+0 0 Td
+/F1 10 Tf
+50 548 Td (python --version) Tj
+0 0 Td
+/F1 10 Tf
+50 534 Td (git --version) Tj
+0 0 Td
+/F1 10 Tf
+50 520 Td (```) Tj
+0 0 Td
+/F1 10 Tf
+50 506 Td () Tj
+0 0 Td
+/F1 10 Tf
+50 492 Td (---) Tj
+0 0 Td
+/F1 10 Tf
+50 478 Td () Tj
+0 0 Td
+/F2 11 Tf
+50 464 Td (2\) Clonar/actualizar repo) Tj
+0 0 Td
+/F1 10 Tf
+50 450 Td () Tj
+0 0 Td
+/F1 10 Tf
+50 436 Td (```bat) Tj
+0 0 Td
+/F1 10 Tf
+50 422 Td (cd "C:\\Users\\TU_USUARIO\\Desktop") Tj
+0 0 Td
+/F1 10 Tf
+50 408 Td (git clone https://github.com/Mendex87/Prosil.git) Tj
+0 0 Td
+/F1 10 Tf
+50 394 Td (cd Prosil) Tj
+0 0 Td
+/F1 10 Tf
+50 380 Td (```) Tj
+0 0 Td
+/F1 10 Tf
+50 366 Td () Tj
+0 0 Td
+/F1 10 Tf
+50 352 Td (Si ya lo tenés:) Tj
+0 0 Td
+/F1 10 Tf
+50 338 Td () Tj
+0 0 Td
+/F1 10 Tf
+50 324 Td (```bat) Tj
+0 0 Td
+/F1 10 Tf
+50 310 Td (cd "C:\\ruta\\a\\Prosil") Tj
+0 0 Td
+/F1 10 Tf
+50 296 Td (git pull origin master) Tj
+0 0 Td
+/F1 10 Tf
+50 282 Td (```) Tj
+0 0 Td
+/F1 10 Tf
+50 268 Td () Tj
+0 0 Td
+/F1 10 Tf
+50 254 Td (---) Tj
+0 0 Td
+/F1 10 Tf
+50 240 Td () Tj
+0 0 Td
+/F2 11 Tf
+50 226 Td (3\) Backend local) Tj
+0 0 Td
+/F1 10 Tf
+50 212 Td () Tj
+0 0 Td
+/F1 10 Tf
+50 198 Td (```bat) Tj
+0 0 Td
+/F1 10 Tf
+50 184 Td (cd backend) Tj
+0 0 Td
+/F1 10 Tf
+50 170 Td (python -m venv .venv) Tj
+0 0 Td
+/F1 10 Tf
+50 156 Td (.venv\\Scripts\\activate) Tj
+0 0 Td
+/F1 10 Tf
+50 142 Td (pip install -r requirements.txt) Tj
+0 0 Td
+/F1 10 Tf
+50 128 Td (```) Tj
+0 0 Td
+/F1 10 Tf
+50 114 Td () Tj
+0 0 Td
+/F1 10 Tf
+50 100 Td (Configurar `.env` de backend \(si aplica en tu versión\):) Tj
+0 0 Td
+/F1 10 Tf
+50 86 Td () Tj
+0 0 Td
+/F1 10 Tf
+50 72 Td (- `HOST=127.0.0.1`) Tj
+0 0 Td
+ET
+endstream
+endobj
+6 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents 5 0 R >>
+endobj
+7 0 obj
+<< /Length 2553 >>
+stream
+BT
+/F1 10 Tf
+50 800 Td (- `PORT=8010`) Tj
+0 0 Td
+/F1 10 Tf
+50 786 Td () Tj
+0 0 Td
+/F1 10 Tf
+50 772 Td (Levantar backend:) Tj
+0 0 Td
+/F1 10 Tf
+50 758 Td () Tj
+0 0 Td
+/F1 10 Tf
+50 744 Td (```bat) Tj
+0 0 Td
+/F1 10 Tf
+50 730 Td (uvicorn app.main:app --host 127.0.0.1 --port 8010 --reload) Tj
+0 0 Td
+/F1 10 Tf
+50 716 Td (```) Tj
+0 0 Td
+/F1 10 Tf
+50 702 Td () Tj
+0 0 Td
+/F1 10 Tf
+50 688 Td (Probar health:) Tj
+0 0 Td
+/F1 10 Tf
+50 674 Td () Tj
+0 0 Td
+/F1 10 Tf
+50 660 Td (```bat) Tj
+0 0 Td
+/F1 10 Tf
+50 646 Td (curl http://127.0.0.1:8010/api/v1/health) Tj
+0 0 Td
+/F1 10 Tf
+50 632 Td (```) Tj
+0 0 Td
+/F1 10 Tf
+50 618 Td () Tj
+0 0 Td
+/F1 10 Tf
+50 604 Td (Debe responder `{"ok":true}`.) Tj
+0 0 Td
+/F1 10 Tf
+50 590 Td () Tj
+0 0 Td
+/F1 10 Tf
+50 576 Td (---) Tj
+0 0 Td
+/F1 10 Tf
+50 562 Td () Tj
+0 0 Td
+/F2 11 Tf
+50 548 Td (4\) Poller PLC en PC) Tj
+0 0 Td
+/F1 10 Tf
+50 534 Td () Tj
+0 0 Td
+/F1 10 Tf
+50 520 Td (En otra terminal:) Tj
+0 0 Td
+/F1 10 Tf
+50 506 Td () Tj
+0 0 Td
+/F1 10 Tf
+50 492 Td (```bat) Tj
+0 0 Td
+/F1 10 Tf
+50 478 Td (cd "C:\\ruta\\a\\Prosil\\backend") Tj
+0 0 Td
+/F1 10 Tf
+50 464 Td (.venv\\Scripts\\activate) Tj
+0 0 Td
+/F1 10 Tf
+50 450 Td (python -m plc_poller.main) Tj
+0 0 Td
+/F1 10 Tf
+50 436 Td (```) Tj
+0 0 Td
+/F1 10 Tf
+50 422 Td () Tj
+0 0 Td
+/F2 11 Tf
+50 408 Td (Variables clave \(`backend\\plc_poller\\env.example` / `.env`\)) Tj
+0 0 Td
+/F1 10 Tf
+50 394 Td () Tj
+0 0 Td
+/F1 10 Tf
+50 380 Td (- `PLC_HOST=192.168.10.77`) Tj
+0 0 Td
+/F1 10 Tf
+50 366 Td (- `PLC_RACK=0`) Tj
+0 0 Td
+/F1 10 Tf
+50 352 Td (- `PLC_SLOT=1`) Tj
+0 0 Td
+/F1 10 Tf
+50 338 Td (- `BACKEND_URL=http://127.0.0.1:8010/api/v1`) Tj
+0 0 Td
+/F1 10 Tf
+50 324 Td (- `PLC_POLL_INTERVAL_SECONDS=1`) Tj
+0 0 Td
+/F1 10 Tf
+50 310 Td () Tj
+0 0 Td
+/F2 11 Tf
+50 296 Td (Mapping esperado \(`backend\\plc_poller\\mapping.example.json`\)) Tj
+0 0 Td
+/F1 10 Tf
+50 282 Td () Tj
+0 0 Td
+/F1 10 Tf
+50 268 Td (Usar el mapping acordado \(L1/L2 + `l2_input_tph_a` y `l2_input_tph_b` en DB14\).) Tj
+0 0 Td
+/F1 10 Tf
+50 254 Td () Tj
+0 0 Td
+/F1 10 Tf
+50 240 Td (---) Tj
+0 0 Td
+/F1 10 Tf
+50 226 Td () Tj
+0 0 Td
+/F2 11 Tf
+50 212 Td (5\) Frontend preview local) Tj
+0 0 Td
+/F1 10 Tf
+50 198 Td () Tj
+0 0 Td
+/F1 10 Tf
+50 184 Td (Abrir en navegador:) Tj
+0 0 Td
+/F1 10 Tf
+50 170 Td () Tj
+0 0 Td
+/F1 10 Tf
+50 156 Td (- `http://127.0.0.1:8010/app-preview/`) Tj
+0 0 Td
+/F1 10 Tf
+50 142 Td () Tj
+0 0 Td
+/F1 10 Tf
+50 128 Td (En login, API base URL:) Tj
+0 0 Td
+/F1 10 Tf
+50 114 Td () Tj
+0 0 Td
+/F1 10 Tf
+50 100 Td (- `http://127.0.0.1:8010/api/v1`) Tj
+0 0 Td
+/F1 10 Tf
+50 86 Td () Tj
+0 0 Td
+/F1 10 Tf
+50 72 Td (---) Tj
+0 0 Td
+ET
+endstream
+endobj
+8 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents 7 0 R >>
+endobj
+9 0 obj
+<< /Length 2751 >>
+stream
+BT
+/F1 10 Tf
+50 800 Td () Tj
+0 0 Td
+/F2 11 Tf
+50 786 Td (6\) Checklist de validación mínima) Tj
+0 0 Td
+/F1 10 Tf
+50 772 Td () Tj
+0 0 Td
+/F1 10 Tf
+50 758 Td (1. Backend health OK) Tj
+0 0 Td
+/F1 10 Tf
+50 744 Td (2. Poller sin errores de conexión Snap7) Tj
+0 0 Td
+/F1 10 Tf
+50 730 Td (3. `GET /api/v1/measurements/latest` devuelve canales de L1/L2) Tj
+0 0 Td
+/F1 10 Tf
+50 716 Td (4. Dashboard muestra datos reales \(no fallback\)) Tj
+0 0 Td
+/F1 10 Tf
+50 702 Td (5. L2:) Tj
+0 0 Td
+/F1 10 Tf
+50 688 Td (   - `simple` => protagonista = A) Tj
+0 0 Td
+/F1 10 Tf
+50 674 Td (   - `blend` => protagonista = A+B) Tj
+0 0 Td
+/F1 10 Tf
+50 660 Td () Tj
+0 0 Td
+/F1 10 Tf
+50 646 Td (---) Tj
+0 0 Td
+/F1 10 Tf
+50 632 Td () Tj
+0 0 Td
+/F2 11 Tf
+50 618 Td (7\) Problemas típicos) Tj
+0 0 Td
+/F1 10 Tf
+50 604 Td () Tj
+0 0 Td
+/F2 11 Tf
+50 590 Td (A\) `S7ConnectionError: TCP connection failed`) Tj
+0 0 Td
+/F1 10 Tf
+50 576 Td (- Revisar IP del PLC, rack/slot) Tj
+0 0 Td
+/F1 10 Tf
+50 562 Td (- Verificar red local \(misma subred / rutas\)) Tj
+0 0 Td
+/F1 10 Tf
+50 548 Td () Tj
+0 0 Td
+/F2 11 Tf
+50 534 Td (B\) Dashboard en Backend OFF) Tj
+0 0 Td
+/F1 10 Tf
+50 520 Td (- Confirmar API base URL correcta \(`/api/v1` en local\)) Tj
+0 0 Td
+/F1 10 Tf
+50 506 Td (- Verificar backend levantado en 8010) Tj
+0 0 Td
+/F1 10 Tf
+50 492 Td () Tj
+0 0 Td
+/F2 11 Tf
+50 478 Td (C\) No se ven cambios visuales) Tj
+0 0 Td
+/F1 10 Tf
+50 464 Td (- Forzar recarga `Ctrl + F5`) Tj
+0 0 Td
+/F1 10 Tf
+50 450 Td (- Revisar que estés en la URL local correcta) Tj
+0 0 Td
+/F1 10 Tf
+50 436 Td () Tj
+0 0 Td
+/F1 10 Tf
+50 422 Td (---) Tj
+0 0 Td
+/F1 10 Tf
+50 408 Td () Tj
+0 0 Td
+/F2 11 Tf
+50 394 Td (8\) Comando rápido de arranque \(resumen\)) Tj
+0 0 Td
+/F1 10 Tf
+50 380 Td () Tj
+0 0 Td
+/F1 10 Tf
+50 366 Td (Terminal 1 \(backend\):) Tj
+0 0 Td
+/F1 10 Tf
+50 352 Td () Tj
+0 0 Td
+/F1 10 Tf
+50 338 Td (```bat) Tj
+0 0 Td
+/F1 10 Tf
+50 324 Td (cd C:\\ruta\\a\\Prosil\\backend) Tj
+0 0 Td
+/F1 10 Tf
+50 310 Td (.venv\\Scripts\\activate) Tj
+0 0 Td
+/F1 10 Tf
+50 296 Td (uvicorn app.main:app --host 127.0.0.1 --port 8010 --reload) Tj
+0 0 Td
+/F1 10 Tf
+50 282 Td (```) Tj
+0 0 Td
+/F1 10 Tf
+50 268 Td () Tj
+0 0 Td
+/F1 10 Tf
+50 254 Td (Terminal 2 \(poller\):) Tj
+0 0 Td
+/F1 10 Tf
+50 240 Td () Tj
+0 0 Td
+/F1 10 Tf
+50 226 Td (```bat) Tj
+0 0 Td
+/F1 10 Tf
+50 212 Td (cd C:\\ruta\\a\\Prosil\\backend) Tj
+0 0 Td
+/F1 10 Tf
+50 198 Td (.venv\\Scripts\\activate) Tj
+0 0 Td
+/F1 10 Tf
+50 184 Td (python -m plc_poller.main) Tj
+0 0 Td
+/F1 10 Tf
+50 170 Td (```) Tj
+0 0 Td
+/F1 10 Tf
+50 156 Td () Tj
+0 0 Td
+/F1 10 Tf
+50 142 Td (Navegador:) Tj
+0 0 Td
+/F1 10 Tf
+50 128 Td () Tj
+0 0 Td
+/F1 10 Tf
+50 114 Td (- `http://127.0.0.1:8010/app-preview/`) Tj
+0 0 Td
+/F1 10 Tf
+50 100 Td () Tj
+0 0 Td
+/F1 10 Tf
+50 86 Td (---) Tj
+0 0 Td
+/F1 10 Tf
+50 72 Td () Tj
+0 0 Td
+ET
+endstream
+endobj
+10 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents 9 0 R >>
+endobj
+11 0 obj
+<< /Length 260 >>
+stream
+BT
+/F2 11 Tf
+50 800 Td (Nota operativa) Tj
+0 0 Td
+/F1 10 Tf
+50 786 Td (Cuando cierres versión funcional en VPS, con `git pull` en PC + `.env` correctos +) Tj
+0 0 Td
+/F1 10 Tf
+50 772 Td (dependencias instaladas, ya podés correr local sin problema.) Tj
+0 0 Td
+ET
+endstream
+endobj
+12 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents 11 0 R >>
+endobj
+xref
+0 13
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000135 00000 n 
+0000000205 00000 n 
+0000000280 00000 n 
+0000002799 00000 n 
+0000002935 00000 n 
+0000005540 00000 n 
+0000005676 00000 n 
+0000008479 00000 n 
+0000008616 00000 n 
+0000008928 00000 n 
+trailer
+<< /Size 13 /Root 1 0 R >>
+startxref
+9066
+%%EOF
