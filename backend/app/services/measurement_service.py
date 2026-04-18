@@ -1,5 +1,6 @@
 from datetime import datetime
 from decimal import Decimal
+from app.models.catalog import Quarry
 from app.models.process import ProcessInput
 from app.models.stock import QuarryStockMovement
 from app.models.measurement import MeasurementReading
@@ -166,23 +167,30 @@ class MeasurementService:
         if not inputs:
             return []
 
+        allowed_quarry_ids = {int(i.quarry_id) for i in inputs}
         discounts_by_quarry: dict[int, float] = {}
 
-        if payload.feed_l1_partial_ton is not None and len(inputs) >= 1:
-            qid = int(inputs[0].quarry_id)
+        def quarry_id_by_name(name: str | None) -> int:
+            if not name:
+                raise ValueError('Falta indicar cantera para el parcial manual de alimentación')
+            q = self.db.query(Quarry).filter(Quarry.name == name).first()
+            if not q:
+                raise ValueError(f'Cantera no encontrada: {name}')
+            if int(q.id) not in allowed_quarry_ids:
+                raise ValueError(f'La cantera {name} no pertenece al proceso activo de la línea')
+            return int(q.id)
+
+        if payload.feed_l1_partial_ton is not None:
+            qid = quarry_id_by_name(payload.feed_l1_quarry)
             discounts_by_quarry[qid] = discounts_by_quarry.get(qid, 0.0) + float(payload.feed_l1_partial_ton)
 
-        if payload.feed_l2_h1_partial_ton is not None and len(inputs) >= 1:
-            qid = int(inputs[0].quarry_id)
+        if payload.feed_l2_h1_partial_ton is not None:
+            qid = quarry_id_by_name(payload.feed_l2_h1_quarry)
             discounts_by_quarry[qid] = discounts_by_quarry.get(qid, 0.0) + float(payload.feed_l2_h1_partial_ton)
 
         if payload.feed_l2_h2_partial_ton is not None:
-            if len(inputs) >= 2:
-                qid = int(inputs[1].quarry_id)
-                discounts_by_quarry[qid] = discounts_by_quarry.get(qid, 0.0) + float(payload.feed_l2_h2_partial_ton)
-            elif len(inputs) == 1:
-                qid = int(inputs[0].quarry_id)
-                discounts_by_quarry[qid] = discounts_by_quarry.get(qid, 0.0) + float(payload.feed_l2_h2_partial_ton)
+            qid = quarry_id_by_name(payload.feed_l2_h2_quarry)
+            discounts_by_quarry[qid] = discounts_by_quarry.get(qid, 0.0) + float(payload.feed_l2_h2_partial_ton)
 
         updates = []
         for quarry_id, qty in discounts_by_quarry.items():

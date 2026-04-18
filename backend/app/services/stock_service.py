@@ -1,3 +1,4 @@
+from datetime import datetime
 from decimal import Decimal
 from app.models.catalog import Quarry
 from app.models.stock import QuarryStockMovement
@@ -24,9 +25,7 @@ class StockService:
             last = self.repository.get_last_movement_by_quarry_id(quarry.id) if quarry else None
             movement_text = 'Sin movimientos'
             if last:
-                movement_text = f"{last.movement_type} {float(last.quantity_ton):.1f} t"
-                if last.reference_code:
-                    movement_text += f" · {last.reference_code}"
+                movement_text = (last.created_at or datetime.utcnow()).strftime('%Y-%m-%d %H:%M:%S')
             items.append({
                 'quarry': name,
                 'tons': float(tons),
@@ -61,7 +60,7 @@ class StockService:
             quantity_ton=Decimal(str(qty)),
             signed_quantity_ton=Decimal(str(qty)),
             source='manual',
-            reference_code=payload.reference_code,
+            reference_code=payload.reference_code or datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'),
             entered_by_user_id=entered_by_user_id,
             reason=payload.reason,
         )

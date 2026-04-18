@@ -34,6 +34,8 @@ Luego se puede volver a PostgreSQL cambiando `DATABASE_URL` o las variables `POS
 - `POST /api/v1/measurements/ingest`
 - `POST /api/v1/measurements/manual` (solo `supervisor` / `admin`, contingencia)
 - `POST /api/v1/stock/ingress` (solo `supervisor` / `admin`, ingreso manual a acopio)
+- `GET /api/v1/settings` (solo `admin`)
+- `PUT /api/v1/settings` (solo `admin`)
 - `GET /api/v1/alarms/active`
 - `POST /api/v1/alarms/{id}/ack`
 - `GET /api/v1/audit/recent`

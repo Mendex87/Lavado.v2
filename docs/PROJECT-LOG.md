@@ -218,10 +218,19 @@ Registro paso a paso de decisiones, cambios y entregables del proyecto.
   - `GET /measurements/latest` informa `source` (`plc` / `manual`)
   - la UI de contingencia queda capada para supervisor/admin y orientada a “registrar lo no capturado automático”, con panel plegado por defecto
   - al cargar alimentación manual, se descuenta stock de las canteras del proceso activo y se registra movimiento
-- Stock manual de acopios (v3.0):
+- Stock manual de acopios (v3.0/v3.1):
   - endpoint `POST /stock/ingress` para ingreso manual de cantera (solo supervisor/admin)
   - registra movimiento `manual_ingress` y actualiza `quarry_stock.current_ton`
-  - bloque UI en pantalla de stock para carga manual (cantera, toneladas, referencia, motivo)
+  - UI de ingreso simplificada a cantera + toneladas
+  - en listado de stock, el último movimiento ahora se muestra como fecha/hora
+- Contingencia manual refinada (v3.1):
+  - panel plegado por defecto en procesos activos
+  - para parciales de alimentación exige cantera explícita (`feed_l1_quarry`, `feed_l2_h1_quarry`, `feed_l2_h2_quarry`)
+  - valida que la cantera pertenezca al proceso activo y descuenta stock en base a ese dato
+  - errores de backend visibles en UI (no queda mensaje genérico)
+- Configuración admin (v3.1):
+  - nueva pantalla `Configuración` solo para rol `admin`
+  - endpoints `GET/PUT /settings` (admin) para fecha/hora base y parámetros PLC (`plc_host`, `plc_rack`, `plc_slot`, `plant_timezone`)
 
 ### [GITHUB PREP 2026-04-17]
 - Se creó `.gitignore` en raíz para separar código del proyecto vs archivos personales/operativos del workspace OpenClaw.

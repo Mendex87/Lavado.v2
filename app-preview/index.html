@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <base href="/app-preview/" />
-  <title>Prosil - Lavado | Plant App Preview v3.0</title>
+  <title>Prosil - Lavado | Plant App Preview v3.1</title>
   <style>
     :root {
       --bg: #07101a;
@@ -315,7 +315,7 @@
         <div class="brand-mark">OC</div>
         <div>
           <h1>Prosil - Lavado</h1>
-          <div class="muted">Preview v3.0</div>
+          <div class="muted">Preview v3.1</div>
         </div>
       </div>
       <h2>Ingreso</h2>
@@ -339,7 +339,7 @@
         <div class="brand-mark">OC</div>
         <div>
           <h1>Prosil - Lavado</h1>
-          <div class="muted">Plant App Preview v3.0</div>
+          <div class="muted">Plant App Preview v3.1</div>
         </div>
       </div>
 
@@ -350,6 +350,7 @@
         <button class="nav-link" data-screen="stock">Stock</button>
         <button class="nav-link" data-screen="events">Eventos</button>
         <button class="nav-link" data-screen="alarms">Alarmas</button>
+        <button class="nav-link hidden" data-screen="settings" id="nav-settings">Configuración</button>
       </div>
 
       <div class="sidebar-box">
@@ -441,8 +442,11 @@
           <div class="form-grid" style="grid-template-columns:repeat(4,minmax(0,1fr));">
             <label><span>Línea</span><select id="manual-line"><option value="1">Línea 1</option><option value="2">Línea 2</option></select></label>
             <label><span>Alim. L1 parcial (tn)</span><input id="manual-feed-l1" type="number" step="0.001" /></label>
+            <label><span>Cantera L1</span><select id="manual-feed-l1-quarry"><option>Río Negro</option><option>Dolavon</option><option>Trelew Norte</option></select></label>
             <label><span>Alim. L2 Tolva 1 (tn)</span><input id="manual-feed-l2h1" type="number" step="0.001" /></label>
+            <label><span>Cantera Tolva 1</span><select id="manual-feed-l2h1-quarry"><option>Río Negro</option><option>Dolavon</option><option>Trelew Norte</option></select></label>
             <label><span>Alim. L2 Tolva 2 (tn)</span><input id="manual-feed-l2h2" type="number" step="0.001" /></label>
+            <label><span>Cantera Tolva 2</span><select id="manual-feed-l2h2-quarry"><option>Río Negro</option><option>Dolavon</option><option>Trelew Norte</option></select></label>
             <label><span>Producto 1 parcial (tn)</span><input id="manual-prod-1" type="number" step="0.001" /></label>
             <label><span>Producto 2 parcial (tn)</span><input id="manual-prod-2" type="number" step="0.001" /></label>
             <label><span>Producto 3 parcial (tn)</span><input id="manual-prod-3" type="number" step="0.001" /></label>
@@ -463,11 +467,9 @@
         </div>
         <div class="card hidden" style="margin-top:16px;" id="stock-ingress-box">
           <div class="card-head"><h3>Ingreso manual a acopio</h3><span class="badge yellow">Supervisor/Admin</span></div>
-          <div class="form-grid" style="grid-template-columns:repeat(4,minmax(0,1fr));">
+          <div class="form-grid" style="grid-template-columns:repeat(2,minmax(0,1fr));">
             <label><span>Cantera</span><select id="stock-ingress-quarry"><option>Río Negro</option><option>Dolavon</option><option>Trelew Norte</option></select></label>
             <label><span>Cantidad (tn)</span><input id="stock-ingress-qty" type="number" step="0.001" /></label>
-            <label><span>Referencia</span><input id="stock-ingress-ref" type="text" /></label>
-            <label><span>Motivo</span><input id="stock-ingress-reason" type="text" /></label>
           </div>
           <div class="actions" style="margin-top:12px;"><button class="btn secondary" id="stock-ingress-btn">Registrar ingreso</button></div>
         </div>
@@ -487,6 +489,20 @@
         </div>
       </section>
 
+      <section id="settings" class="screen">
+        <div class="card">
+          <div class="card-head"><h3>Configuración de planta</h3><span class="badge yellow">Admin</span></div>
+          <div class="form-grid" style="grid-template-columns:repeat(2,minmax(0,1fr));">
+            <label><span>Fecha/hora local</span><input id="cfg-now" type="text" disabled /></label>
+            <label><span>Zona horaria</span><input id="cfg-timezone" type="text" /></label>
+            <label><span>PLC host</span><input id="cfg-plc-host" type="text" /></label>
+            <label><span>PLC rack</span><input id="cfg-plc-rack" type="text" /></label>
+            <label><span>PLC slot</span><input id="cfg-plc-slot" type="text" /></label>
+          </div>
+          <div class="actions" style="margin-top:12px;"><button class="btn secondary" id="cfg-save-btn">Guardar configuración</button></div>
+        </div>
+      </section>
+
     </main>
   </div>
 
@@ -498,6 +514,7 @@
       stock: ['Stock', 'Stock actual y últimos movimientos de cantera.'],
       events: ['Eventos', 'Trazabilidad de acciones y backend.'],
       alarms: ['Alarmas', 'Atención operativa.'],
+      settings: ['Configuración', 'Parámetros base de operación (solo admin).'],
     };
 
     const state = {
@@ -507,7 +524,7 @@
       stock: [],
       latestMeasurements: [],
       backendEvents: [],
-      uiEvents: ['Preview v3.0 cargada'],
+      uiEvents: ['Preview v3.1 cargada'],
       token: null,
       alarms: [],
       simulation: {
@@ -1063,8 +1080,11 @@
     function applyManualFormRules() {
       const line = Number($('manual-line').value || 1);
       $('manual-feed-l1').parentElement.classList.toggle('hidden', line !== 1);
+      $('manual-feed-l1-quarry').parentElement.classList.toggle('hidden', line !== 1);
       $('manual-feed-l2h1').parentElement.classList.toggle('hidden', line !== 2);
+      $('manual-feed-l2h1-quarry').parentElement.classList.toggle('hidden', line !== 2);
       $('manual-feed-l2h2').parentElement.classList.toggle('hidden', line !== 2);
+      $('manual-feed-l2h2-quarry').parentElement.classList.toggle('hidden', line !== 2);
     }
 
     async function createProcess() {
@@ -1116,8 +1136,11 @@
         const payload = {
           line,
           feed_l1_partial_ton: fL1 === '' ? null : Number(fL1),
+          feed_l1_quarry: $('manual-feed-l1-quarry').value,
           feed_l2_h1_partial_ton: fL2h1 === '' ? null : Number(fL2h1),
+          feed_l2_h1_quarry: $('manual-feed-l2h1-quarry').value,
           feed_l2_h2_partial_ton: fL2h2 === '' ? null : Number(fL2h2),
+          feed_l2_h2_quarry: $('manual-feed-l2h2-quarry').value,
           product_1_partial_ton: p1 === '' ? null : Number(p1),
           product_2_partial_ton: p2 === '' ? null : Number(p2),
           product_3_partial_ton: p3 === '' ? null : Number(p3),
@@ -1131,7 +1154,7 @@
         await refreshData();
         notify('Contingencia aplicada');
       } catch (e) {
-        notify('No se pudo aplicar contingencia');
+        notify(e.message || 'No se pudo aplicar contingencia');
       }
     }
 
@@ -1146,8 +1169,6 @@
         const payload = {
           quarry: $('stock-ingress-quarry').value,
           quantity_ton: Number($('stock-ingress-qty').value || 0),
-          reference_code: $('stock-ingress-ref').value || null,
-          reason: $('stock-ingress-reason').value || null,
         };
         const result = await request('/stock/ingress', { method: 'POST', body: JSON.stringify(payload) });
         addUiEvent(`Ingreso manual ${result.quarry} +${result.quantity_ton} t`);
@@ -1155,6 +1176,35 @@
         notify('Ingreso de acopio registrado');
       } catch {
         notify('No se pudo registrar ingreso');
+      }
+    }
+
+    async function loadSettings() {
+      try {
+        const rows = await request('/settings');
+        const data = Object.fromEntries((rows || []).map(r => [r.key, r.value]));
+        $('cfg-now').value = new Date().toLocaleString('es-AR', { hour12: false });
+        $('cfg-timezone').value = data.plant_timezone || 'America/Sao_Paulo';
+        $('cfg-plc-host').value = data.plc_host || '';
+        $('cfg-plc-rack').value = data.plc_rack || '0';
+        $('cfg-plc-slot').value = data.plc_slot || '1';
+      } catch {
+        notify('No se pudo cargar configuración');
+      }
+    }
+
+    async function saveSettings() {
+      try {
+        const payload = {
+          plant_timezone: $('cfg-timezone').value,
+          plc_host: $('cfg-plc-host').value,
+          plc_rack: $('cfg-plc-rack').value,
+          plc_slot: $('cfg-plc-slot').value,
+        };
+        await request('/settings', { method: 'PUT', body: JSON.stringify(payload) });
+        notify('Configuración guardada');
+      } catch (e) {
+        notify(e.message || 'No se pudo guardar configuración');
       }
     }
 
@@ -1204,6 +1254,9 @@
       $('manual-box').classList.add('hidden');
       $('manual-toggle-btn').textContent = 'Contingencia técnica';
       $('stock-ingress-box').classList.toggle('hidden', !canManual);
+      const isAdmin = state.user.role === 'admin';
+      $('nav-settings').classList.toggle('hidden', !isAdmin);
+      if (isAdmin) loadSettings();
       renderHeader();
       await refreshData();
       startAutoRefresh();
@@ -1218,6 +1271,7 @@
     $('manual-send-btn').addEventListener('click', sendManualMeasurement);
     $('manual-toggle-btn').addEventListener('click', toggleManualBox);
     $('stock-ingress-btn').addEventListener('click', sendStockIngress);
+    $('cfg-save-btn').addEventListener('click', saveSettings);
     $('api-base').addEventListener('change', persistApiBase);
     loadApiBase();
     applyProcessFormRules();
