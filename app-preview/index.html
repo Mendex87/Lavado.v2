@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <base href="/app-preview/" />
-  <title>Prosil - Lavado | Plant App Preview v2.4</title>
+  <title>Prosil - Lavado | Plant App Preview v2.5</title>
   <style>
     :root {
       --bg: #07101a;
@@ -315,7 +315,7 @@
         <div class="brand-mark">OC</div>
         <div>
           <h1>Prosil - Lavado</h1>
-          <div class="muted">Preview v2.4</div>
+          <div class="muted">Preview v2.5</div>
         </div>
       </div>
       <h2>Ingreso</h2>
@@ -339,7 +339,7 @@
         <div class="brand-mark">OC</div>
         <div>
           <h1>Prosil - Lavado</h1>
-          <div class="muted">Plant App Preview v2.4</div>
+          <div class="muted">Plant App Preview v2.5</div>
         </div>
       </div>
 
@@ -478,7 +478,7 @@
       stock: [],
       latestMeasurements: [],
       backendEvents: [],
-      uiEvents: ['Preview v2.4 cargada'],
+      uiEvents: ['Preview v2.5 cargada'],
       token: null,
       alarms: [],
       simulation: {
@@ -810,16 +810,28 @@
       $('events-list').innerHTML = merged.length ? merged.map(e => `<li><strong>${e.text}</strong><br><span class="muted">${e.meta}</span></li>`).join('') : '<li>Sin eventos.</li>';
     }
 
-    function buildAlarms() {
-      const alarms = [];
-      [1,2].forEach(line => {
-        if (!activeProcess(line)) alarms.push({ level: 'yellow', text: `Línea ${line} sin proceso activo` });
-      });
-      state.stock.filter(s => s.status === 'low').forEach(s => alarms.push({ level: 'yellow', text: `Stock bajo en ${s.quarry}` }));
-      state.stock.filter(s => s.status === 'critical').forEach(s => alarms.push({ level: 'red', text: `Stock crítico en ${s.quarry}` }));
-      state.alarms = alarms;
-      $('alarms-badge').textContent = alarms.length;
-      $('alarms-list').innerHTML = alarms.length ? alarms.map(a => `<li class="${a.level}"><strong>${a.text}</strong></li>`).join('') : '<li>Sin alarmas activas.</li>';
+    function renderAlarms() {
+      $('alarms-badge').textContent = state.alarms.length;
+      if (!state.alarms.length) {
+        $('alarms-list').innerHTML = '<li>Sin alarmas activas.</li>';
+        return;
+      }
+      $('alarms-list').innerHTML = state.alarms.map(a => {
+        const level = a.severity === 'high' ? 'red' : 'yellow';
+        const ack = a.acknowledged
+          ? `<span class="badge green">ACK</span>`
+          : `<button class="btn small secondary" onclick="ackAlarm(${a.id})">Acknowledge</button>`;
+        return `<li class="${level}"><div class="actions" style="justify-content:space-between;"><strong>${a.message}</strong>${ack}</div><div class="muted">${a.alarm_type} · L${a.line || '-'} · ${formatDate(a.started_at)}</div></li>`;
+      }).join('');
+    }
+
+    async function ackAlarm(alarmId) {
+      try {
+        await request(`/alarms/${alarmId}/ack`, { method: 'POST' });
+        await refreshData();
+      } catch {
+        notify('No se pudo reconocer la alarma');
+      }
     }
 
     function renderAll() {
@@ -831,7 +843,7 @@
       renderProcesses();
       renderStock();
       renderEvents();
-      buildAlarms();
+      renderAlarms();
     }
 
     function screenJump(screen) {
@@ -879,16 +891,18 @@
           const ok = await testConnection();
           if (!ok) return;
         }
-        const [processes, stock, events, latestMeasurements] = await Promise.all([
+        const [processes, stock, events, latestMeasurements, alarms] = await Promise.all([
           request('/processes/active'),
           request('/stock/quarries'),
           request('/events/recent').catch(() => []),
           request('/measurements/latest').catch(() => []),
+          request('/alarms/active').catch(() => []),
         ]);
         state.processes = processes;
         state.stock = stock;
         state.backendEvents = events;
         state.latestMeasurements = latestMeasurements;
+        state.alarms = alarms;
         renderAll();
       } finally {
         state.refreshBusy = false;
@@ -969,6 +983,7 @@
     function goToProcesses() { screenJump('active-process'); }
     window.goToProcesses = goToProcesses;
     window.closeProcess = closeProcess;
+    window.ackAlarm = ackAlarm;
 
     navLinks.forEach(btn => btn.addEventListener('click', () => screenJump(btn.dataset.screen)));
     $('check-api-btn').addEventListener('click', async () => { persistApiBase(); const ok = await testConnection(); if (ok) notify('Backend conectado'); });

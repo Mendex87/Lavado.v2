@@ -190,6 +190,11 @@ Registro paso a paso de decisiones, cambios y entregables del proyecto.
   - throttling de login por usuario e IP
   - límite: 5 fallos en 15 minutos
   - bloqueo temporal: 15 minutos con `HTTP 429`
+- Alarmas básicas + acknowledge (bloque A):
+  - endpoint `GET /alarms/active` con evaluación automática de reglas base
+  - reglas iniciales: `PLC_STALE` (sin lectura reciente) y `FLOW_HIGH` (>200 tn/h)
+  - endpoint `POST /alarms/{id}/ack` para reconocimiento manual
+  - vista de alarmas en preview conectada al backend con botón ACK
 
 ### [GITHUB PREP 2026-04-17]
 - Se creó `.gitignore` en raíz para separar código del proyecto vs archivos personales/operativos del workspace OpenClaw.
