@@ -152,6 +152,9 @@ Registro paso a paso de decisiones, cambios y entregables del proyecto.
 - Evolución visual preview v1.4:
   - se reemplazó la barra estática de escala de alimentación por mini gráfico lineal (sparkline)
   - histórico local por línea con 1 punto por minuto (hasta 60 minutos)
+- Ajuste de resolución/escala de sparkline (preview v1.5):
+  - muestreo aumentado a 1 punto cada 10 segundos
+  - escala fija del gráfico configurada en 0-200 tn/h
 
 ### [GITHUB PREP 2026-04-17]
 - Se creó `.gitignore` en raíz para separar código del proyecto vs archivos personales/operativos del workspace OpenClaw.

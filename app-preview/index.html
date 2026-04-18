@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <base href="/app-preview/" />
-  <title>Prosil - Lavado | Plant App Preview v1.4</title>
+  <title>Prosil - Lavado | Plant App Preview v1.5</title>
   <style>
     :root {
       --bg: #07101a;
@@ -307,7 +307,7 @@
         <div class="brand-mark">OC</div>
         <div>
           <h1>Prosil - Lavado</h1>
-          <div class="muted">Preview v1.4, operación + simulación desacoplada</div>
+          <div class="muted">Preview v1.5, operación + simulación desacoplada</div>
         </div>
       </div>
       <h2>Ingreso</h2>
@@ -331,7 +331,7 @@
         <div class="brand-mark">OC</div>
         <div>
           <h1>Prosil - Lavado</h1>
-          <div class="muted">Plant App Preview v1.4</div>
+          <div class="muted">Plant App Preview v1.5</div>
         </div>
       </div>
 
@@ -484,7 +484,7 @@
       stock: [],
       latestMeasurements: [],
       backendEvents: [],
-      uiEvents: ['Preview v1.4 cargada'],
+      uiEvents: ['Preview v1.5 cargada'],
       alarms: [],
       simulation: {
         1: { line: 1, running: false, tph_input: 120, split_product_a_pct: 70, split_product_b_pct: 20, split_discard_pct: 10, input_ton: 0, product_a_ton: 0, product_b_ton: 0, discard_ton: 0 },
@@ -545,24 +545,25 @@
       return latest ? formatDate(latest.captured_at) : null;
     }
 
-    function minuteKey(date = new Date()) {
-      return `${date.getFullYear()}-${date.getMonth()+1}-${date.getDate()}-${date.getHours()}-${date.getMinutes()}`;
+    function tenSecondKey(date = new Date()) {
+      const secBucket = Math.floor(date.getSeconds() / 10) * 10;
+      return `${date.getFullYear()}-${date.getMonth()+1}-${date.getDate()}-${date.getHours()}-${date.getMinutes()}-${secBucket}`;
     }
 
     function pushFeedPoint(line, tph) {
       const value = Number(tph || 0);
       const now = new Date();
-      const key = minuteKey(now);
+      const key = tenSecondKey(now);
       const bucket = state.feedHistory[line] || [];
       const idx = bucket.findIndex(p => p.key === key);
       const point = { key, ts: now.toISOString(), value };
       if (idx >= 0) bucket[idx] = point;
       else bucket.push(point);
-      state.feedHistory[line] = bucket.slice(-60);
+      state.feedHistory[line] = bucket.slice(-360);
     }
 
     function renderSparkline(line) {
-      const points = (state.feedHistory[line] || []).slice(-60);
+      const points = (state.feedHistory[line] || []).slice(-360);
       if (!points.length) {
         return '<div class="muted" style="font-size:12px;margin-top:6px;">Sin histórico aún</div>';
       }
@@ -570,8 +571,8 @@
       const height = 72;
       const pad = 6;
       const values = points.map(p => Number(p.value || 0));
-      const min = Math.min(...values, 0);
-      const max = Math.max(...values, 1);
+      const min = 0;
+      const max = 200;
       const span = Math.max(max - min, 1);
       const toXY = (v, i) => {
         const x = pad + (i * ((width - pad * 2) / Math.max(points.length - 1, 1)));
@@ -584,7 +585,7 @@
           <svg class="sparkline" viewBox="0 0 ${width} ${height}" preserveAspectRatio="none" aria-label="Caudal últimos minutos">
             <polyline fill="none" stroke="#57d7ff" stroke-width="2" points="${polyline}" />
           </svg>
-          <div class="muted" style="font-size:11px;">Últimos ${points.length} min · 1 punto/min</div>
+          <div class="muted" style="font-size:11px;">Escala fija 0-200 tn/h · 1 punto/10 s</div>
         </div>
       `;
     }
