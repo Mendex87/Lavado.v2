@@ -195,6 +195,11 @@ Registro paso a paso de decisiones, cambios y entregables del proyecto.
   - reglas iniciales: `PLC_STALE` (sin lectura reciente) y `FLOW_HIGH` (>200 tn/h)
   - endpoint `POST /alarms/{id}/ack` para reconocimiento manual
   - vista de alarmas en preview conectada al backend con botón ACK
+- Auditoría mínima transversal (bloque A):
+  - se registran eventos de `login_success`, `login_failed`, `login_blocked`
+  - se registran `create_process` y `close_process`
+  - se registra `ack_alarm`
+  - endpoint `GET /audit/recent` (solo supervisor/admin)
 
 ### [GITHUB PREP 2026-04-17]
 - Se creó `.gitignore` en raíz para separar código del proyecto vs archivos personales/operativos del workspace OpenClaw.

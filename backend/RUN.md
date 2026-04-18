@@ -34,6 +34,7 @@ Luego se puede volver a PostgreSQL cambiando `DATABASE_URL` o las variables `POS
 - `POST /api/v1/measurements/ingest`
 - `GET /api/v1/alarms/active`
 - `POST /api/v1/alarms/{id}/ack`
+- `GET /api/v1/audit/recent`
 - `GET /api/v1/simulation/line/1`
 - `POST /api/v1/simulation/start`
 - `POST /api/v1/simulation/step`
@@ -55,6 +56,7 @@ Luego se puede volver a PostgreSQL cambiando `DATABASE_URL` o las variables `POS
 
 - `admin/*`: solo `admin`
 - `plc/*`, `simulation/*`: `supervisor` o `admin`
+- `audit/recent`: `supervisor` o `admin`
 - resto de endpoints operativos: cualquier usuario autenticado
 
 ### Rate limit de login

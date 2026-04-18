@@ -1,8 +1,10 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
+from app.api.deps import get_current_user
 from app.db.session import get_db
 from app.repositories.process_repository import ProcessRepository
 from app.schemas.process import ProcessCloseRequest, ProcessCreateRequest, ProcessSummary
+from app.services.audit_service import AuditService
 from app.services.process_service import ProcessService
 
 router = APIRouter(prefix='/processes', tags=['processes'])
@@ -26,10 +28,21 @@ def list_active_processes(db: Session = Depends(get_db)):
 
 
 @router.post('', response_model=ProcessSummary, status_code=201)
-def create_process(payload: ProcessCreateRequest, db: Session = Depends(get_db)):
+def create_process(
+    payload: ProcessCreateRequest,
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user),
+):
     service = ProcessService(ProcessRepository(db))
     try:
         process = service.create(payload)
+        AuditService(db).log(
+            user_id=current_user.id,
+            entity_name='process',
+            entity_id=process.code,
+            action='create_process',
+            after_json={'line': process.line_id, 'mode': process.mode},
+        )
         db.commit()
         db.refresh(process)
     except ValueError as exc:
@@ -46,10 +59,23 @@ def create_process(payload: ProcessCreateRequest, db: Session = Depends(get_db))
 
 
 @router.post('/{code}/close')
-def close_process(code: str, payload: ProcessCloseRequest, db: Session = Depends(get_db)):
+def close_process(
+    code: str,
+    payload: ProcessCloseRequest,
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user),
+):
     service = ProcessService(ProcessRepository(db))
     try:
         process = service.close(code, payload.reason)
     except LookupError as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from exc
+    AuditService(db).log(
+        user_id=current_user.id,
+        entity_name='process',
+        entity_id=process.code,
+        action='close_process',
+        after_json={'reason': payload.reason},
+    )
+    db.commit()
     return {'ok': True, 'code': process.code, 'status': process.status}
