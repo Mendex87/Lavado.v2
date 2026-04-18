@@ -570,9 +570,9 @@
 
       const plcTph = line === 1
         ? latestValue(1, 'l1_input_tph', 'partial_ton')
-        : latestValue(2, 'l2_input_tph', 'partial_ton');
-      const l2FlowA = latestValue(2, 'l2_input_hopper_1', 'partial_ton');
-      const l2FlowB = latestValue(2, 'l2_input_hopper_2', 'partial_ton');
+        : null;
+      const l2FlowA = latestValue(2, 'l2_input_tph_a', 'partial_ton');
+      const l2FlowB = latestValue(2, 'l2_input_tph_b', 'partial_ton');
 
       const inputProcessPartial = line === 1
         ? latestValue(1, 'l1_input_main', 'partial_ton')

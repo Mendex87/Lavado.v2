@@ -157,6 +157,32 @@ class SeedService:
             )
             ensure_measurement_point(
                 line_2.id,
+                code='l2_input_tph_a',
+                name='Alimentación A línea 2 (tn/h)',
+                point_kind='input',
+                role='feed_rate_a',
+                source_mode='plc',
+                plc_tag='l2_input_tph_a',
+                affects_stock=False,
+                affects_production=False,
+                display_order=3,
+                notes='Caudal instantáneo de alimentación A en tn/h',
+            )
+            ensure_measurement_point(
+                line_2.id,
+                code='l2_input_tph_b',
+                name='Alimentación B línea 2 (tn/h)',
+                point_kind='input',
+                role='feed_rate_b',
+                source_mode='plc',
+                plc_tag='l2_input_tph_b',
+                affects_stock=False,
+                affects_production=False,
+                display_order=4,
+                notes='Caudal instantáneo de alimentación B en tn/h',
+            )
+            ensure_measurement_point(
+                line_2.id,
                 code='l2_input_hopper_2',
                 name='Tolva 2 línea 2',
                 point_kind='input',
@@ -165,7 +191,7 @@ class SeedService:
                 plc_tag='l2_input_hopper_2',
                 affects_stock=True,
                 affects_production=False,
-                display_order=3,
+                display_order=5,
             )
             ensure_measurement_point(
                 line_2.id,
@@ -177,7 +203,7 @@ class SeedService:
                 plc_tag='l2_output_1',
                 affects_stock=False,
                 affects_production=True,
-                display_order=4,
+                display_order=6,
                 notes='Puede venir desde PLC o carga manual',
             )
 

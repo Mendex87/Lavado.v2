@@ -10,7 +10,30 @@
         },
         {
           "code": "l1_input_tph",
-          "partial": { "db": 13, "byte": 4, "type": "real" }
+          "partial": { "db": 14, "byte": 0, "type": "real" }
+        }
+      ]
+    },
+    {
+      "line": 2,
+      "channels": [
+        {
+          "code": "l2_input_hopper_1",
+          "partial": { "db": 13, "byte": 4, "type": "real" },
+          "totalizer": { "db": 2, "byte": 4, "type": "real" }
+        },
+        {
+          "code": "l2_input_hopper_2",
+          "partial": { "db": 13, "byte": 8, "type": "real" },
+          "totalizer": { "db": 2, "byte": 8, "type": "real" }
+        },
+        {
+          "code": "l2_input_tph_a",
+          "partial": { "db": 14, "byte": 4, "type": "real" }
+        },
+        {
+          "code": "l2_input_tph_b",
+          "partial": { "db": 14, "byte": 8, "type": "real" }
         }
       ]
     }

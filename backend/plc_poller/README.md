@@ -34,7 +34,8 @@ Se dejó preparado el primer caso de prueba con una balanza + feed-rate:
 - acceso optimizado quitado en ambas DB
 - canal de entrada: `l1_input_main`
 - canal de alimentación actual (tn/h): `l1_input_tph`
-- offsets ejemplo: `l1_input_main` en byte `0` y `l1_input_tph` en byte `4` (ambos `Real`)
+- en línea 2, canales de caudal separados: `l2_input_tph_a` y `l2_input_tph_b`
+- offsets ejemplo en `DB14`: L1 en byte `0`, L2-A en byte `4`, L2-B en byte `8` (`Real`)
 
 Si en TIA los offsets efectivos cambian, ajustar `mapping.example.json`.
 
