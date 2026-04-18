@@ -17,7 +17,7 @@ set "PLC_RACK=0"
 set "PLC_SLOT=1"
 set "BACKEND_URL=http://100.99.95.109:42110/plant-api"
 set "PLC_MAPPING_PATH=plc_poller/mapping.example.json"
-set "PLC_POLL_INTERVAL_SECONDS=1"
+set "PLC_POLL_INTERVAL_SECONDS=0.5"
 
 echo ===============================================
 echo Prosil PLC Poller -> VPS

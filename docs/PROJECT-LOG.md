@@ -208,6 +208,7 @@ Registro paso a paso de decisiones, cambios y entregables del proyecto.
 - Optimización de refresco en preview (v2.7):
   - refresco general (procesos, stock, eventos, alarmas, parciales y totalizadores): cada 10s
   - refresco rápido de caudal (`l1_input_tph`, `l2_input_tph_a`, `l2_input_tph_b`, `l2_input_tph`): cada 500ms
+  - poller PLC ajustado para 500ms en script `run_poller_vps.bat` (`PLC_POLL_INTERVAL_SECONDS=0.5`)
   - objetivo: mantener sensación online en caudal sin sobrecargar UI/backend
 
 ### [GITHUB PREP 2026-04-17]
