@@ -158,6 +158,9 @@ Registro paso a paso de decisiones, cambios y entregables del proyecto.
 - Mejora de legibilidad del sparkline (preview v1.6):
   - líneas guía horizontales para 0, 100 y 200 tn/h
   - etiquetas visibles de escala para referencia rápida de valor
+- Corrección de escala en eje vertical (preview v1.7):
+  - eje Y explícito con etiquetas 0/100/200 dentro del gráfico
+  - eliminación de escala horizontal inferior para evitar confusión
 
 ### [GITHUB PREP 2026-04-17]
 - Se creó `.gitignore` en raíz para separar código del proyecto vs archivos personales/operativos del workspace OpenClaw.
