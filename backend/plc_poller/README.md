@@ -27,13 +27,14 @@ Base de estructura lista y preparada para `python-snap7`.
 6. reintentar si falla la red/API
 
 ## Primera prueba real aterrizada
-Se dejó preparado el primer caso de prueba con una sola balanza:
+Se dejó preparado el primer caso de prueba con una balanza + feed-rate:
 
 - parciales en `DB13`
 - totalizadores en `DB2`
 - acceso optimizado quitado en ambas DB
-- canal inicial: `l1_input_main`
-- offsets asumidos para balanza 1: byte `0` en ambas DB (`Real`)
+- canal de entrada: `l1_input_main`
+- canal de alimentación actual (tn/h): `l1_input_tph`
+- offsets ejemplo: `l1_input_main` en byte `0` y `l1_input_tph` en byte `4` (ambos `Real`)
 
 Si en TIA los offsets efectivos cambian, ajustar `mapping.example.json`.
 

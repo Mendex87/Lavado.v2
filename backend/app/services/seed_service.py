@@ -9,6 +9,12 @@ class SeedService:
         self.db = db
 
     def run(self):
+        def ensure_measurement_point(line_id: int, code: str, **kwargs):
+            exists = self.db.query(MeasurementPoint).filter(MeasurementPoint.code == code).first()
+            if exists:
+                return
+            self.db.add(MeasurementPoint(code=code, line_id=line_id, **kwargs))
+
         if not self.db.query(Role).first():
             self.db.add_all([
                 Role(code='operador', name='Operador'),
@@ -58,22 +64,122 @@ class SeedService:
                 self.db.add(QuarryStock(quarry_id=quarry.id, current_ton=stock_defaults.get(quarry.code, 0.0)))
 
         self.db.flush()
-        if not self.db.query(MeasurementPoint).first():
-            line_1 = self.db.query(Line).filter(Line.code == 'L1').first()
-            line_2 = self.db.query(Line).filter(Line.code == 'L2').first()
-            if line_1:
-                self.db.add_all([
-                    MeasurementPoint(code='l1_input_main', name='Entrada línea 1', line_id=line_1.id, point_kind='input', role='feed', source_mode='plc', plc_tag='l1_input_main', affects_stock=True, affects_production=False, display_order=1),
-                    MeasurementPoint(code='l1_output_1', name='Salida 1 línea 1', line_id=line_1.id, point_kind='output', role='product', source_mode='plc', plc_tag='l1_output_1', affects_stock=False, affects_production=True, display_order=2),
-                    MeasurementPoint(code='l1_output_2', name='Salida 2 línea 1', line_id=line_1.id, point_kind='output', role='product', source_mode='plc', plc_tag='l1_output_2', affects_stock=False, affects_production=True, display_order=3),
-                    MeasurementPoint(code='l1_output_3', name='Salida 3 línea 1', line_id=line_1.id, point_kind='output', role='product', source_mode='manual', plc_tag='l1_output_3', affects_stock=False, affects_production=True, display_order=4, notes='Punto preparado para fallback manual o futura balanza'),
-                ])
-            if line_2:
-                self.db.add_all([
-                    MeasurementPoint(code='l2_input_hopper_1', name='Tolva 1 línea 2', line_id=line_2.id, point_kind='input', role='feed', source_mode='plc', plc_tag='l2_input_hopper_1', affects_stock=True, affects_production=False, display_order=1),
-                    MeasurementPoint(code='l2_input_hopper_2', name='Tolva 2 línea 2', line_id=line_2.id, point_kind='input', role='feed', source_mode='plc', plc_tag='l2_input_hopper_2', affects_stock=True, affects_production=False, display_order=2),
-                    MeasurementPoint(code='l2_output_1', name='Salida 1 línea 2', line_id=line_2.id, point_kind='output', role='product', source_mode='mixed', plc_tag='l2_output_1', affects_stock=False, affects_production=True, display_order=3, notes='Puede venir desde PLC o carga manual'),
-                ])
+        line_1 = self.db.query(Line).filter(Line.code == 'L1').first()
+        line_2 = self.db.query(Line).filter(Line.code == 'L2').first()
+        if line_1:
+            ensure_measurement_point(
+                line_1.id,
+                code='l1_input_main',
+                name='Entrada línea 1',
+                point_kind='input',
+                role='feed',
+                source_mode='plc',
+                plc_tag='l1_input_main',
+                affects_stock=True,
+                affects_production=False,
+                display_order=1,
+            )
+            ensure_measurement_point(
+                line_1.id,
+                code='l1_input_tph',
+                name='Alimentación actual línea 1 (tn/h)',
+                point_kind='input',
+                role='feed_rate',
+                source_mode='plc',
+                plc_tag='l1_input_tph',
+                affects_stock=False,
+                affects_production=False,
+                display_order=2,
+                notes='Valor instantáneo de alimentación en tn/h',
+            )
+            ensure_measurement_point(
+                line_1.id,
+                code='l1_output_1',
+                name='Salida 1 línea 1',
+                point_kind='output',
+                role='product',
+                source_mode='plc',
+                plc_tag='l1_output_1',
+                affects_stock=False,
+                affects_production=True,
+                display_order=3,
+            )
+            ensure_measurement_point(
+                line_1.id,
+                code='l1_output_2',
+                name='Salida 2 línea 1',
+                point_kind='output',
+                role='product',
+                source_mode='plc',
+                plc_tag='l1_output_2',
+                affects_stock=False,
+                affects_production=True,
+                display_order=4,
+            )
+            ensure_measurement_point(
+                line_1.id,
+                code='l1_output_3',
+                name='Salida 3 línea 1',
+                point_kind='output',
+                role='product',
+                source_mode='manual',
+                plc_tag='l1_output_3',
+                affects_stock=False,
+                affects_production=True,
+                display_order=5,
+                notes='Punto preparado para fallback manual o futura balanza',
+            )
+        if line_2:
+            ensure_measurement_point(
+                line_2.id,
+                code='l2_input_hopper_1',
+                name='Tolva 1 línea 2',
+                point_kind='input',
+                role='feed',
+                source_mode='plc',
+                plc_tag='l2_input_hopper_1',
+                affects_stock=True,
+                affects_production=False,
+                display_order=1,
+            )
+            ensure_measurement_point(
+                line_2.id,
+                code='l2_input_tph',
+                name='Alimentación actual línea 2 (tn/h)',
+                point_kind='input',
+                role='feed_rate',
+                source_mode='plc',
+                plc_tag='l2_input_tph',
+                affects_stock=False,
+                affects_production=False,
+                display_order=2,
+                notes='Valor instantáneo de alimentación en tn/h',
+            )
+            ensure_measurement_point(
+                line_2.id,
+                code='l2_input_hopper_2',
+                name='Tolva 2 línea 2',
+                point_kind='input',
+                role='feed',
+                source_mode='plc',
+                plc_tag='l2_input_hopper_2',
+                affects_stock=True,
+                affects_production=False,
+                display_order=3,
+            )
+            ensure_measurement_point(
+                line_2.id,
+                code='l2_output_1',
+                name='Salida 1 línea 2',
+                point_kind='output',
+                role='product',
+                source_mode='mixed',
+                plc_tag='l2_output_1',
+                affects_stock=False,
+                affects_production=True,
+                display_order=4,
+                notes='Puede venir desde PLC o carga manual',
+            )
 
         self.db.commit()
         return {'ok': True}

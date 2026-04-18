@@ -132,6 +132,7 @@ Registro paso a paso de decisiones, cambios y entregables del proyecto.
 - Se agregó auto-refresh en preview cada 5 segundos al iniciar sesión (con control de concurrencia para evitar solapamientos de requests).
 - Se ajustó dashboard para mostrar en "Entrada proceso" el valor parcial PLC (no totalizador general).
 - `plc_poller.main` pasó a modo continuo (polling por intervalo), evitando ejecución manual por cada actualización.
+- Se incorporó integración para `tn/h` real desde PLC en dashboard: nuevo punto `l1_input_tph` (y placeholder `l2_input_tph`), con consumo en UI para reemplazar el valor fijo de simulación cuando exista lectura.
 
 ### [GITHUB PREP 2026-04-17]
 - Se creó `.gitignore` en raíz para separar código del proyecto vs archivos personales/operativos del workspace OpenClaw.

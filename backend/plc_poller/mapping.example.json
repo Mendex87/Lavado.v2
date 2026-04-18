@@ -7,6 +7,10 @@
           "code": "l1_input_main",
           "partial": { "db": 13, "byte": 0, "type": "real" },
           "totalizer": { "db": 2, "byte": 0, "type": "real" }
+        },
+        {
+          "code": "l1_input_tph",
+          "partial": { "db": 13, "byte": 4, "type": "real" }
         }
       ]
     }

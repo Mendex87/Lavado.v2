@@ -558,6 +558,10 @@
         ? `<span class="badge blue">PLC ${lineLatest.length} canales · ${latestCapturedAt(line) || 'sin fecha'}</span>`
         : '<span class="badge yellow">Sin lectura PLC</span>';
 
+      const plcTph = line === 1
+        ? latestValue(1, 'l1_input_tph', 'partial_ton')
+        : latestValue(2, 'l2_input_tph', 'partial_ton');
+
       const inputProcessPartial = line === 1
         ? latestValue(1, 'l1_input_main', 'partial_ton')
         : latestValue(2, 'l2_input_hopper_1', 'partial_ton');
@@ -575,7 +579,8 @@
       const shownOutputA = outputA ?? sim.product_a_ton;
       const shownOutputB = outputB ?? sim.product_b_ton;
       const shownDiscard = discard ?? sim.discard_ton;
-      const feedPct = Math.min(100, (Number(sim.tph_input || 0) / 150) * 100);
+      const shownTph = plcTph ?? sim.tph_input;
+      const feedPct = Math.min(100, (Number(shownTph || 0) / 150) * 100);
       el.innerHTML = `
         <div class="card-head">
           <div>
@@ -587,7 +592,7 @@
         <div class="hero">
           <div class="feed-block">
             <div class="mini-label">ALIMENTACIÓN ACTUAL</div>
-            <div class="feed-value">${formatTph(sim.tph_input)}</div>
+            <div class="feed-value">${formatTph(shownTph)}</div>
             <div class="muted">Dato protagonista de línea</div>
             <div class="feed-bar"><div class="feed-fill" style="width:${feedPct}%"></div></div>
             <div class="split-legend"><span><span class="legend-dot" style="background:var(--cyan)"></span>Escala visual de alimentación</span></div>
