@@ -216,8 +216,12 @@ Registro paso a paso de decisiones, cambios y entregables del proyecto.
     - 3 alimentaciones: `l1_input_main`, `l2_input_hopper_1`, `l2_input_hopper_2`
     - 4 productos: `l1_output_1`, `l1_output_2`, `l2_output_1`, `l1_output_3`
   - `GET /measurements/latest` informa `source` (`plc` / `manual`)
-  - la UI de contingencia queda capada para supervisor/admin y orientada a “registrar lo no capturado automático”
+  - la UI de contingencia queda capada para supervisor/admin y orientada a “registrar lo no capturado automático”, con panel plegado por defecto
   - al cargar alimentación manual, se descuenta stock de las canteras del proceso activo y se registra movimiento
+- Stock manual de acopios (v3.0):
+  - endpoint `POST /stock/ingress` para ingreso manual de cantera (solo supervisor/admin)
+  - registra movimiento `manual_ingress` y actualiza `quarry_stock.current_ton`
+  - bloque UI en pantalla de stock para carga manual (cantera, toneladas, referencia, motivo)
 
 ### [GITHUB PREP 2026-04-17]
 - Se creó `.gitignore` en raíz para separar código del proyecto vs archivos personales/operativos del workspace OpenClaw.

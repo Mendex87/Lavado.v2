@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <base href="/app-preview/" />
-  <title>Prosil - Lavado | Plant App Preview v2.9</title>
+  <title>Prosil - Lavado | Plant App Preview v3.0</title>
   <style>
     :root {
       --bg: #07101a;
@@ -315,7 +315,7 @@
         <div class="brand-mark">OC</div>
         <div>
           <h1>Prosil - Lavado</h1>
-          <div class="muted">Preview v2.9</div>
+          <div class="muted">Preview v3.0</div>
         </div>
       </div>
       <h2>Ingreso</h2>
@@ -339,7 +339,7 @@
         <div class="brand-mark">OC</div>
         <div>
           <h1>Prosil - Lavado</h1>
-          <div class="muted">Plant App Preview v2.9</div>
+          <div class="muted">Plant App Preview v3.0</div>
         </div>
       </div>
 
@@ -433,6 +433,9 @@
           <div class="card-head"><h3>Procesos activos</h3><span class="badge blue" id="active-count-badge">0 activos</span></div>
           <div id="process-list" class="grid"></div>
         </div>
+        <div class="actions" style="margin-top:12px;">
+          <button class="btn secondary hidden" id="manual-toggle-btn">Contingencia técnica</button>
+        </div>
         <div class="card hidden" style="margin-top:16px;" id="manual-box">
           <div class="card-head"><h3>Contingencia técnica (manual)</h3><span class="badge yellow">Supervisor/Admin</span></div>
           <div class="form-grid" style="grid-template-columns:repeat(4,minmax(0,1fr));">
@@ -457,6 +460,16 @@
             <thead><tr><th>Cantera</th><th>Stock</th><th>Estado</th><th>Último movimiento</th></tr></thead>
             <tbody id="stock-body"></tbody>
           </table>
+        </div>
+        <div class="card hidden" style="margin-top:16px;" id="stock-ingress-box">
+          <div class="card-head"><h3>Ingreso manual a acopio</h3><span class="badge yellow">Supervisor/Admin</span></div>
+          <div class="form-grid" style="grid-template-columns:repeat(4,minmax(0,1fr));">
+            <label><span>Cantera</span><select id="stock-ingress-quarry"><option>Río Negro</option><option>Dolavon</option><option>Trelew Norte</option></select></label>
+            <label><span>Cantidad (tn)</span><input id="stock-ingress-qty" type="number" step="0.001" /></label>
+            <label><span>Referencia</span><input id="stock-ingress-ref" type="text" /></label>
+            <label><span>Motivo</span><input id="stock-ingress-reason" type="text" /></label>
+          </div>
+          <div class="actions" style="margin-top:12px;"><button class="btn secondary" id="stock-ingress-btn">Registrar ingreso</button></div>
         </div>
       </section>
 
@@ -494,7 +507,7 @@
       stock: [],
       latestMeasurements: [],
       backendEvents: [],
-      uiEvents: ['Preview v2.9 cargada'],
+      uiEvents: ['Preview v3.0 cargada'],
       token: null,
       alarms: [],
       simulation: {
@@ -523,6 +536,7 @@
         warnTimer: null,
         expireTimer: null,
       },
+      manualBoxOpen: false,
       refreshBusy: false,
     };
 
@@ -1121,12 +1135,36 @@
       }
     }
 
+    function toggleManualBox() {
+      state.manualBoxOpen = !state.manualBoxOpen;
+      $('manual-box').classList.toggle('hidden', !state.manualBoxOpen);
+      $('manual-toggle-btn').textContent = state.manualBoxOpen ? 'Ocultar contingencia' : 'Contingencia técnica';
+    }
+
+    async function sendStockIngress() {
+      try {
+        const payload = {
+          quarry: $('stock-ingress-quarry').value,
+          quantity_ton: Number($('stock-ingress-qty').value || 0),
+          reference_code: $('stock-ingress-ref').value || null,
+          reason: $('stock-ingress-reason').value || null,
+        };
+        const result = await request('/stock/ingress', { method: 'POST', body: JSON.stringify(payload) });
+        addUiEvent(`Ingreso manual ${result.quarry} +${result.quantity_ton} t`);
+        await refreshData();
+        notify('Ingreso de acopio registrado');
+      } catch {
+        notify('No se pudo registrar ingreso');
+      }
+    }
+
     function logout(reason = null) {
       stopAutoRefresh();
       clearSessionTimers();
       state.user = null;
       state.token = null;
       state.session.expEpochSec = null;
+      state.manualBoxOpen = false;
       $('app-shell').classList.add('hidden');
       $('login-wrap').classList.remove('hidden');
       addUiEvent(reason ? `Logout (${reason})` : 'Logout realizado');
@@ -1138,6 +1176,8 @@
     window.closeProcess = closeProcess;
     window.ackAlarm = ackAlarm;
     window.sendManualMeasurement = sendManualMeasurement;
+    window.toggleManualBox = toggleManualBox;
+    window.sendStockIngress = sendStockIngress;
 
     navLinks.forEach(btn => btn.addEventListener('click', () => screenJump(btn.dataset.screen)));
     $('check-api-btn').addEventListener('click', async () => { persistApiBase(); const ok = await testConnection(); if (ok) notify('Backend conectado'); });
@@ -1159,7 +1199,11 @@
       }
       $('login-wrap').classList.add('hidden');
       $('app-shell').classList.remove('hidden');
-      $('manual-box').classList.toggle('hidden', !['supervisor', 'admin'].includes(state.user.role));
+      const canManual = ['supervisor', 'admin'].includes(state.user.role);
+      $('manual-toggle-btn').classList.toggle('hidden', !canManual);
+      $('manual-box').classList.add('hidden');
+      $('manual-toggle-btn').textContent = 'Contingencia técnica';
+      $('stock-ingress-box').classList.toggle('hidden', !canManual);
       renderHeader();
       await refreshData();
       startAutoRefresh();
@@ -1172,6 +1216,8 @@
     $('create-process-btn').addEventListener('click', createProcess);
     $('manual-line').addEventListener('change', applyManualFormRules);
     $('manual-send-btn').addEventListener('click', sendManualMeasurement);
+    $('manual-toggle-btn').addEventListener('click', toggleManualBox);
+    $('stock-ingress-btn').addEventListener('click', sendStockIngress);
     $('api-base').addEventListener('change', persistApiBase);
     loadApiBase();
     applyProcessFormRules();
