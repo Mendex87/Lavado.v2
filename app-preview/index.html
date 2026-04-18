@@ -453,6 +453,12 @@
         1: { on: false, timer: null },
         2: { on: false, timer: null },
       },
+      autoRefresh: {
+        enabled: true,
+        intervalMs: 5000,
+        timer: null,
+      },
+      refreshBusy: false,
     };
 
     const $ = id => document.getElementById(id);
@@ -753,25 +759,46 @@
     }
 
     async function refreshData() {
-      if (!state.connected) {
-        const ok = await testConnection();
-        if (!ok) return;
+      if (state.refreshBusy) return;
+      state.refreshBusy = true;
+      try {
+        if (!state.connected) {
+          const ok = await testConnection();
+          if (!ok) return;
+        }
+        const [processes, stock, events, sim1, sim2, latestMeasurements] = await Promise.all([
+          request('/processes/active'),
+          request('/stock/quarries'),
+          request('/events/recent').catch(() => []),
+          request('/simulation/line/1'),
+          request('/simulation/line/2'),
+          request('/measurements/latest').catch(() => []),
+        ]);
+        state.processes = processes;
+        state.stock = stock;
+        state.backendEvents = events;
+        state.simulation[1] = sim1;
+        state.simulation[2] = sim2;
+        state.latestMeasurements = latestMeasurements;
+        renderAll();
+      } finally {
+        state.refreshBusy = false;
       }
-      const [processes, stock, events, sim1, sim2, latestMeasurements] = await Promise.all([
-        request('/processes/active'),
-        request('/stock/quarries'),
-        request('/events/recent').catch(() => []),
-        request('/simulation/line/1'),
-        request('/simulation/line/2'),
-        request('/measurements/latest').catch(() => []),
-      ]);
-      state.processes = processes;
-      state.stock = stock;
-      state.backendEvents = events;
-      state.simulation[1] = sim1;
-      state.simulation[2] = sim2;
-      state.latestMeasurements = latestMeasurements;
-      renderAll();
+    }
+
+    function startAutoRefresh() {
+      stopAutoRefresh();
+      if (!state.autoRefresh.enabled) return;
+      state.autoRefresh.timer = setInterval(() => {
+        refreshData().catch(() => {});
+      }, state.autoRefresh.intervalMs);
+    }
+
+    function stopAutoRefresh() {
+      if (state.autoRefresh.timer) {
+        clearInterval(state.autoRefresh.timer);
+        state.autoRefresh.timer = null;
+      }
     }
 
     function applyProcessFormRules() {
@@ -891,6 +918,7 @@
 
     function logout() {
       [1,2].forEach(line => toggleAutoSim(line, false));
+      stopAutoRefresh();
       state.user = null;
       $('app-shell').classList.add('hidden');
       $('login-wrap').classList.remove('hidden');
@@ -921,6 +949,7 @@
       renderHeader();
       await seedData();
       await refreshData();
+      startAutoRefresh();
       notify('Sesión iniciada');
     });
     $('logout-btn').addEventListener('click', logout);
