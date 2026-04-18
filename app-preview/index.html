@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <base href="/app-preview/" />
-  <title>Prosil - Lavado | Plant App Preview v1.0</title>
+  <title>Prosil - Lavado | Plant App Preview v1.1</title>
   <style>
     :root {
       --bg: #07101a;
@@ -171,10 +171,11 @@
       margin-bottom: 14px;
       flex-wrap: wrap;
     }
-    .summary-grid, .kpi-grid, .field-grid { display: grid; gap: 12px; }
+    .summary-grid, .kpi-grid, .field-grid, .products-grid { display: grid; gap: 12px; }
     .summary-grid { grid-template-columns: repeat(5, minmax(0, 1fr)); }
     .kpi-grid { grid-template-columns: repeat(5, minmax(0, 1fr)); }
     .field-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .products-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
     .summary, .kpi, .line-subcard {
       background: linear-gradient(180deg, var(--panel-2), #112032);
       border: 1px solid var(--border);
@@ -259,7 +260,7 @@
       z-index: 999;
     }
     @media (max-width: 1280px) {
-      .summary-grid, .kpi-grid, .field-grid, .line-stats, .sim-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .summary-grid, .kpi-grid, .field-grid, .line-stats, .sim-kpis, .products-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     }
     @media (max-width: 1120px) {
       .layout { grid-template-columns: 1fr; }
@@ -267,7 +268,7 @@
       .two-col, .three-col, .sim-grid, .line-card .hero, .line-meta { grid-template-columns: 1fr; }
     }
     @media (max-width: 760px) {
-      .summary-grid, .kpi-grid, .field-grid, .line-stats, .sim-kpis { grid-template-columns: 1fr; }
+      .summary-grid, .kpi-grid, .field-grid, .line-stats, .sim-kpis, .products-grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -278,7 +279,7 @@
         <div class="brand-mark">OC</div>
         <div>
           <h1>Prosil - Lavado</h1>
-          <div class="muted">Preview v1.0, operación + simulación desacoplada</div>
+          <div class="muted">Preview v1.1, operación + simulación desacoplada</div>
         </div>
       </div>
       <h2>Ingreso</h2>
@@ -302,7 +303,7 @@
         <div class="brand-mark">OC</div>
         <div>
           <h1>Prosil - Lavado</h1>
-          <div class="muted">Plant App Preview v1.0</div>
+          <div class="muted">Plant App Preview v1.1</div>
         </div>
       </div>
 
@@ -365,6 +366,11 @@
         <div class="grid two-col" style="margin-top:16px;">
           <div id="line-1-card" class="line-card"></div>
           <div id="line-2-card" class="line-card"></div>
+        </div>
+
+        <div class="card" style="margin-top:16px;">
+          <div class="card-head"><h3>Salidas / productos</h3><span class="badge blue">Resumen planta</span></div>
+          <div id="dashboard-products-row" class="products-grid"></div>
         </div>
       </section>
 
@@ -450,7 +456,7 @@
       stock: [],
       latestMeasurements: [],
       backendEvents: [],
-      uiEvents: ['Preview v1.0 cargada'],
+      uiEvents: ['Preview v1.1 cargada'],
       alarms: [],
       simulation: {
         1: { line: 1, running: false, tph_input: 120, split_product_a_pct: 70, split_product_b_pct: 20, split_discard_pct: 10, input_ton: 0, product_a_ton: 0, product_b_ton: 0, discard_ton: 0 },
@@ -658,12 +664,6 @@
           <div class="stat"><span>Totalizador general</span><strong>${formatTon(inputTotalizer)}</strong></div>
           <div class="stat"><span>Alimentación actual</span><strong>${formatTph(shownTph)}</strong></div>
         </div>
-        <div class="mini-label" style="margin-top:14px;">SALIDAS / PRODUCTOS</div>
-        <div class="line-stats" style="margin-top:8px;">
-          <div class="stat"><span>Producto A</span><strong>${formatTon(shownOutputA)}</strong></div>
-          <div class="stat"><span>Producto B</span><strong>${formatTon(shownOutputB)}</strong></div>
-          <div class="stat"><span>Descarte</span><strong>${formatTon(shownDiscard)}</strong></div>
-        </div>
         <div class="actions" style="margin-top:14px;">
           <button class="btn small secondary" onclick="goToSimulation(${line})">Simulación L${line}</button>
           <button class="btn small secondary" onclick="goToProcesses()">Ver proceso</button>
@@ -704,6 +704,19 @@
         const label = s.status === 'critical' ? 'Crítico' : s.status === 'low' ? 'Bajo' : 'Normal';
         return `<tr><td>${s.quarry}</td><td>${formatTon(s.tons)}</td><td><span class="badge ${cls}">${label}</span></td><td>${s.last_movement}</td></tr>`;
       }).join('');
+    }
+
+    function renderDashboardProducts() {
+      const p1 = latestValue(1, 'l1_output_1') ?? 0;
+      const p2 = latestValue(1, 'l1_output_2') ?? 0;
+      const p3 = latestValue(2, 'l2_output_1') ?? 0;
+      const discard = latestValue(1, 'l1_output_3') ?? 0;
+      $('dashboard-products-row').innerHTML = `
+        <div class="stat"><span>Producto 1</span><strong>${formatTon(p1)}</strong></div>
+        <div class="stat"><span>Producto 2</span><strong>${formatTon(p2)}</strong></div>
+        <div class="stat"><span>Producto 3</span><strong>${formatTon(p3)}</strong></div>
+        <div class="stat"><span>Descarte</span><strong>${formatTon(discard)}</strong></div>
+      `;
     }
 
     function renderEvents() {
@@ -775,6 +788,7 @@
       renderSummary();
       renderLineCard(1);
       renderLineCard(2);
+      renderDashboardProducts();
       renderProcesses();
       renderStock();
       renderEvents();

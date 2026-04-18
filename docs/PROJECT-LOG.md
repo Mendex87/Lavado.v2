@@ -141,6 +141,10 @@ Registro paso a paso de decisiones, cambios y entregables del proyecto.
   - simple: lectura protagonista basada en alimentación A
   - blend: lectura protagonista como suma A+B
   - blend: detalle visible de caudal/parcial individual de balanza 2 y 3
+- Reorganización visual dashboard (preview v1.1):
+  - parte superior enfocada en alimentación por línea (L1 y L2)
+  - bloque inferior horizontal para salidas/productos (4 tarjetas)
+  - branding y versión frontend actualizados
 
 ### [GITHUB PREP 2026-04-17]
 - Se creó `.gitignore` en raíz para separar código del proyecto vs archivos personales/operativos del workspace OpenClaw.
