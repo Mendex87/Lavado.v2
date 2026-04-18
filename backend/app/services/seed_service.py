@@ -2,6 +2,7 @@ from sqlalchemy.orm import Session
 from app.models.catalog import Line, Quarry, Product, Role, Shift, User
 from app.models.measurement import MeasurementPoint
 from app.models.stock import QuarryStock
+from app.core.security import get_password_hash, is_password_hash
 
 
 class SeedService:
@@ -46,11 +47,20 @@ class SeedService:
             ])
         if not self.db.query(User).first():
             self.db.add_all([
-                User(username='admin', full_name='Administrador', password_hash='change-me', is_active=True),
-                User(username='diego', full_name='Diego', password_hash='change-me', is_active=True),
-                User(username='juan', full_name='Juan', password_hash='change-me', is_active=True),
-                User(username='eze', full_name='Eze', password_hash='change-me', is_active=True),
+                User(username='admin', full_name='Administrador', password_hash=get_password_hash('change-me'), is_active=True),
+                User(username='diego', full_name='Diego', password_hash=get_password_hash('change-me'), is_active=True),
+                User(username='juan', full_name='Juan', password_hash=get_password_hash('change-me'), is_active=True),
+                User(username='eze', full_name='Eze', password_hash=get_password_hash('change-me'), is_active=True),
             ])
+        else:
+            users = self.db.query(User).all()
+            changed = False
+            for u in users:
+                if not is_password_hash(u.password_hash):
+                    u.password_hash = get_password_hash(u.password_hash)
+                    changed = True
+            if changed:
+                self.db.flush()
 
         self.db.flush()
         stock_defaults = {

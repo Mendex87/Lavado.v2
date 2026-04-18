@@ -20,6 +20,7 @@ Luego se puede volver a PostgreSQL cambiando `DATABASE_URL` o las variables `POS
 - `GET /`
 - `GET /app-preview/`
 - `GET /api/v1/health`
+- `POST /api/v1/auth/login` (dev seed: `eze` / `change-me`)
 - `POST /api/v1/admin/seed`
 - `GET /api/v1/processes/active`
 - `GET /api/v1/stock/quarries`
@@ -34,6 +35,12 @@ Luego se puede volver a PostgreSQL cambiando `DATABASE_URL` o las variables `POS
 - `GET /api/v1/simulation/line/1`
 - `POST /api/v1/simulation/start`
 - `POST /api/v1/simulation/step`
+
+## Autenticación JWT
+
+- Todos los endpoints operativos requieren `Authorization: Bearer <token>`.
+- Excepciones públicas: `GET /api/v1/health`, `POST /api/v1/auth/login`, `POST /api/v1/measurements/ingest`.
+- Configurar `SECRET_KEY` fuerte en `.env` para producción.
 
 ## Preview incluida en el backend
 Con el backend levantado, la UI preview queda servida desde el mismo proceso:
