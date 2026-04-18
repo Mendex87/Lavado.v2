@@ -40,6 +40,7 @@ Luego se puede volver a PostgreSQL cambiando `DATABASE_URL` o las variables `POS
 
 - Todos los endpoints operativos requieren `Authorization: Bearer <token>`.
 - Excepciones públicas: `GET /api/v1/health`, `POST /api/v1/auth/login`, `POST /api/v1/measurements/ingest`.
+- Expiración de token por defecto: `720` minutos (12 horas, un turno).
 - Configurar `SECRET_KEY` fuerte en `.env` para producción.
 
 ## Preview incluida en el backend

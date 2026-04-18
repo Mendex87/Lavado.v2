@@ -17,7 +17,7 @@ class Settings(BaseSettings):
     postgres_password: str = 'postgres'
 
     secret_key: str = 'change-me'
-    access_token_expire_minutes: int = 480
+    access_token_expire_minutes: int = 720
 
     model_config = SettingsConfigDict(env_file='.env', env_file_encoding='utf-8', case_sensitive=False)
 
