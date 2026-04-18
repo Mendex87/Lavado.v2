@@ -200,6 +200,11 @@ Registro paso a paso de decisiones, cambios y entregables del proyecto.
   - se registran `create_process` y `close_process`
   - se registra `ack_alarm`
   - endpoint `GET /audit/recent` (solo supervisor/admin)
+- UX de sesión 12h en preview (v2.6):
+  - decodifica expiración del JWT al loguear
+  - muestra vencimiento de sesión en sidebar
+  - aviso 5 minutos antes de expirar
+  - logout automático al expirar o ante `401`
 
 ### [GITHUB PREP 2026-04-17]
 - Se creó `.gitignore` en raíz para separar código del proyecto vs archivos personales/operativos del workspace OpenClaw.

@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <base href="/app-preview/" />
-  <title>Prosil - Lavado | Plant App Preview v2.5</title>
+  <title>Prosil - Lavado | Plant App Preview v2.6</title>
   <style>
     :root {
       --bg: #07101a;
@@ -315,7 +315,7 @@
         <div class="brand-mark">OC</div>
         <div>
           <h1>Prosil - Lavado</h1>
-          <div class="muted">Preview v2.5</div>
+          <div class="muted">Preview v2.6</div>
         </div>
       </div>
       <h2>Ingreso</h2>
@@ -339,7 +339,7 @@
         <div class="brand-mark">OC</div>
         <div>
           <h1>Prosil - Lavado</h1>
-          <div class="muted">Plant App Preview v2.5</div>
+          <div class="muted">Plant App Preview v2.6</div>
         </div>
       </div>
 
@@ -365,6 +365,7 @@
         <div id="sidebar-user">-</div>
         <div class="muted" id="sidebar-role">-</div>
         <div class="muted" id="sidebar-shift">-</div>
+        <div class="muted" id="sidebar-session-exp">-</div>
       </div>
     </aside>
 
@@ -478,7 +479,7 @@
       stock: [],
       latestMeasurements: [],
       backendEvents: [],
-      uiEvents: ['Preview v2.5 cargada'],
+      uiEvents: ['Preview v2.6 cargada'],
       token: null,
       alarms: [],
       simulation: {
@@ -493,6 +494,11 @@
       feedHistory: {
         1: [],
         2: [],
+      },
+      session: {
+        expEpochSec: null,
+        warnTimer: null,
+        expireTimer: null,
       },
       refreshBusy: false,
     };
@@ -619,10 +625,56 @@
       renderEvents();
     }
 
+    function parseJwtExp(token) {
+      try {
+        const part = token.split('.')[1];
+        const normalized = part.replace(/-/g, '+').replace(/_/g, '/');
+        const padded = normalized + '='.repeat((4 - (normalized.length % 4)) % 4);
+        const payload = JSON.parse(atob(padded));
+        return Number(payload.exp || 0);
+      } catch {
+        return 0;
+      }
+    }
+
+    function clearSessionTimers() {
+      if (state.session.warnTimer) clearTimeout(state.session.warnTimer);
+      if (state.session.expireTimer) clearTimeout(state.session.expireTimer);
+      state.session.warnTimer = null;
+      state.session.expireTimer = null;
+    }
+
+    function scheduleSessionExpiry(expEpochSec) {
+      clearSessionTimers();
+      state.session.expEpochSec = expEpochSec || null;
+      if (!expEpochSec) return;
+      const nowMs = Date.now();
+      const expMs = expEpochSec * 1000;
+      const warnMs = expMs - 5 * 60 * 1000;
+
+      if (warnMs > nowMs) {
+        state.session.warnTimer = setTimeout(() => {
+          notify('Tu sesión vence en menos de 5 minutos');
+        }, warnMs - nowMs);
+      }
+
+      if (expMs > nowMs) {
+        state.session.expireTimer = setTimeout(() => {
+          logout('Sesión expirada');
+        }, expMs - nowMs);
+      } else {
+        logout('Sesión expirada');
+      }
+    }
+
     async function request(path, options = {}) {
       const headers = { 'Content-Type': 'application/json', ...(options.headers || {}) };
       if (state.token) headers.Authorization = `Bearer ${state.token}`;
       const res = await fetch(api(path), { ...options, headers });
+      if (res.status === 401 && state.token) {
+        logout('Sesión inválida o expirada');
+        throw new Error('Sesión inválida o expirada');
+      }
       if (!res.ok) throw new Error(await res.text() || `HTTP ${res.status}`);
       return res.json();
     }
@@ -643,6 +695,11 @@
       $('sidebar-user').textContent = state.user ? state.user.name : '-';
       $('sidebar-role').textContent = state.user ? (state.user.role || 'operador') : '-';
       $('sidebar-shift').textContent = state.user ? state.user.shift : '-';
+      if (state.session.expEpochSec) {
+        $('sidebar-session-exp').textContent = `Expira: ${new Date(state.session.expEpochSec * 1000).toLocaleString('es-AR', { hour12: false })}`;
+      } else {
+        $('sidebar-session-exp').textContent = '-';
+      }
     }
 
     function renderSummary() {
@@ -971,13 +1028,16 @@
       } catch (e) { notify('Falló cierre'); }
     }
 
-    function logout() {
+    function logout(reason = null) {
       stopAutoRefresh();
+      clearSessionTimers();
       state.user = null;
       state.token = null;
+      state.session.expEpochSec = null;
       $('app-shell').classList.add('hidden');
       $('login-wrap').classList.remove('hidden');
-      addUiEvent('Logout realizado');
+      addUiEvent(reason ? `Logout (${reason})` : 'Logout realizado');
+      if (reason) notify(reason);
     }
 
     function goToProcesses() { screenJump('active-process'); }
@@ -998,6 +1058,7 @@
         });
         state.token = auth.access_token;
         state.user = { name: auth.full_name, role: auth.role || 'operador', shift: '-' };
+        scheduleSessionExpiry(parseJwtExp(auth.access_token));
       } catch {
         notify('Usuario o contraseña inválidos');
         return;
