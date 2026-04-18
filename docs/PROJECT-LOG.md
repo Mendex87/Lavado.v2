@@ -168,6 +168,11 @@ Registro paso a paso de decisiones, cambios y entregables del proyecto.
 - Ajuste visual del eje Y (preview v1.9):
   - se removieron etiquetas numéricas 0/50/100/150/200 del área del gráfico
   - se mantuvieron líneas guía para referencia limpia sin ruido visual
+- Rediseño operativo de interfaz (preview v2.0):
+  - paleta migrada a tono arena con acentos azules para identidad de lavado
+  - limpieza de mensajes y etiquetas secundarias para reducir ruido visual
+  - eliminación del modo simulación del menú y de la UI
+  - corrección del espacio vacío en sparkline tras quitar numeración del eje
 
 ### [GITHUB PREP 2026-04-17]
 - Se creó `.gitignore` en raíz para separar código del proyecto vs archivos personales/operativos del workspace OpenClaw.
