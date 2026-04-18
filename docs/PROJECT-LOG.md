@@ -210,6 +210,11 @@ Registro paso a paso de decisiones, cambios y entregables del proyecto.
   - refresco rápido de caudal (`l1_input_tph`, `l2_input_tph_a`, `l2_input_tph_b`, `l2_input_tph`): cada 500ms
   - poller PLC ajustado para 500ms en script `run_poller_vps.bat` (`PLC_POLL_INTERVAL_SECONDS=0.5`)
   - objetivo: mantener sensación online en caudal sin sobrecargar UI/backend
+- Modo degradado operativo (manual fallback):
+  - endpoint `POST /measurements/manual` para carga manual por línea
+  - `GET /measurements/latest` ahora informa `source` (`plc` / `manual`)
+  - preview incorpora bloque de carga manual (línea, caudal, parcial, totalizador)
+  - cards de línea muestran badge de fuente de dato (manual/plc)
 
 ### [GITHUB PREP 2026-04-17]
 - Se creó `.gitignore` en raíz para separar código del proyecto vs archivos personales/operativos del workspace OpenClaw.

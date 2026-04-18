@@ -42,7 +42,22 @@ class MeasurementLatestItem(BaseModel):
     code: str
     name: str
     line: int
+    source: str | None = None
     captured_at: datetime | None = None
     partial_ton: float | None = None
     totalizer_ton: float | None = None
     delta_ton: float | None = None
+
+
+class MeasurementManualLinePayload(BaseModel):
+    line: int
+    tph: float | None = None
+    partial_ton: float | None = None
+    totalizer_ton: float | None = None
+
+
+class MeasurementManualResult(BaseModel):
+    ok: bool
+    line: int
+    source: str
+    readings_created: int

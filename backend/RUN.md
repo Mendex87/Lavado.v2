@@ -32,6 +32,7 @@ Luego se puede volver a PostgreSQL cambiando `DATABASE_URL` o las variables `POS
 - `POST /api/v1/plc/reset-partials`
 - `GET /api/v1/measurements/points`
 - `POST /api/v1/measurements/ingest`
+- `POST /api/v1/measurements/manual`
 - `GET /api/v1/alarms/active`
 - `POST /api/v1/alarms/{id}/ack`
 - `GET /api/v1/audit/recent`

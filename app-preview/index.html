@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <base href="/app-preview/" />
-  <title>Prosil - Lavado | Plant App Preview v2.7</title>
+  <title>Prosil - Lavado | Plant App Preview v2.8</title>
   <style>
     :root {
       --bg: #07101a;
@@ -315,7 +315,7 @@
         <div class="brand-mark">OC</div>
         <div>
           <h1>Prosil - Lavado</h1>
-          <div class="muted">Preview v2.7</div>
+          <div class="muted">Preview v2.8</div>
         </div>
       </div>
       <h2>Ingreso</h2>
@@ -339,7 +339,7 @@
         <div class="brand-mark">OC</div>
         <div>
           <h1>Prosil - Lavado</h1>
-          <div class="muted">Plant App Preview v2.7</div>
+          <div class="muted">Plant App Preview v2.8</div>
         </div>
       </div>
 
@@ -433,6 +433,17 @@
           <div class="card-head"><h3>Procesos activos</h3><span class="badge blue" id="active-count-badge">0 activos</span></div>
           <div id="process-list" class="grid"></div>
         </div>
+        <div class="card" style="margin-top:16px;">
+          <div class="card-head"><h3>Modo degradado (carga manual)</h3><span class="badge yellow">Fallback</span></div>
+          <div class="form-grid" style="grid-template-columns:repeat(4,minmax(0,1fr));">
+            <label><span>Línea</span><select id="manual-line"><option value="1">Línea 1</option><option value="2">Línea 2</option></select></label>
+            <label><span>Caudal (tn/h)</span><input id="manual-tph" type="number" step="0.1" /></label>
+            <label><span>Parcial (tn)</span><input id="manual-partial" type="number" step="0.001" /></label>
+            <label><span>Totalizador (tn)</span><input id="manual-totalizer" type="number" step="0.001" /></label>
+          </div>
+          <div class="actions" style="margin-top:12px;"><button class="btn secondary" id="manual-send-btn">Enviar manual</button></div>
+          <div class="muted" style="margin-top:10px;">L2 distribuye caudal manual en A/B al 50% para mantener operación.</div>
+        </div>
       </section>
 
       <section id="stock" class="screen">
@@ -479,7 +490,7 @@
       stock: [],
       latestMeasurements: [],
       backendEvents: [],
-      uiEvents: ['Preview v2.7 cargada'],
+      uiEvents: ['Preview v2.8 cargada'],
       token: null,
       alarms: [],
       simulation: {
@@ -727,9 +738,16 @@
       const isL2Blend = line === 2 && p?.mode === 'blend';
       const processBadge = p ? '<span class="badge green">Proceso activo</span>' : '<span class="badge yellow">Sin proceso</span>';
       const lineLatest = latestByLine(line);
+      const lineLatestSorted = [...lineLatest].filter(m => m.captured_at).sort((a, b) => new Date(b.captured_at) - new Date(a.captured_at));
+      const latestSource = lineLatestSorted[0]?.source || null;
+      const sourceBadge = latestSource === 'manual'
+        ? '<span class="badge yellow">Fuente manual</span>'
+        : latestSource
+          ? '<span class="badge blue">Fuente PLC</span>'
+          : '<span class="badge yellow">Sin fuente</span>';
       const plcBadge = lineLatest.length
-        ? `<span class="badge blue">PLC ${lineLatest.length} canales · ${latestCapturedAt(line) || 'sin fecha'}</span>`
-        : '<span class="badge yellow">Sin lectura PLC</span>';
+        ? `<span class="badge blue">${lineLatest.length} canales · ${latestCapturedAt(line) || 'sin fecha'}</span>`
+        : '<span class="badge yellow">Sin lectura reciente</span>';
 
       const plcTph = line === 1
         ? (state.liveFlow.l1_input_tph ?? latestValue(1, 'l1_input_tph', 'partial_ton'))
@@ -786,7 +804,7 @@
             <h3>Línea ${line}</h3>
             <div class="muted">${p ? p.code : 'Sin proceso'} · ${p ? (p.mode === 'blend' ? 'Blend' : 'Simple') : 'Sin modo'}</div>
           </div>
-          <div class="actions">${processBadge}${plcBadge}</div>
+          <div class="actions">${processBadge}${sourceBadge}${plcBadge}</div>
         </div>
         <div class="hero">
           <div class="feed-block">
@@ -1060,6 +1078,27 @@
       } catch (e) { notify('Falló cierre'); }
     }
 
+    async function sendManualMeasurement() {
+      try {
+        const line = Number($('manual-line').value);
+        const tphRaw = $('manual-tph').value;
+        const partialRaw = $('manual-partial').value;
+        const totalizerRaw = $('manual-totalizer').value;
+        const payload = {
+          line,
+          tph: tphRaw === '' ? null : Number(tphRaw),
+          partial_ton: partialRaw === '' ? null : Number(partialRaw),
+          totalizer_ton: totalizerRaw === '' ? null : Number(totalizerRaw),
+        };
+        const result = await request('/measurements/manual', { method: 'POST', body: JSON.stringify(payload) });
+        addUiEvent(`Carga manual L${line} (${result.readings_created} lecturas)`);
+        await refreshData();
+        notify('Carga manual aplicada');
+      } catch (e) {
+        notify('No se pudo enviar carga manual');
+      }
+    }
+
     function logout(reason = null) {
       stopAutoRefresh();
       clearSessionTimers();
@@ -1076,6 +1115,7 @@
     window.goToProcesses = goToProcesses;
     window.closeProcess = closeProcess;
     window.ackAlarm = ackAlarm;
+    window.sendManualMeasurement = sendManualMeasurement;
 
     navLinks.forEach(btn => btn.addEventListener('click', () => screenJump(btn.dataset.screen)));
     $('check-api-btn').addEventListener('click', async () => { persistApiBase(); const ok = await testConnection(); if (ok) notify('Backend conectado'); });
@@ -1107,6 +1147,7 @@
     $('proc-line').addEventListener('change', applyProcessFormRules);
     $('proc-mode').addEventListener('change', applyProcessFormRules);
     $('create-process-btn').addEventListener('click', createProcess);
+    $('manual-send-btn').addEventListener('click', sendManualMeasurement);
     $('api-base').addEventListener('change', persistApiBase);
     loadApiBase();
     applyProcessFormRules();
