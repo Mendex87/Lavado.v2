@@ -1,0 +1,4 @@
+- Eze is practical, technical, autodidactic, and strongly oriented to solving real-world problems, especially in industrial automation and production systems.
+- He thinks in systems, likes scalable and well-documented solutions, and prefers tools and architectures he can understand and shape himself.
+- He also cares about UI clarity, visual polish, and professional presentation because they improve actual operation.
+- Architectural preference to preserve: design plant/process software for degraded operation, not only ideal automation. If a scale or PLC signal fails, the app should still allow continued operation via manual entry where needed, and measurement points/scales should be easy to extend later without rigid coupling to the current hardware layout.
