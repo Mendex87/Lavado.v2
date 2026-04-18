@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <base href="/app-preview/" />
-  <title>Prosil - Lavado | Plant App Preview v2.0</title>
+  <title>Prosil - Lavado | Plant App Preview v2.1</title>
   <style>
     :root {
       --bg: #1f1a13;
@@ -315,7 +315,7 @@
         <div class="brand-mark">OC</div>
         <div>
           <h1>Prosil - Lavado</h1>
-          <div class="muted">Preview v2.0</div>
+          <div class="muted">Preview v2.1</div>
         </div>
       </div>
       <h2>Ingreso</h2>
@@ -323,7 +323,7 @@
       <div class="form-grid">
         <label><span>Usuario</span><select id="login-user"><option value="eze|supervisor">Eze · Supervisor</option><option value="diego|operador">Diego · Operador</option><option value="juan|operador">Juan · Operador</option></select></label>
         <label><span>Turno</span><select id="login-shift"><option>Turno 1</option><option selected>Turno 2</option><option>Turno 3</option></select></label>
-        <label><span>API base URL</span><input id="api-base" placeholder="Se detecta automáticamente" /></label>
+        <label><span>API base URL</span><input id="api-base" placeholder="Se detecta automáticamente (/plant-api)" /></label>
         <div class="actions">
           <button class="btn primary" id="login-btn">Entrar</button>
           <button class="btn secondary" id="check-api-btn">Probar API</button>
@@ -339,7 +339,7 @@
         <div class="brand-mark">OC</div>
         <div>
           <h1>Prosil - Lavado</h1>
-          <div class="muted">Plant App Preview v2.0</div>
+          <div class="muted">Plant App Preview v2.1</div>
         </div>
       </div>
 
@@ -478,7 +478,7 @@
       stock: [],
       latestMeasurements: [],
       backendEvents: [],
-      uiEvents: ['Preview v2.0 cargada'],
+      uiEvents: ['Preview v2.1 cargada'],
       alarms: [],
       simulation: {
         1: { line: 1, running: false, tph_input: 120, split_product_a_pct: 70, split_product_b_pct: 20, split_discard_pct: 10, input_ton: 0, product_a_ton: 0, product_b_ton: 0, discard_ton: 0 },
@@ -501,7 +501,7 @@
     const screens = [...document.querySelectorAll('.screen')];
 
     function defaultApiBase() {
-      return `${window.location.origin}/api/v1`;
+      return `${window.location.origin}/plant-api`;
     }
 
     function loadApiBase() {
@@ -845,9 +845,21 @@
         addUiEvent('Conexión backend OK');
         return true;
       } catch (e) {
-        setConnection(false);
-        notify('No pude conectar con backend');
-        return false;
+        try {
+          const candidate = `${window.location.origin}/plant-api`;
+          const prev = $('api-base').value;
+          $('api-base').value = candidate;
+          await request('/health');
+          persistApiBase();
+          setConnection(true);
+          addUiEvent('Conexión backend OK (autocorrección API base)');
+          notify('API base corregida a /plant-api');
+          return true;
+        } catch {
+          setConnection(false);
+          notify('No pude conectar con backend');
+          return false;
+        }
       }
     }
 

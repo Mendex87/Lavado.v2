@@ -173,6 +173,9 @@ Registro paso a paso de decisiones, cambios y entregables del proyecto.
   - limpieza de mensajes y etiquetas secundarias para reducir ruido visual
   - eliminación del modo simulación del menú y de la UI
   - corrección del espacio vacío en sparkline tras quitar numeración del eje
+- Corrección de conexión API en móvil (preview v2.1):
+  - `API base URL` por defecto ahora usa `/plant-api` (ruta real detrás del proxy)
+  - autocorrección de API base en prueba de conexión cuando detecta ruta inválida
 
 ### [GITHUB PREP 2026-04-17]
 - Se creó `.gitignore` en raíz para separar código del proyecto vs archivos personales/operativos del workspace OpenClaw.
