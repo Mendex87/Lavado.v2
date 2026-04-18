@@ -165,6 +165,9 @@ Registro paso a paso de decisiones, cambios y entregables del proyecto.
   - ventana temporal de 30 min con resolución de 10 segundos
   - eje Y reforzado con marcas 0/50/100/150/200
   - marcador de último valor y resumen min/max/actual
+- Ajuste visual del eje Y (preview v1.9):
+  - se removieron etiquetas numéricas 0/50/100/150/200 del área del gráfico
+  - se mantuvieron líneas guía para referencia limpia sin ruido visual
 
 ### [GITHUB PREP 2026-04-17]
 - Se creó `.gitignore` en raíz para separar código del proyecto vs archivos personales/operativos del workspace OpenClaw.

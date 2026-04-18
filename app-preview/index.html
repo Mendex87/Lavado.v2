@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <base href="/app-preview/" />
-  <title>Prosil - Lavado | Plant App Preview v1.8</title>
+  <title>Prosil - Lavado | Plant App Preview v1.9</title>
   <style>
     :root {
       --bg: #07101a;
@@ -315,7 +315,7 @@
         <div class="brand-mark">OC</div>
         <div>
           <h1>Prosil - Lavado</h1>
-          <div class="muted">Preview v1.8, operación + simulación desacoplada</div>
+          <div class="muted">Preview v1.9, operación + simulación desacoplada</div>
         </div>
       </div>
       <h2>Ingreso</h2>
@@ -339,7 +339,7 @@
         <div class="brand-mark">OC</div>
         <div>
           <h1>Prosil - Lavado</h1>
-          <div class="muted">Plant App Preview v1.8</div>
+          <div class="muted">Plant App Preview v1.9</div>
         </div>
       </div>
 
@@ -492,7 +492,7 @@
       stock: [],
       latestMeasurements: [],
       backendEvents: [],
-      uiEvents: ['Preview v1.8 cargada'],
+      uiEvents: ['Preview v1.9 cargada'],
       alarms: [],
       simulation: {
         1: { line: 1, running: false, tph_input: 120, split_product_a_pct: 70, split_product_b_pct: 20, split_discard_pct: 10, input_ton: 0, product_a_ton: 0, product_b_ton: 0, discard_ton: 0 },
@@ -610,11 +610,6 @@
             <line x1="${padLeft}" y1="${y50.toFixed(1)}" x2="${(width-padRight).toFixed(1)}" y2="${y50.toFixed(1)}" stroke="rgba(194,212,231,.10)" stroke-width="1" />
             <line x1="${padLeft}" y1="${y0.toFixed(1)}" x2="${(width-padRight).toFixed(1)}" y2="${y0.toFixed(1)}" stroke="rgba(194,212,231,.22)" stroke-width="1" />
             <line x1="${padLeft}" y1="${padTop}" x2="${padLeft}" y2="${(height-padBottom).toFixed(1)}" stroke="rgba(194,212,231,.25)" stroke-width="1" />
-            <text x="2" y="${(y200+3).toFixed(1)}" fill="#c2d4e7" font-size="10">200</text>
-            <text x="6" y="${(y150+3).toFixed(1)}" fill="#8fa6be" font-size="9">150</text>
-            <text x="2" y="${(y100+3).toFixed(1)}" fill="#c2d4e7" font-size="10">100</text>
-            <text x="10" y="${(y50+3).toFixed(1)}" fill="#8fa6be" font-size="9">50</text>
-            <text x="10" y="${(y0+3).toFixed(1)}" fill="#c2d4e7" font-size="10">0</text>
             <polyline fill="none" stroke="#57d7ff" stroke-width="2" points="${polyline}" />
             <circle cx="${lastX.toFixed(1)}" cy="${lastY.toFixed(1)}" r="2.8" fill="#57d7ff" stroke="#d8f6ff" stroke-width="1" />
           </svg>
