@@ -205,6 +205,10 @@ Registro paso a paso de decisiones, cambios y entregables del proyecto.
   - muestra vencimiento de sesión en sidebar
   - aviso 5 minutos antes de expirar
   - logout automático al expirar o ante `401`
+- Optimización de refresco en preview (v2.7):
+  - refresco general (procesos, stock, eventos, alarmas, parciales y totalizadores): cada 10s
+  - refresco rápido de caudal (`l1_input_tph`, `l2_input_tph_a`, `l2_input_tph_b`, `l2_input_tph`): cada 1s
+  - objetivo: mantener sensación online en caudal sin sobrecargar UI/backend
 
 ### [GITHUB PREP 2026-04-17]
 - Se creó `.gitignore` en raíz para separar código del proyecto vs archivos personales/operativos del workspace OpenClaw.

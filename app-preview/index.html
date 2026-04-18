@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <base href="/app-preview/" />
-  <title>Prosil - Lavado | Plant App Preview v2.6</title>
+  <title>Prosil - Lavado | Plant App Preview v2.7</title>
   <style>
     :root {
       --bg: #07101a;
@@ -315,7 +315,7 @@
         <div class="brand-mark">OC</div>
         <div>
           <h1>Prosil - Lavado</h1>
-          <div class="muted">Preview v2.6</div>
+          <div class="muted">Preview v2.7</div>
         </div>
       </div>
       <h2>Ingreso</h2>
@@ -339,7 +339,7 @@
         <div class="brand-mark">OC</div>
         <div>
           <h1>Prosil - Lavado</h1>
-          <div class="muted">Plant App Preview v2.6</div>
+          <div class="muted">Plant App Preview v2.7</div>
         </div>
       </div>
 
@@ -479,7 +479,7 @@
       stock: [],
       latestMeasurements: [],
       backendEvents: [],
-      uiEvents: ['Preview v2.6 cargada'],
+      uiEvents: ['Preview v2.7 cargada'],
       token: null,
       alarms: [],
       simulation: {
@@ -488,8 +488,16 @@
       },
       autoRefresh: {
         enabled: true,
-        intervalMs: 1000,
-        timer: null,
+        coreIntervalMs: 10000,
+        flowIntervalMs: 1000,
+        coreTimer: null,
+        flowTimer: null,
+      },
+      liveFlow: {
+        l1_input_tph: null,
+        l2_input_tph: null,
+        l2_input_tph_a: null,
+        l2_input_tph_b: null,
       },
       feedHistory: {
         1: [],
@@ -724,11 +732,11 @@
         : '<span class="badge yellow">Sin lectura PLC</span>';
 
       const plcTph = line === 1
-        ? latestValue(1, 'l1_input_tph', 'partial_ton')
+        ? (state.liveFlow.l1_input_tph ?? latestValue(1, 'l1_input_tph', 'partial_ton'))
         : null;
-      const l2FlowA = latestValue(2, 'l2_input_tph_a', 'partial_ton');
-      const l2FlowB = latestValue(2, 'l2_input_tph_b', 'partial_ton');
-      const l2FlowLegacy = latestValue(2, 'l2_input_tph', 'partial_ton');
+      const l2FlowA = state.liveFlow.l2_input_tph_a ?? latestValue(2, 'l2_input_tph_a', 'partial_ton');
+      const l2FlowB = state.liveFlow.l2_input_tph_b ?? latestValue(2, 'l2_input_tph_b', 'partial_ton');
+      const l2FlowLegacy = state.liveFlow.l2_input_tph ?? latestValue(2, 'l2_input_tph', 'partial_ton');
       const l2PartialA = latestValue(2, 'l2_input_hopper_1', 'partial_ton');
       const l2PartialB = latestValue(2, 'l2_input_hopper_2', 'partial_ton');
 
@@ -966,18 +974,42 @@
       }
     }
 
+    async function refreshFlowData() {
+      if (!state.connected) return;
+      try {
+        const latest = await request('/measurements/latest').catch(() => []);
+        if (!Array.isArray(latest)) return;
+        const byCode = Object.fromEntries(latest.map(m => [m.code, m]));
+        state.liveFlow.l1_input_tph = byCode.l1_input_tph?.partial_ton ?? null;
+        state.liveFlow.l2_input_tph = byCode.l2_input_tph?.partial_ton ?? null;
+        state.liveFlow.l2_input_tph_a = byCode.l2_input_tph_a?.partial_ton ?? null;
+        state.liveFlow.l2_input_tph_b = byCode.l2_input_tph_b?.partial_ton ?? null;
+        renderLineCard(1);
+        renderLineCard(2);
+      } catch {
+        // noop
+      }
+    }
+
     function startAutoRefresh() {
       stopAutoRefresh();
       if (!state.autoRefresh.enabled) return;
-      state.autoRefresh.timer = setInterval(() => {
+      state.autoRefresh.coreTimer = setInterval(() => {
         refreshData().catch(() => {});
-      }, state.autoRefresh.intervalMs);
+      }, state.autoRefresh.coreIntervalMs);
+      state.autoRefresh.flowTimer = setInterval(() => {
+        refreshFlowData().catch(() => {});
+      }, state.autoRefresh.flowIntervalMs);
     }
 
     function stopAutoRefresh() {
-      if (state.autoRefresh.timer) {
-        clearInterval(state.autoRefresh.timer);
-        state.autoRefresh.timer = null;
+      if (state.autoRefresh.coreTimer) {
+        clearInterval(state.autoRefresh.coreTimer);
+        state.autoRefresh.coreTimer = null;
+      }
+      if (state.autoRefresh.flowTimer) {
+        clearInterval(state.autoRefresh.flowTimer);
+        state.autoRefresh.flowTimer = null;
       }
     }
 
