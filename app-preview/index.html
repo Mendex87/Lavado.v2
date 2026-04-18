@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <base href="/app-preview/" />
-  <title>Prosil - Lavado | Plant App Preview v0.9</title>
+  <title>Prosil - Lavado | Plant App Preview v1.0</title>
   <style>
     :root {
       --bg: #07101a;
@@ -278,7 +278,7 @@
         <div class="brand-mark">OC</div>
         <div>
           <h1>Prosil - Lavado</h1>
-          <div class="muted">Preview v0.9, operación + simulación desacoplada</div>
+          <div class="muted">Preview v1.0, operación + simulación desacoplada</div>
         </div>
       </div>
       <h2>Ingreso</h2>
@@ -302,7 +302,7 @@
         <div class="brand-mark">OC</div>
         <div>
           <h1>Prosil - Lavado</h1>
-          <div class="muted">Plant App Preview v0.9</div>
+          <div class="muted">Plant App Preview v1.0</div>
         </div>
       </div>
 
@@ -450,7 +450,7 @@
       stock: [],
       latestMeasurements: [],
       backendEvents: [],
-      uiEvents: ['Preview v0.9 cargada'],
+      uiEvents: ['Preview v1.0 cargada'],
       alarms: [],
       simulation: {
         1: { line: 1, running: false, tph_input: 120, split_product_a_pct: 70, split_product_b_pct: 20, split_discard_pct: 10, input_ton: 0, product_a_ton: 0, product_b_ton: 0, discard_ton: 0 },
@@ -561,6 +561,7 @@
       const p = activeProcess(line);
       const sim = state.simulation[line];
       el.classList.toggle('inactive', !p);
+      const isL2Blend = line === 2 && p?.mode === 'blend';
       const processBadge = p ? '<span class="badge green">Proceso activo</span>' : '<span class="badge yellow">Sin proceso</span>';
       const simBadge = sim.running ? '<span class="badge blue">Simulación activa</span>' : '<span class="badge blue">Simulación lista</span>';
       const lineLatest = latestByLine(line);
@@ -573,10 +574,18 @@
         : null;
       const l2FlowA = latestValue(2, 'l2_input_tph_a', 'partial_ton');
       const l2FlowB = latestValue(2, 'l2_input_tph_b', 'partial_ton');
+      const l2FlowLegacy = latestValue(2, 'l2_input_tph', 'partial_ton');
+      const l2PartialA = latestValue(2, 'l2_input_hopper_1', 'partial_ton');
+      const l2PartialB = latestValue(2, 'l2_input_hopper_2', 'partial_ton');
 
-      const inputProcessPartial = line === 1
+      let inputProcessPartial = line === 1
         ? latestValue(1, 'l1_input_main', 'partial_ton')
         : latestValue(2, 'l2_input_hopper_1', 'partial_ton');
+      if (isL2Blend) {
+        const a = l2PartialA ?? 0;
+        const b = l2PartialB ?? 0;
+        inputProcessPartial = (l2PartialA !== null || l2PartialB !== null) ? (a + b) : inputProcessPartial;
+      }
       const inputTotalizer = line === 1
         ? latestValue(1, 'l1_input_main', 'totalizer_ton')
         : latestValue(2, 'l2_input_hopper_1', 'totalizer_ton');
@@ -599,11 +608,17 @@
         if (p?.mode === 'blend') {
           const a = l2FlowA ?? 0;
           const b = l2FlowB ?? 0;
-          shownTph = (l2FlowA !== null || l2FlowB !== null) ? (a + b) : shownTph;
+          shownTph = (l2FlowA !== null || l2FlowB !== null) ? (a + b) : (l2FlowLegacy ?? shownTph);
         } else {
-          shownTph = l2FlowA ?? shownTph;
+          shownTph = l2FlowA ?? l2FlowLegacy ?? shownTph;
         }
       }
+      const l2BlendFeedDetails = isL2Blend ? `
+        <div class="line-meta" style="margin-top:12px;">
+          <div class="field"><span>B2 caudal/parcial</span><strong>${formatTph(l2FlowA)} · ${formatTon(l2PartialA)}</strong></div>
+          <div class="field"><span>B3 caudal/parcial</span><strong>${formatTph(l2FlowB)} · ${formatTon(l2PartialB)}</strong></div>
+        </div>
+      ` : '';
       const feedPct = Math.min(100, (Number(shownTph || 0) / 150) * 100);
       el.innerHTML = `
         <div class="card-head">
@@ -617,9 +632,10 @@
           <div class="feed-block">
             <div class="mini-label">ALIMENTACIÓN ACTUAL</div>
             <div class="feed-value">${formatTph(shownTph)}</div>
-            <div class="muted">Dato protagonista de línea</div>
+            <div class="muted">${isL2Blend ? 'Blend: suma de B2 + B3' : 'Dato protagonista de línea'}</div>
             <div class="feed-bar"><div class="feed-fill" style="width:${feedPct}%"></div></div>
             <div class="split-legend"><span><span class="legend-dot" style="background:var(--cyan)"></span>Escala visual de alimentación</span></div>
+            ${l2BlendFeedDetails}
           </div>
           <div class="line-subcard">
             <div class="mini-label">Salidas / split</div>

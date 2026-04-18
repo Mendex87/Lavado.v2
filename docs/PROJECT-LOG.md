@@ -137,6 +137,10 @@ Registro paso a paso de decisiones, cambios y entregables del proyecto.
 - Se agregó visualización explícita de totalizadores generales de balanza en dashboard (tarjeta resumen L1 + stat por línea).
 - Se mejoró la lectura visual de líneas detenidas: cuando una línea no tiene proceso activo, su tarjeta en dashboard toma tono apagado para distinguirla rápido de líneas en marcha.
 - Corrección de lógica de caudales L2: el dashboard ahora calcula tn/h con variables de caudal (`l2_input_tph_a`, `l2_input_tph_b`) en lugar de usar parciales de tonelaje; en simple usa A, en blend usa A+B.
+- Ajuste UX dashboard L2 según modo de proceso (preview v1.0):
+  - simple: lectura protagonista basada en alimentación A
+  - blend: lectura protagonista como suma A+B
+  - blend: detalle visible de caudal/parcial individual de balanza 2 y 3
 
 ### [GITHUB PREP 2026-04-17]
 - Se creó `.gitignore` en raíz para separar código del proyecto vs archivos personales/operativos del workspace OpenClaw.
