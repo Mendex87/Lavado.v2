@@ -155,6 +155,9 @@ Registro paso a paso de decisiones, cambios y entregables del proyecto.
 - Ajuste de resolución/escala de sparkline (preview v1.5):
   - muestreo aumentado a 1 punto cada 10 segundos
   - escala fija del gráfico configurada en 0-200 tn/h
+- Mejora de legibilidad del sparkline (preview v1.6):
+  - líneas guía horizontales para 0, 100 y 200 tn/h
+  - etiquetas visibles de escala para referencia rápida de valor
 
 ### [GITHUB PREP 2026-04-17]
 - Se creó `.gitignore` en raíz para separar código del proyecto vs archivos personales/operativos del workspace OpenClaw.

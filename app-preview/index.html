@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <base href="/app-preview/" />
-  <title>Prosil - Lavado | Plant App Preview v1.5</title>
+  <title>Prosil - Lavado | Plant App Preview v1.6</title>
   <style>
     :root {
       --bg: #07101a;
@@ -236,6 +236,13 @@
       height: 72px;
       display: block;
     }
+    .sparkline-scale {
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 4px;
+    }
     .split-stack { display: flex; height: 100%; }
     .seg-a { background: var(--green); }
     .seg-b { background: var(--blue); }
@@ -307,7 +314,7 @@
         <div class="brand-mark">OC</div>
         <div>
           <h1>Prosil - Lavado</h1>
-          <div class="muted">Preview v1.5, operación + simulación desacoplada</div>
+          <div class="muted">Preview v1.6, operación + simulación desacoplada</div>
         </div>
       </div>
       <h2>Ingreso</h2>
@@ -331,7 +338,7 @@
         <div class="brand-mark">OC</div>
         <div>
           <h1>Prosil - Lavado</h1>
-          <div class="muted">Plant App Preview v1.5</div>
+          <div class="muted">Plant App Preview v1.6</div>
         </div>
       </div>
 
@@ -484,7 +491,7 @@
       stock: [],
       latestMeasurements: [],
       backendEvents: [],
-      uiEvents: ['Preview v1.5 cargada'],
+      uiEvents: ['Preview v1.6 cargada'],
       alarms: [],
       simulation: {
         1: { line: 1, running: false, tph_input: 120, split_product_a_pct: 70, split_product_b_pct: 20, split_discard_pct: 10, input_ton: 0, product_a_ton: 0, product_b_ton: 0, discard_ton: 0 },
@@ -580,11 +587,18 @@
         return `${x.toFixed(1)},${y.toFixed(1)}`;
       };
       const polyline = values.map((v, i) => toXY(v, i)).join(' ');
+      const y200 = height - pad - (((200 - min) / span) * (height - pad * 2));
+      const y100 = height - pad - (((100 - min) / span) * (height - pad * 2));
+      const y0 = height - pad - (((0 - min) / span) * (height - pad * 2));
       return `
         <div class="sparkline-wrap">
           <svg class="sparkline" viewBox="0 0 ${width} ${height}" preserveAspectRatio="none" aria-label="Caudal últimos minutos">
+            <line x1="${pad}" y1="${y200.toFixed(1)}" x2="${(width-pad).toFixed(1)}" y2="${y200.toFixed(1)}" stroke="rgba(194,212,231,.22)" stroke-width="1" />
+            <line x1="${pad}" y1="${y100.toFixed(1)}" x2="${(width-pad).toFixed(1)}" y2="${y100.toFixed(1)}" stroke="rgba(194,212,231,.16)" stroke-width="1" />
+            <line x1="${pad}" y1="${y0.toFixed(1)}" x2="${(width-pad).toFixed(1)}" y2="${y0.toFixed(1)}" stroke="rgba(194,212,231,.22)" stroke-width="1" />
             <polyline fill="none" stroke="#57d7ff" stroke-width="2" points="${polyline}" />
           </svg>
+          <div class="sparkline-scale"><span>0</span><span>100</span><span>200 tn/h</span></div>
           <div class="muted" style="font-size:11px;">Escala fija 0-200 tn/h · 1 punto/10 s</div>
         </div>
       `;
