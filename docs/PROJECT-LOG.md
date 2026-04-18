@@ -124,6 +124,12 @@ Registro paso a paso de decisiones, cambios y entregables del proyecto.
 - Se agregó `backend/plc_poller/env.example` para parametrizar `PLC_HOST`, `PLC_RACK`, `PLC_SLOT`, `BACKEND_URL` y polling desde la PC del taller.
 - Se actualizó `backend/plc_poller/README.md` para dejar explícito este modo de despliegue como camino recomendado.
 
+### [PLC REAL -> FRONT v0.8 2026-04-18]
+- Se agregó `GET /api/v1/measurements/latest` para exponer la última lectura por punto de medición y línea.
+- La preview (`app-preview/index.html`) ahora consume `measurements/latest` durante `refreshData`.
+- El dashboard por línea muestra badge de lectura PLC y usa lecturas reales cuando existen (`l1_input_main`, `l1_output_1/2/3`, `l2_input_hopper_1`, `l2_output_1`) con fallback a simulación cuando no hay dato.
+- Resultado: ingesta real de PLC ya puede verse en frontend sin depender solo de valores mock/simulación.
+
 ### [GITHUB PREP 2026-04-17]
 - Se creó `.gitignore` en raíz para separar código del proyecto vs archivos personales/operativos del workspace OpenClaw.
 - Se creó `docs/github_publishing.md` con guía concreta para publicar el repo y seguir desde otra PC.

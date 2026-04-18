@@ -36,3 +36,13 @@ class MeasurementIngestResult(BaseModel):
     process_code: str | None = None
     readings_created: int
     reset_partials_ack: bool
+
+
+class MeasurementLatestItem(BaseModel):
+    code: str
+    name: str
+    line: int
+    captured_at: datetime | None = None
+    partial_ton: float | None = None
+    totalizer_ton: float | None = None
+    delta_ton: float | None = None

@@ -2,7 +2,12 @@ from decimal import Decimal
 from app.models.measurement import MeasurementReading
 from app.repositories.measurement_repository import MeasurementRepository
 from app.repositories.process_repository import ProcessRepository
-from app.schemas.measurement import MeasurementIngestRequest, MeasurementIngestResult, MeasurementPointItem
+from app.schemas.measurement import (
+    MeasurementIngestRequest,
+    MeasurementIngestResult,
+    MeasurementLatestItem,
+    MeasurementPointItem,
+)
 from app.services.plc_mock_state import plc_mock_state
 
 
@@ -77,3 +82,25 @@ class MeasurementService:
             readings_created=created,
             reset_partials_ack=payload.reset_partials_ack,
         )
+
+    def list_latest(self, line: int | None = None) -> list[MeasurementLatestItem]:
+        points = []
+        if line is None:
+            for line_id in (1, 2):
+                points.extend(self.measurement_repository.list_active_by_line(line_id))
+        else:
+            points = self.measurement_repository.list_active_by_line(line)
+
+        items: list[MeasurementLatestItem] = []
+        for point in points:
+            last = self.measurement_repository.get_last_reading(point.id)
+            items.append(MeasurementLatestItem(
+                code=point.code,
+                name=point.name,
+                line=point.line_id,
+                captured_at=last.captured_at if last else None,
+                partial_ton=float(last.partial_ton) if last and last.partial_ton is not None else None,
+                totalizer_ton=float(last.totalizer_ton) if last and last.totalizer_ton is not None else None,
+                delta_ton=float(last.delta_ton) if last and last.delta_ton is not None else None,
+            ))
+        return items
