@@ -133,6 +133,8 @@ Registro paso a paso de decisiones, cambios y entregables del proyecto.
 - Se ajustó dashboard para mostrar en "Entrada proceso" el valor parcial PLC (no totalizador general).
 - `plc_poller.main` pasó a modo continuo (polling por intervalo), evitando ejecución manual por cada actualización.
 - Se incorporó integración para `tn/h` real desde PLC en dashboard: nuevo punto `l1_input_tph` (y placeholder `l2_input_tph`), con consumo en UI para reemplazar el valor fijo de simulación cuando exista lectura.
+- Se ajustó branding de frontend a `Prosil - Lavado` y se versionó preview a v0.9.
+- Se agregó visualización explícita de totalizadores generales de balanza en dashboard (tarjeta resumen L1 + stat por línea).
 
 ### [GITHUB PREP 2026-04-17]
 - Se creó `.gitignore` en raíz para separar código del proyecto vs archivos personales/operativos del workspace OpenClaw.

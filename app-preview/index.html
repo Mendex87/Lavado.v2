@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <base href="/app-preview/" />
-  <title>OpenClaudio Plant App Preview v0.8</title>
+  <title>Prosil - Lavado | Plant App Preview v0.9</title>
   <style>
     :root {
       --bg: #07101a;
@@ -172,7 +172,7 @@
       flex-wrap: wrap;
     }
     .summary-grid, .kpi-grid, .field-grid { display: grid; gap: 12px; }
-    .summary-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .summary-grid { grid-template-columns: repeat(5, minmax(0, 1fr)); }
     .kpi-grid { grid-template-columns: repeat(5, minmax(0, 1fr)); }
     .field-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
     .summary, .kpi, .line-subcard {
@@ -271,8 +271,8 @@
       <div class="brand">
         <div class="brand-mark">OC</div>
         <div>
-          <h1>OpenClaudio</h1>
-          <div class="muted">Preview v0.8, operación + simulación desacoplada</div>
+          <h1>Prosil - Lavado</h1>
+          <div class="muted">Preview v0.9, operación + simulación desacoplada</div>
         </div>
       </div>
       <h2>Ingreso</h2>
@@ -295,8 +295,8 @@
       <div class="brand">
         <div class="brand-mark">OC</div>
         <div>
-          <h1>OpenClaudio</h1>
-          <div class="muted">Plant App Preview v0.8</div>
+          <h1>Prosil - Lavado</h1>
+          <div class="muted">Plant App Preview v0.9</div>
         </div>
       </div>
 
@@ -353,6 +353,7 @@
           <div class="summary"><span>Alarmas activas</span><strong id="sum-alarms">0</strong></div>
           <div class="summary"><span>Stock bajo/crítico</span><strong id="sum-stock">0</strong></div>
           <div class="summary"><span>Simulaciones activas</span><strong id="sum-sim">0</strong></div>
+          <div class="summary"><span>Totalizador alim. L1</span><strong id="sum-l1-totalizer">0.0 t</strong></div>
         </div>
 
         <div class="grid two-col" style="margin-top:16px;">
@@ -443,7 +444,7 @@
       stock: [],
       latestMeasurements: [],
       backendEvents: [],
-      uiEvents: ['Preview v0.8 cargada'],
+      uiEvents: ['Preview v0.9 cargada'],
       alarms: [],
       simulation: {
         1: { line: 1, running: false, tph_input: 120, split_product_a_pct: 70, split_product_b_pct: 20, split_discard_pct: 10, input_ton: 0, product_a_ton: 0, product_b_ton: 0, discard_ton: 0 },
@@ -543,6 +544,8 @@
       $('sum-alarms').textContent = state.alarms.length;
       $('sum-stock').textContent = state.stock.filter(s => s.status !== 'normal').length;
       $('sum-sim').textContent = [1,2].filter(line => state.autoSim[line].on || state.simulation[line].running).length;
+      const l1Totalizer = latestValue(1, 'l1_input_main', 'totalizer_ton');
+      $('sum-l1-totalizer').textContent = formatTon(l1Totalizer);
       $('active-count-badge').textContent = `${state.processes.length} activos`;
       $('sidebar-sim-badge').textContent = `Sim L1 ${state.autoSim[1].on ? 'ON' : 'OFF'} · L2 ${state.autoSim[2].on ? 'ON' : 'OFF'}`;
     }
@@ -565,6 +568,9 @@
       const inputProcessPartial = line === 1
         ? latestValue(1, 'l1_input_main', 'partial_ton')
         : latestValue(2, 'l2_input_hopper_1', 'partial_ton');
+      const inputTotalizer = line === 1
+        ? latestValue(1, 'l1_input_main', 'totalizer_ton')
+        : latestValue(2, 'l2_input_hopper_1', 'totalizer_ton');
       const outputA = line === 1
         ? latestValue(1, 'l1_output_1')
         : latestValue(2, 'l2_output_1');
@@ -615,6 +621,7 @@
         </div>
         <div class="line-stats">
           <div class="stat"><span>Entrada proceso (parcial)</span><strong>${formatTon(shownInput)}</strong></div>
+          <div class="stat"><span>Totalizador general</span><strong>${formatTon(inputTotalizer)}</strong></div>
           <div class="stat"><span>Producto A</span><strong>${formatTon(shownOutputA)}</strong></div>
           <div class="stat"><span>Producto B</span><strong>${formatTon(shownOutputB)}</strong></div>
           <div class="stat"><span>Descarte</span><strong>${formatTon(shownDiscard)}</strong></div>
