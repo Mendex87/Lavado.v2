@@ -207,7 +207,7 @@ Registro paso a paso de decisiones, cambios y entregables del proyecto.
   - logout automático al expirar o ante `401`
 - Optimización de refresco en preview (v2.7):
   - refresco general (procesos, stock, eventos, alarmas, parciales y totalizadores): cada 10s
-  - refresco rápido de caudal (`l1_input_tph`, `l2_input_tph_a`, `l2_input_tph_b`, `l2_input_tph`): cada 1s
+  - refresco rápido de caudal (`l1_input_tph`, `l2_input_tph_a`, `l2_input_tph_b`, `l2_input_tph`): cada 500ms
   - objetivo: mantener sensación online en caudal sin sobrecargar UI/backend
 
 ### [GITHUB PREP 2026-04-17]
