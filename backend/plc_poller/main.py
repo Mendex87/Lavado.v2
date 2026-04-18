@@ -31,19 +31,23 @@ def main() -> None:
     print('PLC poller base listo')
     print(json.dumps(settings.__dict__, indent=2))
     print('Mapa cargado desde', settings.mapping_path)
-    try:
-        client = Snap7PlcClient(settings.plc_host, settings.plc_rack, settings.plc_slot)
-        payloads = read_line_payloads(client, mapping)
-        for payload in payloads:
-            response = post_json(f"{settings.backend_url}/measurements/ingest", payload)
-            print(json.dumps({'payload': payload, 'response': response}, indent=2))
-        client.close()
-    except RuntimeError as exc:
-        print(str(exc))
-        print('Modo demo, payloads esperados:')
-        for payload in build_demo_payloads(mapping):
-            print(json.dumps(payload, indent=2))
-    time.sleep(0.1)
+    print(f"Polling continuo cada {settings.poll_interval_seconds}s (Ctrl+C para salir)")
+    while True:
+        try:
+            client = Snap7PlcClient(settings.plc_host, settings.plc_rack, settings.plc_slot)
+            payloads = read_line_payloads(client, mapping)
+            for payload in payloads:
+                response = post_json(f"{settings.backend_url}/measurements/ingest", payload)
+                print(json.dumps({'payload': payload, 'response': response}, indent=2))
+            client.close()
+        except RuntimeError as exc:
+            print(str(exc))
+            print('Modo demo, payloads esperados:')
+            for payload in build_demo_payloads(mapping):
+                print(json.dumps(payload, indent=2))
+        except Exception as exc:
+            print(f'Error de poll/publicación: {exc}')
+        time.sleep(settings.poll_interval_seconds)
 
 
 if __name__ == '__main__':

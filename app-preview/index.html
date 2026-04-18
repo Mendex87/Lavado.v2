@@ -558,9 +558,9 @@
         ? `<span class="badge blue">PLC ${lineLatest.length} canales · ${latestCapturedAt(line) || 'sin fecha'}</span>`
         : '<span class="badge yellow">Sin lectura PLC</span>';
 
-      const inputTotal = line === 1
-        ? latestValue(1, 'l1_input_main', 'totalizer_ton')
-        : latestValue(2, 'l2_input_hopper_1', 'totalizer_ton');
+      const inputProcessPartial = line === 1
+        ? latestValue(1, 'l1_input_main', 'partial_ton')
+        : latestValue(2, 'l2_input_hopper_1', 'partial_ton');
       const outputA = line === 1
         ? latestValue(1, 'l1_output_1')
         : latestValue(2, 'l2_output_1');
@@ -571,7 +571,7 @@
         ? latestValue(1, 'l1_output_3')
         : null;
 
-      const shownInput = inputTotal ?? sim.input_ton;
+      const shownInput = inputProcessPartial ?? sim.input_ton;
       const shownOutputA = outputA ?? sim.product_a_ton;
       const shownOutputB = outputB ?? sim.product_b_ton;
       const shownDiscard = discard ?? sim.discard_ton;
@@ -609,7 +609,7 @@
           <div class="field"><span>Proceso</span><strong>${p ? p.code : '-'}</strong></div>
         </div>
         <div class="line-stats">
-          <div class="stat"><span>Entrada acum.</span><strong>${formatTon(shownInput)}</strong></div>
+          <div class="stat"><span>Entrada proceso (parcial)</span><strong>${formatTon(shownInput)}</strong></div>
           <div class="stat"><span>Producto A</span><strong>${formatTon(shownOutputA)}</strong></div>
           <div class="stat"><span>Producto B</span><strong>${formatTon(shownOutputB)}</strong></div>
           <div class="stat"><span>Descarte</span><strong>${formatTon(shownDiscard)}</strong></div>

@@ -130,6 +130,8 @@ Registro paso a paso de decisiones, cambios y entregables del proyecto.
 - El dashboard por línea muestra badge de lectura PLC y usa lecturas reales cuando existen (`l1_input_main`, `l1_output_1/2/3`, `l2_input_hopper_1`, `l2_output_1`) con fallback a simulación cuando no hay dato.
 - Resultado: ingesta real de PLC ya puede verse en frontend sin depender solo de valores mock/simulación.
 - Se agregó auto-refresh en preview cada 5 segundos al iniciar sesión (con control de concurrencia para evitar solapamientos de requests).
+- Se ajustó dashboard para mostrar en "Entrada proceso" el valor parcial PLC (no totalizador general).
+- `plc_poller.main` pasó a modo continuo (polling por intervalo), evitando ejecución manual por cada actualización.
 
 ### [GITHUB PREP 2026-04-17]
 - Se creó `.gitignore` en raíz para separar código del proyecto vs archivos personales/operativos del workspace OpenClaw.
