@@ -101,6 +101,7 @@ Registro paso a paso de decisiones, cambios y entregables del proyecto.
   - se conectó la simulación al proceso activo de la línea: ahora genera eventos backend y descuenta stock cuando el proceso tiene entradas configuradas
   - se expuso `GET /api/v1/events/recent` para consumir eventos reales desde la UI unificada
   - se ejecutó una reestructura visual grande en la preview v0.7: dashboard con ambas líneas siempre visibles, tn/h como dato protagonista, logout simple, eventos y alarmas separados, y simulación dual por línea en paneles paralelos
+  - se montó `app-preview/` dentro del backend FastAPI para servir la preview desde `/app-preview/` usando el mismo proceso y facilitar prueba remota sin servidor estático aparte
 
 ### [RESEARCH 2026-04-17]
 - Se revisaron referencias externas de UX y arquitectura MES/industrial.

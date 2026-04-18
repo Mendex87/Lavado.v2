@@ -280,7 +280,7 @@
       <div class="form-grid">
         <label><span>Usuario</span><select id="login-user"><option value="eze|supervisor">Eze · Supervisor</option><option value="diego|operador">Diego · Operador</option><option value="juan|operador">Juan · Operador</option></select></label>
         <label><span>Turno</span><select id="login-shift"><option>Turno 1</option><option selected>Turno 2</option><option>Turno 3</option></select></label>
-        <label><span>API base URL</span><input id="api-base" value="http://localhost:8010/api/v1" /></label>
+        <label><span>API base URL</span><input id="api-base" placeholder="Se detecta automáticamente" /></label>
         <div class="actions">
           <button class="btn primary" id="login-btn">Entrar</button>
           <button class="btn secondary" id="check-api-btn">Probar API</button>
@@ -457,6 +457,19 @@
     const $ = id => document.getElementById(id);
     const navLinks = [...document.querySelectorAll('.nav-link')];
     const screens = [...document.querySelectorAll('.screen')];
+
+    function defaultApiBase() {
+      return `${window.location.origin}/api/v1`;
+    }
+
+    function loadApiBase() {
+      const saved = localStorage.getItem('plant_app_api_base');
+      $('api-base').value = (saved || defaultApiBase()).replace(/\/$/, '');
+    }
+
+    function persistApiBase() {
+      localStorage.setItem('plant_app_api_base', $('api-base').value.replace(/\/$/, ''));
+    }
 
     const apiBase = () => $('api-base').value.replace(/\/$/, '');
     const api = path => `${apiBase()}${path}`;
@@ -856,8 +869,9 @@
     window.toggleAutoSim = toggleAutoSim;
 
     navLinks.forEach(btn => btn.addEventListener('click', () => screenJump(btn.dataset.screen)));
-    $('check-api-btn').addEventListener('click', async () => { const ok = await testConnection(); if (ok) notify('Backend conectado'); });
+    $('check-api-btn').addEventListener('click', async () => { persistApiBase(); const ok = await testConnection(); if (ok) notify('Backend conectado'); });
     $('login-btn').addEventListener('click', async () => {
+      persistApiBase();
       const ok = await testConnection();
       if (!ok) return;
       const [name, role] = $('login-user').value.split('|');
@@ -877,6 +891,8 @@
     $('create-process-btn').addEventListener('click', createProcess);
     $('goto-sim-btn').addEventListener('click', () => screenJump('simulation'));
 
+    $('api-base').addEventListener('change', persistApiBase);
+    loadApiBase();
     applyProcessFormRules();
   </script>
 </body>

@@ -17,6 +17,8 @@ En desarrollo queda usando SQLite local:
 Luego se puede volver a PostgreSQL cambiando `DATABASE_URL` o las variables `POSTGRES_*`.
 
 ## Endpoints útiles para prueba
+- `GET /`
+- `GET /app-preview/`
 - `GET /api/v1/health`
 - `POST /api/v1/admin/seed`
 - `GET /api/v1/processes/active`
@@ -32,6 +34,14 @@ Luego se puede volver a PostgreSQL cambiando `DATABASE_URL` o las variables `POS
 - `GET /api/v1/simulation/line/1`
 - `POST /api/v1/simulation/start`
 - `POST /api/v1/simulation/step`
+
+## Preview incluida en el backend
+Con el backend levantado, la UI preview queda servida desde el mismo proceso:
+
+- `http://localhost:8010/app-preview/`
+
+Eso evita depender de un server estático aparte y simplifica la prueba remota detrás de una sola URL.
+La preview además autodetecta la base API desde la URL actual y guarda overrides en `localStorage`, así que al abrirla remotamente no queda apuntando a `localhost` por error.
 
 ## Proceso Python separado para PLC
 Base inicial en `backend/plc_poller/`.
