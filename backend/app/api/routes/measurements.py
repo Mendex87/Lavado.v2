@@ -1,12 +1,12 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from app.api.deps import get_current_user
+from app.api.deps import get_current_user, require_roles
 from app.db.session import get_db
 from app.schemas.measurement import (
     MeasurementIngestRequest,
     MeasurementIngestResult,
     MeasurementLatestItem,
-    MeasurementManualLinePayload,
+    MeasurementManualOperationPayload,
     MeasurementManualResult,
     MeasurementPointItem,
 )
@@ -41,11 +41,15 @@ def list_latest_measurements(
 
 @router.post('/manual', response_model=MeasurementManualResult)
 def manual_measurements(
-    payload: MeasurementManualLinePayload,
+    payload: MeasurementManualOperationPayload,
     db: Session = Depends(get_db),
     current_user=Depends(get_current_user),
+    _roles=Depends(require_roles('supervisor', 'admin')),
 ):
-    result = MeasurementService(db).manual_ingest(payload, entered_by_user_id=current_user.id)
+    try:
+        result = MeasurementService(db).manual_ingest(payload, entered_by_user_id=current_user.id)
+    except ValueError as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
     AuditService(db).log(
         user_id=current_user.id,
         entity_name='measurement',

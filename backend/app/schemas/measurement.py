@@ -49,11 +49,15 @@ class MeasurementLatestItem(BaseModel):
     delta_ton: float | None = None
 
 
-class MeasurementManualLinePayload(BaseModel):
+class MeasurementManualOperationPayload(BaseModel):
     line: int
-    tph: float | None = None
-    partial_ton: float | None = None
-    totalizer_ton: float | None = None
+    feed_l1_partial_ton: float | None = None
+    feed_l2_h1_partial_ton: float | None = None
+    feed_l2_h2_partial_ton: float | None = None
+    product_1_partial_ton: float | None = None
+    product_2_partial_ton: float | None = None
+    product_3_partial_ton: float | None = None
+    product_4_partial_ton: float | None = None
 
 
 class MeasurementManualResult(BaseModel):
@@ -61,3 +65,4 @@ class MeasurementManualResult(BaseModel):
     line: int
     source: str
     readings_created: int
+    stock_updates: list[dict] = []

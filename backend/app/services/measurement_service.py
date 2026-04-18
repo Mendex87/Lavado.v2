@@ -1,13 +1,16 @@
 from datetime import datetime
 from decimal import Decimal
+from app.models.process import ProcessInput
+from app.models.stock import QuarryStockMovement
 from app.models.measurement import MeasurementReading
+from app.repositories.stock_repository import StockRepository
 from app.repositories.measurement_repository import MeasurementRepository
 from app.repositories.process_repository import ProcessRepository
 from app.schemas.measurement import (
     MeasurementIngestRequest,
     MeasurementIngestResult,
     MeasurementLatestItem,
-    MeasurementManualLinePayload,
+    MeasurementManualOperationPayload,
     MeasurementManualResult,
     MeasurementPointItem,
 )
@@ -19,6 +22,7 @@ class MeasurementService:
         self.db = db
         self.measurement_repository = MeasurementRepository(db)
         self.process_repository = ProcessRepository(db)
+        self.stock_repository = StockRepository(db)
 
     def list_points(self, line: int | None = None) -> list[MeasurementPointItem]:
         points = []
@@ -109,31 +113,31 @@ class MeasurementService:
             ))
         return items
 
-    def manual_ingest(self, payload: MeasurementManualLinePayload, entered_by_user_id: int) -> MeasurementManualResult:
+    def manual_ingest(self, payload: MeasurementManualOperationPayload, entered_by_user_id: int) -> MeasurementManualResult:
         line = int(payload.line)
-        channels = []
-        if line == 1:
-            if payload.tph is not None:
-                channels.append({'code': 'l1_input_tph', 'partial_ton': payload.tph})
-            if payload.partial_ton is not None or payload.totalizer_ton is not None:
-                channels.append({
-                    'code': 'l1_input_main',
-                    'partial_ton': payload.partial_ton,
-                    'totalizer_ton': payload.totalizer_ton,
-                })
-        elif line == 2:
-            if payload.tph is not None:
-                half = payload.tph / 2
-                channels.append({'code': 'l2_input_tph_a', 'partial_ton': half})
-                channels.append({'code': 'l2_input_tph_b', 'partial_ton': half})
-            if payload.partial_ton is not None or payload.totalizer_ton is not None:
-                channels.append({
-                    'code': 'l2_input_hopper_1',
-                    'partial_ton': payload.partial_ton,
-                    'totalizer_ton': payload.totalizer_ton,
-                })
+        process = self.process_repository.get_active_by_line(line)
+        if not process:
+            raise ValueError(f'No hay proceso activo en línea {line}')
+
+        channels: list[dict] = []
+        if payload.feed_l1_partial_ton is not None:
+            channels.append({'code': 'l1_input_main', 'partial_ton': payload.feed_l1_partial_ton})
+        if payload.feed_l2_h1_partial_ton is not None:
+            channels.append({'code': 'l2_input_hopper_1', 'partial_ton': payload.feed_l2_h1_partial_ton})
+        if payload.feed_l2_h2_partial_ton is not None:
+            channels.append({'code': 'l2_input_hopper_2', 'partial_ton': payload.feed_l2_h2_partial_ton})
+
+        if payload.product_1_partial_ton is not None:
+            channels.append({'code': 'l1_output_1', 'partial_ton': payload.product_1_partial_ton})
+        if payload.product_2_partial_ton is not None:
+            channels.append({'code': 'l1_output_2', 'partial_ton': payload.product_2_partial_ton})
+        if payload.product_3_partial_ton is not None:
+            channels.append({'code': 'l2_output_1', 'partial_ton': payload.product_3_partial_ton})
+        if payload.product_4_partial_ton is not None:
+            channels.append({'code': 'l1_output_3', 'partial_ton': payload.product_4_partial_ton})
+
         if not channels:
-            return MeasurementManualResult(ok=True, line=line, source='manual', readings_created=0)
+            return MeasurementManualResult(ok=True, line=line, source='manual', readings_created=0, stock_updates=[])
 
         ingest_payload = MeasurementIngestRequest(
             captured_at=datetime.utcnow(),
@@ -143,9 +147,69 @@ class MeasurementService:
             channels=channels,
         )
         result = self.ingest(ingest_payload, entered_by_user_id=entered_by_user_id)
+        stock_updates = self._apply_manual_stock_discounts(process.id, payload, entered_by_user_id)
         return MeasurementManualResult(
             ok=result.ok,
             line=result.line,
             source='manual',
             readings_created=result.readings_created,
+            stock_updates=stock_updates,
         )
+
+    def _apply_manual_stock_discounts(self, process_id: int, payload: MeasurementManualOperationPayload, user_id: int) -> list[dict]:
+        inputs = (
+            self.db.query(ProcessInput)
+            .filter(ProcessInput.process_id == process_id)
+            .order_by(ProcessInput.input_order.asc())
+            .all()
+        )
+        if not inputs:
+            return []
+
+        discounts_by_quarry: dict[int, float] = {}
+
+        if payload.feed_l1_partial_ton is not None and len(inputs) >= 1:
+            qid = int(inputs[0].quarry_id)
+            discounts_by_quarry[qid] = discounts_by_quarry.get(qid, 0.0) + float(payload.feed_l1_partial_ton)
+
+        if payload.feed_l2_h1_partial_ton is not None and len(inputs) >= 1:
+            qid = int(inputs[0].quarry_id)
+            discounts_by_quarry[qid] = discounts_by_quarry.get(qid, 0.0) + float(payload.feed_l2_h1_partial_ton)
+
+        if payload.feed_l2_h2_partial_ton is not None:
+            if len(inputs) >= 2:
+                qid = int(inputs[1].quarry_id)
+                discounts_by_quarry[qid] = discounts_by_quarry.get(qid, 0.0) + float(payload.feed_l2_h2_partial_ton)
+            elif len(inputs) == 1:
+                qid = int(inputs[0].quarry_id)
+                discounts_by_quarry[qid] = discounts_by_quarry.get(qid, 0.0) + float(payload.feed_l2_h2_partial_ton)
+
+        updates = []
+        for quarry_id, qty in discounts_by_quarry.items():
+            if qty <= 0:
+                continue
+            stock = self.stock_repository.get_stock_by_quarry_id(quarry_id)
+            if not stock:
+                continue
+            current = float(stock.current_ton)
+            stock.current_ton = Decimal(str(current - qty))
+            self.db.add(stock)
+
+            movement = QuarryStockMovement(
+                quarry_id=quarry_id,
+                process_id=process_id,
+                scale_id=None,
+                movement_type='process_consumption_manual',
+                direction='out',
+                quantity_ton=Decimal(str(qty)),
+                signed_quantity_ton=Decimal(str(-qty)),
+                source='manual',
+                reference_code=f'process:{process_id}',
+                entered_by_user_id=user_id,
+                reason='Descuento por carga manual de parciales de alimentación',
+            )
+            self.stock_repository.add_movement(movement)
+            updates.append({'quarry_id': quarry_id, 'discount_ton': round(qty, 3), 'new_stock_ton': round(current - qty, 3)})
+
+        self.db.commit()
+        return updates

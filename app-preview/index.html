@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <base href="/app-preview/" />
-  <title>Prosil - Lavado | Plant App Preview v2.8</title>
+  <title>Prosil - Lavado | Plant App Preview v2.9</title>
   <style>
     :root {
       --bg: #07101a;
@@ -315,7 +315,7 @@
         <div class="brand-mark">OC</div>
         <div>
           <h1>Prosil - Lavado</h1>
-          <div class="muted">Preview v2.8</div>
+          <div class="muted">Preview v2.9</div>
         </div>
       </div>
       <h2>Ingreso</h2>
@@ -339,7 +339,7 @@
         <div class="brand-mark">OC</div>
         <div>
           <h1>Prosil - Lavado</h1>
-          <div class="muted">Plant App Preview v2.8</div>
+          <div class="muted">Plant App Preview v2.9</div>
         </div>
       </div>
 
@@ -433,16 +433,20 @@
           <div class="card-head"><h3>Procesos activos</h3><span class="badge blue" id="active-count-badge">0 activos</span></div>
           <div id="process-list" class="grid"></div>
         </div>
-        <div class="card" style="margin-top:16px;">
-          <div class="card-head"><h3>Modo degradado (carga manual)</h3><span class="badge yellow">Fallback</span></div>
+        <div class="card hidden" style="margin-top:16px;" id="manual-box">
+          <div class="card-head"><h3>Contingencia técnica (manual)</h3><span class="badge yellow">Supervisor/Admin</span></div>
           <div class="form-grid" style="grid-template-columns:repeat(4,minmax(0,1fr));">
             <label><span>Línea</span><select id="manual-line"><option value="1">Línea 1</option><option value="2">Línea 2</option></select></label>
-            <label><span>Caudal (tn/h)</span><input id="manual-tph" type="number" step="0.1" /></label>
-            <label><span>Parcial (tn)</span><input id="manual-partial" type="number" step="0.001" /></label>
-            <label><span>Totalizador (tn)</span><input id="manual-totalizer" type="number" step="0.001" /></label>
+            <label><span>Alim. L1 parcial (tn)</span><input id="manual-feed-l1" type="number" step="0.001" /></label>
+            <label><span>Alim. L2 Tolva 1 (tn)</span><input id="manual-feed-l2h1" type="number" step="0.001" /></label>
+            <label><span>Alim. L2 Tolva 2 (tn)</span><input id="manual-feed-l2h2" type="number" step="0.001" /></label>
+            <label><span>Producto 1 parcial (tn)</span><input id="manual-prod-1" type="number" step="0.001" /></label>
+            <label><span>Producto 2 parcial (tn)</span><input id="manual-prod-2" type="number" step="0.001" /></label>
+            <label><span>Producto 3 parcial (tn)</span><input id="manual-prod-3" type="number" step="0.001" /></label>
+            <label><span>Producto 4 parcial (tn)</span><input id="manual-prod-4" type="number" step="0.001" /></label>
           </div>
-          <div class="actions" style="margin-top:12px;"><button class="btn secondary" id="manual-send-btn">Enviar manual</button></div>
-          <div class="muted" style="margin-top:10px;">L2 distribuye caudal manual en A/B al 50% para mantener operación.</div>
+          <div class="actions" style="margin-top:12px;"><button class="btn secondary" id="manual-send-btn">Aplicar contingencia</button></div>
+          <div class="muted" style="margin-top:10px;">Solo registrar lo faltante que no entró automático. La alimentación manual descuenta stock de las canteras del proceso activo.</div>
         </div>
       </section>
 
@@ -490,7 +494,7 @@
       stock: [],
       latestMeasurements: [],
       backendEvents: [],
-      uiEvents: ['Preview v2.8 cargada'],
+      uiEvents: ['Preview v2.9 cargada'],
       token: null,
       alarms: [],
       simulation: {
@@ -1042,6 +1046,13 @@
       $('proc-blend-b-wrap').classList.toggle('hidden', !blend);
     }
 
+    function applyManualFormRules() {
+      const line = Number($('manual-line').value || 1);
+      $('manual-feed-l1').parentElement.classList.toggle('hidden', line !== 1);
+      $('manual-feed-l2h1').parentElement.classList.toggle('hidden', line !== 2);
+      $('manual-feed-l2h2').parentElement.classList.toggle('hidden', line !== 2);
+    }
+
     async function createProcess() {
       try {
         const line = Number($('proc-line').value);
@@ -1081,21 +1092,32 @@
     async function sendManualMeasurement() {
       try {
         const line = Number($('manual-line').value);
-        const tphRaw = $('manual-tph').value;
-        const partialRaw = $('manual-partial').value;
-        const totalizerRaw = $('manual-totalizer').value;
+        const fL1 = $('manual-feed-l1').value;
+        const fL2h1 = $('manual-feed-l2h1').value;
+        const fL2h2 = $('manual-feed-l2h2').value;
+        const p1 = $('manual-prod-1').value;
+        const p2 = $('manual-prod-2').value;
+        const p3 = $('manual-prod-3').value;
+        const p4 = $('manual-prod-4').value;
         const payload = {
           line,
-          tph: tphRaw === '' ? null : Number(tphRaw),
-          partial_ton: partialRaw === '' ? null : Number(partialRaw),
-          totalizer_ton: totalizerRaw === '' ? null : Number(totalizerRaw),
+          feed_l1_partial_ton: fL1 === '' ? null : Number(fL1),
+          feed_l2_h1_partial_ton: fL2h1 === '' ? null : Number(fL2h1),
+          feed_l2_h2_partial_ton: fL2h2 === '' ? null : Number(fL2h2),
+          product_1_partial_ton: p1 === '' ? null : Number(p1),
+          product_2_partial_ton: p2 === '' ? null : Number(p2),
+          product_3_partial_ton: p3 === '' ? null : Number(p3),
+          product_4_partial_ton: p4 === '' ? null : Number(p4),
         };
         const result = await request('/measurements/manual', { method: 'POST', body: JSON.stringify(payload) });
-        addUiEvent(`Carga manual L${line} (${result.readings_created} lecturas)`);
+        const stockInfo = Array.isArray(result.stock_updates) && result.stock_updates.length
+          ? ` · stock actualizado (${result.stock_updates.length} canteras)`
+          : '';
+        addUiEvent(`Contingencia manual L${line} (${result.readings_created} lecturas${stockInfo})`);
         await refreshData();
-        notify('Carga manual aplicada');
+        notify('Contingencia aplicada');
       } catch (e) {
-        notify('No se pudo enviar carga manual');
+        notify('No se pudo aplicar contingencia');
       }
     }
 
@@ -1137,6 +1159,7 @@
       }
       $('login-wrap').classList.add('hidden');
       $('app-shell').classList.remove('hidden');
+      $('manual-box').classList.toggle('hidden', !['supervisor', 'admin'].includes(state.user.role));
       renderHeader();
       await refreshData();
       startAutoRefresh();
@@ -1147,10 +1170,12 @@
     $('proc-line').addEventListener('change', applyProcessFormRules);
     $('proc-mode').addEventListener('change', applyProcessFormRules);
     $('create-process-btn').addEventListener('click', createProcess);
+    $('manual-line').addEventListener('change', applyManualFormRules);
     $('manual-send-btn').addEventListener('click', sendManualMeasurement);
     $('api-base').addEventListener('change', persistApiBase);
     loadApiBase();
     applyProcessFormRules();
+    applyManualFormRules();
   </script>
 </body>
 </html>

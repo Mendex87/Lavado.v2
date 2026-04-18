@@ -210,11 +210,14 @@ Registro paso a paso de decisiones, cambios y entregables del proyecto.
   - refresco rápido de caudal (`l1_input_tph`, `l2_input_tph_a`, `l2_input_tph_b`, `l2_input_tph`): cada 500ms
   - poller PLC ajustado para 500ms en script `run_poller_vps.bat` (`PLC_POLL_INTERVAL_SECONDS=0.5`)
   - objetivo: mantener sensación online en caudal sin sobrecargar UI/backend
-- Modo degradado operativo (manual fallback):
-  - endpoint `POST /measurements/manual` para carga manual por línea
-  - `GET /measurements/latest` ahora informa `source` (`plc` / `manual`)
-  - preview incorpora bloque de carga manual (línea, caudal, parcial, totalizador)
-  - cards de línea muestran badge de fuente de dato (manual/plc)
+- Modo degradado operativo (manual fallback, ajuste técnico):
+  - endpoint `POST /measurements/manual` restringido a `supervisor/admin`
+  - carga manual enfocada en parciales faltantes (sin caudales):
+    - 3 alimentaciones: `l1_input_main`, `l2_input_hopper_1`, `l2_input_hopper_2`
+    - 4 productos: `l1_output_1`, `l1_output_2`, `l2_output_1`, `l1_output_3`
+  - `GET /measurements/latest` informa `source` (`plc` / `manual`)
+  - la UI de contingencia queda capada para supervisor/admin y orientada a “registrar lo no capturado automático”
+  - al cargar alimentación manual, se descuenta stock de las canteras del proceso activo y se registra movimiento
 
 ### [GITHUB PREP 2026-04-17]
 - Se creó `.gitignore` en raíz para separar código del proyecto vs archivos personales/operativos del workspace OpenClaw.
