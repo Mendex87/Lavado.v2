@@ -118,6 +118,12 @@ Registro paso a paso de decisiones, cambios y entregables del proyecto.
 - Se agregó `backend/app/core/logging.py` y se activó logging base en `backend/app/main.py`.
 - Decisión práctica: desde ahora cualquier falla significativa de preview, backend, migraciones o integración PLC debe dejar rastro técnico en `TECH-TRACE.md`, además del resumen general en `PROJECT-LOG.md`.
 
+### [HYBRID DEPLOY 2026-04-18]
+- Se documentó el esquema operativo híbrido recomendado: app central en VPS y `plc_poller` corriendo en la PC del taller conectada al PLC.
+- Se creó `docs/hybrid_tailscale_setup.md` con el flujo exacto PC taller -> Tailscale -> VPS/backend.
+- Se agregó `backend/plc_poller/env.example` para parametrizar `PLC_HOST`, `PLC_RACK`, `PLC_SLOT`, `BACKEND_URL` y polling desde la PC del taller.
+- Se actualizó `backend/plc_poller/README.md` para dejar explícito este modo de despliegue como camino recomendado.
+
 ### [GITHUB PREP 2026-04-17]
 - Se creó `.gitignore` en raíz para separar código del proyecto vs archivos personales/operativos del workspace OpenClaw.
 - Se creó `docs/github_publishing.md` con guía concreta para publicar el repo y seguir desde otra PC.
