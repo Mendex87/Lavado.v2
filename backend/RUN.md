@@ -55,6 +55,12 @@ Luego se puede volver a PostgreSQL cambiando `DATABASE_URL` o las variables `POS
 - `plc/*`, `simulation/*`: `supervisor` o `admin`
 - resto de endpoints operativos: cualquier usuario autenticado
 
+### Rate limit de login
+
+- Política actual: 5 intentos fallidos por ventana de 15 minutos.
+- Si supera el límite: bloqueo temporal de 15 minutos (`429`).
+- Aplicado por combinación de usuario e IP.
+
 ## Preview incluida en el backend
 Con el backend levantado, la UI preview queda servida desde el mismo proceso:
 

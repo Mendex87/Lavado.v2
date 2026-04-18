@@ -186,6 +186,10 @@ Registro paso a paso de decisiones, cambios y entregables del proyecto.
   - `admin/*` restringido a admin
   - seed actualizado con asignación de roles por usuario
   - preview login actualizado para consumir rol real
+- Seguridad/auth rate limit (bloque A, punto 2):
+  - throttling de login por usuario e IP
+  - límite: 5 fallos en 15 minutos
+  - bloqueo temporal: 15 minutos con `HTTP 429`
 
 ### [GITHUB PREP 2026-04-17]
 - Se creó `.gitignore` en raíz para separar código del proyecto vs archivos personales/operativos del workspace OpenClaw.
