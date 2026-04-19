@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <base href="/app-preview/" />
-  <title>Prosil - Lavado | Plant App Preview v3.1</title>
+  <title>Prosil - Lavado | Plant App Preview v3.2</title>
   <style>
     :root {
       --bg: #07101a;
@@ -315,7 +315,7 @@
         <div class="brand-mark">OC</div>
         <div>
           <h1>Prosil - Lavado</h1>
-          <div class="muted">Preview v3.1</div>
+          <div class="muted">Preview v3.2</div>
         </div>
       </div>
       <h2>Ingreso</h2>
@@ -351,6 +351,11 @@
         <button class="nav-link" data-screen="events">Eventos</button>
         <button class="nav-link" data-screen="handover">Handover</button>
         <button class="nav-link" data-screen="alarms">Alarmas</button>
+        <button class="nav-link" data-screen="quality">Calidad</button>
+        <button class="nav-link" data-screen="maintenance">Mantenimiento</button>
+        <button class="nav-link" data-screen="oee">OEE</button>
+        <button class="nav-link" data-screen="reporting">Reportes</button>
+        <button class="nav-link" data-screen="energy">Energía</button>
         <button class="nav-link hidden" data-screen="settings" id="nav-settings">Configuración</button>
       </div>
 
@@ -600,6 +605,7 @@
               <div>Variables activas: <span id="plc-vars-count">0</span></div>
             </div>
             <button class="btn small secondary" style="margin-top:8px;" id="plc-test-btn">Probar conexión</button>
+            <button class="btn small primary" style="margin-top:8px; margin-left:8px;" id="plc-apply-btn">Aplicar configuración</button>
           </div>
           
           <h4 style="margin:24px 0 8px; color:var(--blue);">Parámetros de Alarma</h4>
@@ -620,6 +626,157 @@
         </div>
       </section>
 
+      <section id="quality" class="screen">
+        <div class="card">
+          <div class="card-head">
+            <h3>Registros de Calidad</h3>
+            <span class="badge blue">Laboratorio</span>
+          </div>
+          <div id="quality-records-list" class="grid" style="max-height:400px; overflow-y:auto;"></div>
+        </div>
+        <div class="card" style="margin-top:16px;">
+          <div class="card-head"><h3>Nuevo Registro de Muestra</h3><span class="badge yellow">Operario</span></div>
+          <div class="form-grid" style="grid-template-columns:repeat(4,minmax(0,1fr));">
+            <label><span>Código de muestra</span><input id="quality-sample-code" type="text" placeholder="QA-001" /></label>
+            <label><span>Tipo de muestra</span>
+              <select id="quality-sample-type">
+                <option value="entrada">Entrada</option>
+                <option value="producto">Producto</option>
+                <option value="final">Final</option>
+              </select>
+            </label>
+            <label><span>Humedad %</span><input id="quality-humidity" type="number" step="0.1" /></label>
+            <label><span>Densidad</span><input id="quality-density" type="number" step="0.001" /></label>
+            <label><span>Malla 20 %</span><input id="quality-mesh-20" type="number" step="0.1" /></label>
+            <label><span>Malla 40 %</span><input id="quality-mesh-40" type="number" step="0.1" /></label>
+            <label><span>Malla 80 %</span><input id="quality-mesh-80" type="number" step="0.1" /></label>
+            <label><span>Malla 120 %</span><input id="quality-mesh-120" type="number" step="0.1" /></label>
+            <label><span>Malla 200 %</span><input id="quality-mesh-200" type="number" step="0.1" /></label>
+            <label><span>Finos %</span><input id="quality-mesh-fines" type="number" step="0.1" /></label>
+            <label><span>Inspección visual</span><textarea id="quality-visual" placeholder="Observaciones visuales"></textarea></label>
+          </div>
+          <div class="actions" style="margin-top:12px;"><button class="btn primary" id="quality-add-btn">Registrar muestra</button></div>
+        </div>
+        <div class="card" style="margin-top:16px;">
+          <div class="card-head"><h3>Resumen de Calidad</h3><span class="badge green" id="quality-summary-badge">0 muestras</span></div>
+          <div class="summary-grid" id="quality-summary-grid"></div>
+        </div>
+      </section>
+
+      <section id="maintenance" class="screen">
+        <div class="card">
+          <div class="card-head">
+            <h3>Solicitudes de Mantenimiento</h3>
+            <span class="badge blue" id="maintenance-requests-badge">0 abiertas</span>
+          </div>
+          <div id="maintenance-requests-list" class="grid" style="max-height:300px; overflow-y:auto;"></div>
+        </div>
+        <div class="card" style="margin-top:16px;">
+          <div class="card-head"><h3>Nueva Solicitud</h3><span class="badge yellow">Operario</span></div>
+          <div class="form-grid" style="grid-template-columns:repeat(3,minmax(0,1fr));">
+            <label><span>Tipo</span>
+              <select id="maint-request-type">
+                <option value="correctivo">Correctivo</option>
+                <option value="preventivo">Preventivo</option>
+                <option value="mejora">Mejora</option>
+              </select>
+            </label>
+            <label><span>Prioridad</span>
+              <select id="maint-priority">
+                <option value="baja">Baja</option>
+                <option value="media">Media</option>
+                <option value="alta">Alta</option>
+                <option value="critica">Crítica</option>
+              </select>
+            </label>
+            <label><span>Línea</span>
+              <select id="maint-line">
+                <option value="">Todas</option>
+                <option value="1">Línea 1</option>
+                <option value="2">Línea 2</option>
+              </select>
+            </label>
+            <label style="grid-column:span3;"><span>Descripción del problema</span><textarea id="maint-description" placeholder="Describa el problema o solicitud..."></textarea></label>
+          </div>
+          <div class="actions" style="margin-top:12px;"><button class="btn primary" id="maint-create-btn">Crear Solicitud</button></div>
+        </div>
+        <div class="card" style="margin-top:16px;">
+          <div class="card-head"><h3>Incidencias</h3><span class="badge red" id="maintenance-incidents-badge">0</span></div>
+          <div id="maintenance-incidents-list" class="grid" style="max-height:250px; overflow-y:auto;"></div>
+        </div>
+        <div class="card" style="margin-top:16px;">
+          <div class="card-head"><h3>Mantenimiento Preventivo</h3><span class="badge green">Próximas tareas</span></div>
+          <div id="maintenance-preventive-list" class="grid" style="max-height:200px; overflow-y:auto;"></div>
+        </div>
+      </section>
+
+      <section id="oee" class="screen">
+        <div class="card">
+          <div class="card-head">
+            <h3>Dashboard OEE</h3>
+            <span class="badge green" id="oee-plant-avg">Planta: -</span>
+          </div>
+          <div class="kpi-grid" style="margin-bottom:16px;">
+            <div class="kpi"><span>Disponibilidad</span><strong id="oee-avail">-</strong></div>
+            <div class="kpi"><span>Rendimiento</span><strong id="oee-perf">-</strong></div>
+            <div class="kpi"><span>Calidad</span><strong id="oee-qual">-</strong></div>
+            <div class="kpi"><span>OEE</span><strong id="oee-total">-</strong></div>
+          </div>
+          <div id="oee-lines-grid" class="grid two-col"></div>
+        </div>
+        <div class="card" style="margin-top:16px;">
+          <div class="card-head"><h3>Historial OEE (últimos 30 días)</h3></div>
+          <div id="oee-history-list" class="grid" style="max-height:300px; overflow-y:auto;"></div>
+        </div>
+      </section>
+
+      <section id="reporting" class="screen">
+        <div class="card">
+          <div class="card-head">
+            <h3>Reportes Diarios</h3>
+            <div class="actions">
+              <button class="btn secondary" id="report-refresh-btn">Actualizar</button>
+              <button class="btn primary" id="report-export-btn">Exportar CSV</button>
+            </div>
+          </div>
+          <div id="daily-reports-list" class="grid" style="max-height:400px; overflow-y:auto;"></div>
+        </div>
+        <div class="card" style="margin-top:16px;">
+          <div class="card-head"><h3>Resumen Ejecutivo</h3><span class="badge blue" id="report-summary-date">Hoy</span></div>
+          <div class="summary-grid" id="report-summary-grid"></div>
+        </div>
+      </section>
+
+      <section id="energy" class="screen">
+        <div class="card">
+          <div class="card-head">
+            <h3>Consumo Energético</h3>
+            <span class="badge green" id="energy-total-kwh">Total: -</span>
+          </div>
+          <div class="summary-grid" style="margin-bottom:16px;">
+            <div class="summary"><span>Consumo total (kWh)</span><strong id="energy-kwh">-</strong></div>
+            <div class="summary"><span>Potencia promedio (kW)</span><strong id="energy-pwr">-</strong></div>
+            <div class="summary"><span>Lecturas</span><strong id="energy-readings">-</strong></div>
+            <div class="summary"><span>kWh/ton</span><strong id="energy-per-ton">-</strong></div>
+          </div>
+        </div>
+        <div class="card" style="margin-top:16px;">
+          <div class="card-head"><h3>Nueva Lectura</h3><span class="badge yellow">Medidor</span></div>
+          <div class="form-grid" style="grid-template-columns:repeat(4,minmax(0,1fr));">
+            <label><span>Medidor</span><input id="energy-meter-id" type="text" placeholder="MED-001" /></label>
+            <label><span>Tipo</span>
+              <select id="energy-reading-type">
+                <option value="consumo">Consumo</option>
+                <option value="potencia">Potencia</option>
+              </select>
+            </label>
+            <label><span>Valor (kWh/kW)</span><input id="energy-value" type="number" step="0.01" /></label>
+            <label><span>Potencia (kW)</span><input id="energy-power" type="number" step="0.1" /></label>
+          </div>
+          <div class="actions" style="margin-top:12px;"><button class="btn primary" id="energy-add-btn">Registrar lectura</button></div>
+        </div>
+      </section>
+
     </main>
   </div>
 
@@ -632,6 +789,11 @@
       events: ['Eventos', 'Trazabilidad de acciones y backend.'],
       handover: ['Handover', 'Transferencia de turno con checklist y resumen.'],
       alarms: ['Alarmas', 'Atención operativa.'],
+      quality: ['Calidad', 'Registros de calidad, especificaciones y trazabilidad de lotes.'],
+      maintenance: ['Mantenimiento', 'Solicitudes de mantenimiento e incidencias.'],
+      oee: ['OEE', 'Métricas de disponibilidad, rendimiento y calidad.'],
+      reporting: ['Reportes', 'Reportes diarios, semanales y exportación.'],
+      energy: ['Energía', 'Monitoreo de consumo energético.'],
       settings: ['Configuración', 'Parámetros base de operación (solo admin).'],
     };
 
@@ -646,6 +808,8 @@
       token: null,
       alarms: [],
       currentHandoverId: null,
+      qualityRecords: [],
+      maintenanceRequests: [],
       simulation: {
         1: { line: 1, running: false, tph_input: 120, split_product_a_pct: 70, split_product_b_pct: 20, split_discard_pct: 10, input_ton: 0, product_a_ton: 0, product_b_ton: 0, discard_ton: 0 },
         2: { line: 2, running: false, tph_input: 80, split_product_a_pct: 85, split_product_b_pct: 0, split_discard_pct: 15, input_ton: 0, product_a_ton: 0, product_b_ton: 0, discard_ton: 0 },
@@ -653,7 +817,7 @@
       autoRefresh: {
         enabled: true,
         coreIntervalMs: 10000,
-        flowIntervalMs: 500,
+        flowIntervalMs: 200,
         coreTimer: null,
         flowTimer: null,
         clockTimer: null,
@@ -1171,6 +1335,9 @@
           if (plcStatus.last_communication) {
             state.plcLastComm = new Date(plcStatus.last_communication).toLocaleString('es-AR', { hour12: false });
           }
+        } else {
+          // Si no hay respuesta, marcar como desconectado
+          state.plcConnected = false;
         }
         
         renderAll();
@@ -1596,8 +1763,15 @@
           shift_b_end: $('cfg-shift-b-end').value,
         };
         await request('/settings', { method: 'PUT', body: JSON.stringify(payload) });
+        
+        // Notificar al PLC poller que recargue
+        try {
+          await request('/settings/reload-plc', { method: 'POST' });
+          await new Promise(r => setTimeout(r, 500));
+        } catch {}
+        
         addUiEvent('Configuración de planta actualizada');
-        notify('Configuración guardada');
+        notify('Configuración guardada y aplicada al PLC');
       } catch (e) {
         notify(e.message || 'No se pudo guardar configuración');
       }
@@ -1673,7 +1847,315 @@
     loadHandoverUsers();
     $('cfg-save-btn').addEventListener('click', saveSettings);
     $('plc-test-btn').addEventListener('click', testPlcConnection);
+    $('plc-apply-btn')?.addEventListener('click', async () => {
+      $('plc-apply-btn').textContent = 'Aplicando...';
+      try {
+        await request('/settings/reload-plc', { method: 'POST' });
+        await new Promise(r => setTimeout(r, 500));
+        const check = await request('/settings/reload-plc');
+        if (check.reload) {
+          notify('Configuración aplicada al PLC poller');
+        } else {
+          notify('Esperando siguiente ciclo...');
+        }
+      } catch (e) {
+        notify(e.message || 'Error al aplicar');
+      }
+      $('plc-apply-btn').textContent = 'Aplicar configuración';
+    });
     $('api-base').addEventListener('change', persistApiBase);
+    
+    $('quality-add-btn')?.addEventListener('click', async () => {
+      try {
+        const payload = {
+          sample_code: $('quality-sample-code').value,
+          sample_type: $('quality-sample-type').value,
+          humidity_pct: $('quality-humidity').value ? Number($('quality-humidity').value) : null,
+          density: $('quality-density').value ? Number($('quality-density').value) : null,
+          mesh_20: $('quality-mesh-20').value ? Number($('quality-mesh-20').value) : null,
+          mesh_40: $('quality-mesh-40').value ? Number($('quality-mesh-40').value) : null,
+          mesh_80: $('quality-mesh-80').value ? Number($('quality-mesh-80').value) : null,
+          mesh_120: $('quality-mesh-120').value ? Number($('quality-mesh-120').value) : null,
+          mesh_200: $('quality-mesh-200').value ? Number($('quality-mesh-200').value) : null,
+          mesh_fines: $('quality-mesh-fines').value ? Number($('quality-mesh-fines').value) : null,
+          visual_inspection: $('quality-visual').value || null,
+        };
+        await request('/quality/records', { method: 'POST', body: JSON.stringify(payload) });
+        notify('Muestra de calidad registrada');
+        loadQualityData();
+      } catch (e) { notify(e.message || 'Error al registrar'); }
+    });
+
+    $('maint-create-btn')?.addEventListener('click', async () => {
+      try {
+        const payload = {
+          request_type: $('maint-request-type').value,
+          priority: $('maint-priority').value,
+          line_id: $('maint-line').value ? Number($('maint-line').value) : null,
+          description: $('maint-description').value,
+        };
+        await request('/maintenance/requests', { method: 'POST', body: JSON.stringify(payload) });
+        notify('Solicitud de mantenimiento creada');
+        loadMaintenanceData();
+      } catch (e) { notify(e.message || 'Error al crear solicitud'); }
+    });
+
+    $('energy-add-btn')?.addEventListener('click', async () => {
+      try {
+        const payload = {
+          meter_id: $('energy-meter-id').value,
+          reading_type: $('energy-reading-type').value,
+          kwh_value: Number($('energy-value').value || 0),
+          power_kw: $('energy-power').value ? Number($('energy-power').value) : null,
+          read_at: new Date().toISOString(),
+        };
+        await request('/reporting/energy', { method: 'POST', body: JSON.stringify(payload) });
+        notify('Lectura de energía registrada');
+        loadEnergyData();
+      } catch (e) { notify(e.message || 'Error al registrar'); }
+    });
+
+    async function loadQualityData() {
+      try {
+        const [records, summary] = await Promise.all([
+          request('/quality/records?limit=20'),
+          request('/quality/summary'),
+        ]);
+        state.qualityRecords = records || [];
+        renderQualityRecords(records || []);
+        renderQualitySummary(summary || { total_samples: 0, approved: 0, rejected: 0, pending: 0 });
+      } catch (e) { console.error('Error loading quality data:', e); }
+    }
+
+    function renderQualityRecords(records) {
+      const list = $('quality-records-list');
+      if (!records.length) {
+        list.innerHTML = '<div class="muted">Sin registros de calidad</div>';
+        return;
+      }
+      list.innerHTML = records.map(r => `
+        <div class="card">
+          <div class="card-head">
+            <div><h4>${r.sample_code}</h4><div class="muted">${r.sample_type}</div></div>
+            <span class="badge ${r.result_status === 'approved' ? 'green' : r.result_status === 'rejected' ? 'red' : 'yellow'}">${r.result_status}</span>
+          </div>
+          <div class="kpi-grid">
+            <div class="kpi"><span>Humedad</span><strong>${r.humidity_pct ? r.humidity_pct + '%' : '-'}</strong></div>
+            <div class="kpi"><span>Malla 20</span><strong>${r.mesh_20 ? r.mesh_20 + '%' : '-'}</strong></div>
+            <div class="kpi"><span>Malla 80</span><strong>${r.mesh_80 ? r.mesh_80 + '%' : '-'}</strong></div>
+            <div class="kpi"><span>Finos</span><strong>${r.mesh_fines ? r.mesh_fines + '%' : '-'}</strong></div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function renderQualitySummary(summary) {
+      $('quality-summary-badge').textContent = `${summary.total_samples} muestras`;
+      $('quality-summary-grid').innerHTML = `
+        <div class="summary"><span>Total</span><strong>${summary.total_samples}</strong></div>
+        <div class="summary"><span>Aprobadas</span><strong>${summary.approved}</strong></div>
+        <div class="summary"><span>Rechazadas</span><strong>${summary.rejected}</strong></div>
+        <div class="summary"><span>Pendientes</span><strong>${summary.pending}</strong></div>
+      `;
+    }
+
+    async function loadMaintenanceData() {
+      try {
+        const [requests, stats, incidents, preventive] = await Promise.all([
+          request('/maintenance/requests?limit=20'),
+          request('/maintenance/stats'),
+          request('/maintenance/incidents?limit=20'),
+          request('/maintenance/preventive-tasks'),
+        ]);
+        state.maintenanceRequests = requests || [];
+        renderMaintenanceRequests(requests || [], stats || {});
+        renderMaintenanceIncidents(incidents || []);
+        renderPreventiveTasks(preventive || []);
+      } catch (e) { console.error('Error loading maintenance data:', e); }
+    }
+
+    function renderMaintenanceRequests(requests, stats) {
+      $('maintenance-requests-badge').textContent = `${stats.open_requests || 0} abiertas`;
+      const list = $('maintenance-requests-list');
+      if (!requests.length) {
+        list.innerHTML = '<div class="muted">Sin solicitudes</div>';
+        return;
+      }
+      list.innerHTML = requests.map(r => `
+        <div class="card">
+          <div class="card-head">
+            <div><h4>${r.request_code}</h4><div class="muted">${r.request_type} · ${r.priority}</div></div>
+            <span class="badge ${r.status === 'open' ? 'red' : r.status === 'in_progress' ? 'yellow' : 'green'}">${r.status}</span>
+          </div>
+          <p>${r.description}</p>
+        </div>
+      `).join('');
+    }
+
+    function renderMaintenanceIncidents(incidents) {
+      $('maintenance-incidents-badge').textContent = `${incidents.length}`;
+      const list = $('maintenance-incidents-list');
+      if (!incidents.length) {
+        list.innerHTML = '<div class="muted">Sin incidencias</div>';
+        return;
+      }
+      list.innerHTML = incidents.map(i => `
+        <div class="card">
+          <div class="card-head">
+            <div><h4>${i.incident_code}</h4><div class="muted">${i.incident_type} · ${i.severity}</div></div>
+            <span class="badge ${i.resolved_at ? 'green' : 'red'}">${i.resolved_at ? 'Resuelto' : 'Abierto'}</span>
+          </div>
+          <p>${i.description}</p>
+        </div>
+      `).join('');
+    }
+
+    function renderPreventiveTasks(tasks) {
+      const list = $('maintenance-preventive-list');
+      if (!tasks.length) {
+        list.innerHTML = '<div class="muted">Sin tareas preventivas</div>';
+        return;
+      }
+      list.innerHTML = tasks.map(t => {
+        const isOverdue = new Date(t.next_due_at) < new Date();
+        return `
+          <div class="card">
+            <div class="card-head">
+              <div><h4>${t.task_code}</h4><div class="muted">${t.equipment_type}</div></div>
+              <span class="badge ${isOverdue ? 'red' : 'blue'}">${isOverdue ? 'Atrasado' : 'Pendiente'}</span>
+            </div>
+            <p>${t.task_description}</p>
+            <div class="muted">Próxima: ${new Date(t.next_due_at).toLocaleDateString()}</div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    async function loadOEEData() {
+      try {
+        const [dashboard, history] = await Promise.all([
+          request('/reporting/oee/dashboard'),
+          request('/reporting/oee/history?days=30'),
+        ]);
+        renderOEEDashboard(dashboard || { lines: [], plant_avg_oee: 0 });
+        renderOEEHistory(history || []);
+      } catch (e) { console.error('Error loading OEE data:', e); }
+    }
+
+    function renderOEEDashboard(data) {
+      $('oee-plant-avg').textContent = `Planta: ${data.plant_avg_oee || 0}%`;
+      const lines = data.lines || [];
+      $('oee-avail').textContent = lines.length ? lines[0].availability_pct + '%' : '-';
+      $('oee-perf').textContent = lines.length ? lines[0].performance_pct + '%' : '-';
+      $('oee-qual').textContent = lines.length ? lines[0].quality_pct + '%' : '-';
+      $('oee-total').textContent = lines.length ? lines[0].oee_pct + '%' : '-';
+      
+      const grid = $('oee-lines-grid');
+      if (!lines.length) {
+        grid.innerHTML = '<div class="muted">Sin datos de líneas</div>';
+        return;
+      }
+      grid.innerHTML = lines.map(l => `
+        <div class="card">
+          <div class="card-head"><h4>${l.line_name}</h4><span class="badge ${l.oee_pct >= 75 ? 'green' : l.oee_pct >= 50 ? 'yellow' : 'red'}">${l.oee_pct}%</span></div>
+          <div class="kpi-grid">
+            <div class="kpi"><span>Disp.</span><strong>${l.availability_pct}%</strong></div>
+            <div class="kpi"><span>Perf.</span><strong>${l.performance_pct}%</strong></div>
+            <div class="kpi"><span>Cal.</span><strong>${l.quality_pct}%</strong></div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function renderOEEHistory(history) {
+      const list = $('oee-history-list');
+      if (!history.length) {
+        list.innerHTML = '<div class="muted">Sin histórico OEE</div>';
+        return;
+      }
+      list.innerHTML = history.slice(0, 10).map(h => `
+        <div class="card">
+          <div class="card-head">
+            <div><h4>Línea ${h.line_id}</h4><div class="muted">${new Date(h.snapshot_period_start).toLocaleDateString()}</div></div>
+            <span class="badge green">${h.oee_pct}%</span>
+          </div>
+          <div class="kpi-grid">
+            <div class="kpi"><span>Disp.</span><strong>${h.availability_pct}%</strong></div>
+            <div class="kpi"><span>Perf.</span><strong>${h.performance_pct}%</strong></div>
+            <div class="kpi"><span>Cal.</span><strong>${h.quality_pct}%</strong></div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    async function loadReportingData() {
+      try {
+        const [reports, summary] = await Promise.all([
+          request('/reporting/daily?limit=30'),
+          request('/reporting/daily/summary'),
+        ]);
+        renderDailyReports(reports || []);
+        renderReportSummary(summary || {});
+      } catch (e) { console.error('Error loading reporting data:', e); }
+    }
+
+    function renderDailyReports(reports) {
+      const list = $('daily-reports-list');
+      if (!reports.length) {
+        list.innerHTML = '<div class="muted">Sin reportes diarios</div>';
+        return;
+      }
+      list.innerHTML = reports.map(r => `
+        <div class="card">
+          <div class="card-head">
+            <div><h4>${new Date(r.report_date).toLocaleDateString()}</h4><div class="muted">Turno: ${r.shift_id || '-'}</div></div>
+            <span class="badge blue">${r.total_input_ton}t in</span>
+          </div>
+          <div class="summary-grid">
+            <div class="summary"><span>Entrada</span><strong>${r.total_input_ton.toFixed(1)}</strong></div>
+            <div class="summary"><span>Prod A</span><strong>${r.total_product_a_ton.toFixed(1)}</strong></div>
+            <div class="summary"><span>Prod B</span><strong>${r.total_product_b_ton.toFixed(1)}</strong></div>
+            <div class="summary"><span>Horas</span><strong>${r.total_production_hours.toFixed(1)}</strong></div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function renderReportSummary(summary) {
+      $('report-summary-date').textContent = summary.date ? new Date(summary.date).toLocaleDateString() : 'Hoy';
+      $('report-summary-grid').innerHTML = `
+        <div class="summary"><span>Entrada</span><strong>${summary.total_input_ton || 0}t</strong></div>
+        <div class="summary"><span>Salida</span><strong>${summary.total_output_ton || 0}t</strong></div>
+        <div class="summary"><span>Horas prod.</span><strong>${summary.total_production_hours || 0}h</strong></div>
+        <div class="summary"><span>OEE</span><strong>${summary.avg_oee || 0}%</strong></div>
+      `;
+    }
+
+    async function loadEnergyData() {
+      try {
+        const summary = await request('/reporting/energy/summary');
+        renderEnergySummary(summary || { total_kwh: 0, avg_power_kw: 0, readings_count: 0 });
+      } catch (e) { console.error('Error loading energy data:', e); }
+    }
+
+    function renderEnergySummary(data) {
+      $('energy-total-kwh').textContent = `Total: ${data.total_kwh || 0} kWh`;
+      $('energy-kwh').textContent = (data.total_kwh || 0).toFixed(1);
+      $('energy-pwr').textContent = data.avg_power_kw ? data.avg_power_kw.toFixed(1) : '-';
+      $('energy-readings').textContent = data.readings_count || 0;
+      $('energy-per-ton').textContent = data.specific_consumption_kwh_per_ton ? data.specific_consumption_kwh_per_ton.toFixed(2) : '-';
+    }
+
+    const originalScreenJump = screenJump;
+    screenJump = async (screen) => {
+      originalScreenJump(screen);
+      if (screen === 'quality') loadQualityData();
+      if (screen === 'maintenance') loadMaintenanceData();
+      if (screen === 'oee') loadOEEData();
+      if (screen === 'reporting') loadReportingData();
+      if (screen === 'energy') loadEnergyData();
+    };
+
     loadApiBase();
     applyProcessFormRules();
     applyManualFormRules();

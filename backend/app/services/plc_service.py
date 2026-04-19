@@ -30,19 +30,51 @@ class PlcService:
         }
     
     def test_connection(self):
-        """Prueba de conexión con el PLC"""
-        # Por ahora retorna éxito simulado
-        # En producción, aquí iría la lógica real de conexión al PLC
-        self.is_connected = True
-        self.last_communication = datetime.utcnow()
+        """Prueba de conexión con el PLC usando la config真实的"""
+        from app.models.settings import AppSetting
+        from app.db.session import get_db
+        import time
         
-        return {
-            'success': True,
-            'connected': True,
-            'response_time_ms': 45,
-            'message': 'Conexión exitosa con PLC',
-            'timestamp': datetime.utcnow().isoformat(),
-        }
+        # Obtener config del PLC
+        db_gen = get_db()
+        db = next(db_gen)
+        try:
+            rows = db.query(AppSetting).filter(AppSetting.key.in_(['plc_host', 'plc_rack', 'plc_slot'])).all()
+            config = {r.key: r.value for r in rows}
+        finally:
+            db.close()
+        
+        plc_host = config.get('plc_host', '192.168.10.77')
+        plc_rack = int(config.get('plc_rack', 0))
+        plc_slot = int(config.get('plc_slot', 1))
+        
+        # Intentar conexión real
+        start = time.time()
+        try:
+            from plc_poller.client import Snap7PlcClient
+            client = Snap7PlcClient(plc_host, plc_rack, plc_slot)
+            client.connect()
+            elapsed = (time.time() - start) * 1000
+            client.close()
+            self.is_connected = True
+            self.last_communication = datetime.utcnow()
+            return {
+                'success': True,
+                'connected': True,
+                'response_time_ms': round(elapsed, 1),
+                'message': f'Conexión exitosa a {plc_host}',
+                'timestamp': datetime.utcnow().isoformat(),
+            }
+        except Exception as e:
+            self.is_connected = False
+            elapsed = (time.time() - start) * 1000
+            return {
+                'success': False,
+                'connected': False,
+                'response_time_ms': round(elapsed, 1),
+                'message': f'Error conectando a {plc_host}: {str(e)}',
+                'timestamp': datetime.utcnow().isoformat(),
+            }
 
     def publish_context(self, payload: PlcContextPublishRequest):
         plc_mock_state['context'] = {

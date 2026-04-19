@@ -412,6 +412,170 @@ CREATE TABLE quarry_yield_snapshots (
 );
 
 -- =========================
+-- Calidad y trazabilidad
+-- =========================
+
+CREATE TABLE quality_records (
+    id                      BIGSERIAL PRIMARY KEY,
+    process_id              BIGINT REFERENCES processes(id),
+    product_id              BIGINT REFERENCES products(id),
+    quarry_id               BIGINT REFERENCES quarries(id),
+    sample_code             TEXT NOT NULL,
+    sample_type             TEXT NOT NULL,
+    mesh_20                 NUMERIC(5,2),
+    mesh_40                 NUMERIC(5,2),
+    mesh_80                 NUMERIC(5,2),
+    mesh_120                NUMERIC(5,2),
+    mesh_200                NUMERIC(5,2),
+    mesh_fines              NUMERIC(5,2),
+    humidity_pct            NUMERIC(5,2),
+    density                 NUMERIC(6,3),
+    visual_inspection       TEXT,
+    result_status           TEXT NOT NULL DEFAULT 'pending',
+    sampled_by_user_id      BIGINT REFERENCES users(id),
+    analyzed_by_user_id     BIGINT REFERENCES users(id),
+    sampled_at              TIMESTAMPTZ,
+    analyzed_at             TIMESTAMPTZ,
+    notes                   TEXT,
+    created_at              TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE quality_specifications (
+    id                      BIGSERIAL PRIMARY KEY,
+    product_id              BIGINT NOT NULL REFERENCES products(id),
+    mesh_20_min             NUMERIC(5,2),
+    mesh_20_max             NUMERIC(5,2),
+    mesh_40_min             NUMERIC(5,2),
+    mesh_40_max             NUMERIC(5,2),
+    mesh_80_min             NUMERIC(5,2),
+    mesh_80_max             NUMERIC(5,2),
+    mesh_120_min            NUMERIC(5,2),
+    mesh_120_max            NUMERIC(5,2),
+    mesh_200_min            NUMERIC(5,2),
+    mesh_200_max            NUMERIC(5,2),
+    mesh_fines_max          NUMERIC(5,2),
+    humidity_max            NUMERIC(5,2),
+    is_active               BOOLEAN NOT NULL DEFAULT TRUE,
+    created_at              TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE lot_traceability (
+    id                      BIGSERIAL PRIMARY KEY,
+    lot_number              TEXT NOT NULL UNIQUE,
+    process_id              BIGINT NOT NULL REFERENCES processes(id),
+    product_id              BIGINT NOT NULL REFERENCES products(id),
+    total_ton               NUMERIC(14,3) NOT NULL,
+    start_time              TIMESTAMPTZ NOT NULL,
+    end_time                TIMESTAMPTZ,
+    status                  TEXT NOT NULL DEFAULT 'in_progress',
+    created_at              TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- =========================
+-- Mantenimiento
+-- =========================
+
+CREATE TABLE maintenance_requests (
+    id                      BIGSERIAL PRIMARY KEY,
+    request_code            TEXT NOT NULL UNIQUE,
+    request_type            TEXT NOT NULL,
+    priority                TEXT NOT NULL,
+    status                  TEXT NOT NULL DEFAULT 'open',
+    line_id                 BIGINT REFERENCES lines(id),
+    belt_id                 BIGINT REFERENCES belts(id),
+    scale_id                BIGINT REFERENCES scales(id),
+    description             TEXT NOT NULL,
+    reported_by_user_id     BIGINT NOT NULL REFERENCES users(id),
+    assigned_to_user_id     BIGINT REFERENCES users(id),
+    created_at              TIMESTAMPTZ NOT NULL,
+    acknowledged_at         TIMESTAMPTZ,
+    in_progress_at          TIMESTAMPTZ,
+    completed_at            TIMESTAMPTZ,
+    resolution_notes        TEXT
+);
+
+CREATE TABLE maintenance_incidents (
+    id                      BIGSERIAL PRIMARY KEY,
+    incident_code           TEXT NOT NULL UNIQUE,
+    maintenance_request_id  BIGINT REFERENCES maintenance_requests(id),
+    process_id              BIGINT REFERENCES processes(id),
+    line_id                 BIGINT REFERENCES lines(id),
+    incident_type           TEXT NOT NULL,
+    severity                TEXT NOT NULL,
+    description             TEXT NOT NULL,
+    downtime_minutes        NUMERIC(6,2),
+    production_loss_ton     NUMERIC(14,3),
+    reported_by_user_id     BIGINT NOT NULL REFERENCES users(id),
+    resolved_by_user_id     BIGINT REFERENCES users(id),
+    created_at              TIMESTAMPTZ NOT NULL,
+    resolved_at             TIMESTAMPTZ,
+    resolution             TEXT
+);
+
+CREATE TABLE preventive_maintenance_tasks (
+    id                      BIGSERIAL PRIMARY KEY,
+    task_code               TEXT NOT NULL UNIQUE,
+    equipment_type          TEXT NOT NULL,
+    equipment_id            BIGINT REFERENCES belts(id),
+    task_description        TEXT NOT NULL,
+    frequency_days          INTEGER NOT NULL,
+    last_performed_at       TIMESTAMPTZ,
+    next_due_at             TIMESTAMPTZ NOT NULL,
+    is_active               BOOLEAN NOT NULL DEFAULT TRUE,
+    created_at              TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- =========================
+-- Reporting y analytics
+-- =========================
+
+CREATE TABLE daily_reports (
+    id                      BIGSERIAL PRIMARY KEY,
+    report_date             TIMESTAMPTZ NOT NULL,
+    shift_id                BIGINT REFERENCES shifts(id),
+    line_id                 BIGINT REFERENCES lines(id),
+    total_input_ton         NUMERIC(14,3) NOT NULL DEFAULT 0,
+    total_product_a_ton     NUMERIC(14,3) NOT NULL DEFAULT 0,
+    total_product_b_ton     NUMERIC(14,3) NOT NULL DEFAULT 0,
+    total_discard_ton       NUMERIC(14,3) NOT NULL DEFAULT 0,
+    avg_feed_rate_tph       NUMERIC(7,2),
+    total_production_hours NUMERIC(6,2) NOT NULL DEFAULT 0,
+    downtime_minutes        NUMERIC(6,2) NOT NULL DEFAULT 0,
+    alarm_count             INTEGER NOT NULL DEFAULT 0,
+    quality_samples_count   INTEGER NOT NULL DEFAULT 0,
+    notes                   TEXT,
+    generated_at            TIMESTAMPTZ NOT NULL
+);
+
+CREATE TABLE oee_snapshots (
+    id                      BIGSERIAL PRIMARY KEY,
+    line_id                 BIGINT NOT NULL REFERENCES lines(id),
+    snapshot_period_start   TIMESTAMPTZ NOT NULL,
+    snapshot_period_end     TIMESTAMPTZ NOT NULL,
+    availability_pct       NUMERIC(5,2) NOT NULL,
+    performance_pct        NUMERIC(5,2) NOT NULL,
+    quality_pct            NUMERIC(5,2) NOT NULL,
+    oee_pct                NUMERIC(5,2) NOT NULL,
+    planned_production_minutes NUMERIC(6,2) NOT NULL,
+    actual_production_minutes NUMERIC(6,2) NOT NULL,
+    ideal_cycle_time_minutes NUMERIC(6,2) NOT NULL,
+    total_output_ton        NUMERIC(14,3) NOT NULL,
+    good_output_ton         NUMERIC(14,3) NOT NULL,
+    created_at              TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE energy_readings (
+    id                      BIGSERIAL PRIMARY KEY,
+    line_id                 BIGINT REFERENCES lines(id),
+    meter_id                TEXT NOT NULL,
+    reading_type            TEXT NOT NULL,
+    kwh_value               NUMERIC(12,2) NOT NULL,
+    power_kw                NUMERIC(8,2),
+    read_at                 TIMESTAMPTZ NOT NULL,
+    created_at              TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- =========================
 -- Índices
 -- =========================
 
@@ -427,5 +591,14 @@ CREATE INDEX idx_process_events_process_time ON process_events(process_id, creat
 CREATE INDEX idx_alarms_line_started_at ON alarms(line_id, started_at DESC);
 CREATE INDEX idx_plc_variable_history_var_time ON plc_variable_history(plc_variable_id, captured_at DESC);
 CREATE INDEX idx_yield_snapshots_quarry_time ON quarry_yield_snapshots(quarry_id, calculated_at DESC);
+CREATE INDEX idx_quality_records_process ON quality_records(process_id);
+CREATE INDEX idx_quality_records_status ON quality_records(result_status);
+CREATE INDEX idx_lot_traceability_process ON lot_traceability(process_id);
+CREATE INDEX idx_maintenance_requests_status ON maintenance_requests(status);
+CREATE INDEX idx_maintenance_requests_priority ON maintenance_requests(priority);
+CREATE INDEX idx_maintenance_incidents_line ON maintenance_incidents(line_id);
+CREATE INDEX idx_daily_reports_date ON daily_reports(report_date);
+CREATE INDEX idx_oee_snapshots_line ON oee_snapshots(line_id);
+CREATE INDEX idx_energy_readings_line ON energy_readings(line_id);
 
 COMMIT;

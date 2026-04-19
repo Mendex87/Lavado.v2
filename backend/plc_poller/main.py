@@ -1,5 +1,6 @@
 import json
 import time
+import os
 from datetime import datetime, timezone
 from plc_poller.client import Snap7PlcClient
 from plc_poller.config import PlcPollerSettings
@@ -25,14 +26,50 @@ def build_demo_payloads(mapping: dict) -> list[dict]:
     return payloads
 
 
-def main() -> None:
-    settings = PlcPollerSettings()
+def reload_config_if_needed(settings, backend_url):
+    """Recarga la config del backend cada 10 intentos para detectar cambios de IP."""
+    new_settings = PlcPollerSettings.load_from_backend(backend_url)
+    if new_settings.plc_host != settings.plc_host:
+        print(f"PLC IP cambiada: {settings.plc_host} -> {new_settings.plc_host}")
+        return new_settings
+    return settings
+
+
+def check_reload_needed(backend_url):
+    """Verifica si el backend indica que hay que recargar config."""
+    try:
+        import requests
+        url = backend_url + '/settings/reload-plc'
+        response = requests.get(url, timeout=2)
+        if response.status_code == 200:
+            data = response.json()
+            return data.get('reload', False)
+    except:
+        pass
+    return False
+
+
+def poll_with_apply_button(backend_url):
+    """Poller que responde al botón 'Aplicar configuración'."""
+    settings = PlcPollerSettings.load_from_backend(backend_url)
     mapping = load_mapping(settings.mapping_path)
+    current_host = settings.plc_host
+    
     print('PLC poller base listo')
     print(json.dumps(settings.__dict__, indent=2))
     print('Mapa cargado desde', settings.mapping_path)
     print(f"Polling continuo cada {settings.poll_interval_seconds}s (Ctrl+C para salir)")
+    print("Esperando botón 'Aplicar configuración'...")
+    
     while True:
+        # Check if apply button was pressed
+        if check_reload_needed(backend_url):
+            old_host = settings.plc_host
+            settings = PlcPollerSettings.load_from_backend(backend_url)
+            new_host = settings.plc_host
+            print(f"¡Botón aplicar recibido! {old_host} -> {new_host}")
+            print(json.dumps(settings.__dict__, indent=2))
+        
         try:
             client = Snap7PlcClient(settings.plc_host, settings.plc_rack, settings.plc_slot)
             payloads = read_line_payloads(client, mapping)
@@ -41,13 +78,19 @@ def main() -> None:
                 print(json.dumps({'payload': payload, 'response': response}, indent=2))
             client.close()
         except RuntimeError as exc:
-            print(str(exc))
-            print('Modo demo, payloads esperados:')
+            print(f"Fallo de conexión: {exc}")
+            print('Intentando con config actual:', settings.plc_host)
+            print('Presiona "Aplicar" en la app para recargar')
             for payload in build_demo_payloads(mapping):
                 print(json.dumps(payload, indent=2))
         except Exception as exc:
             print(f'Error de poll/publicación: {exc}')
         time.sleep(settings.poll_interval_seconds)
+
+
+def main() -> None:
+    backend_url = os.getenv('BACKEND_URL', 'http://127.0.0.1:8010/api/v1')
+    poll_with_apply_button(backend_url)
 
 
 if __name__ == '__main__':

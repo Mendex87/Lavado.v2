@@ -7,11 +7,17 @@ from app.models.plc import PlcVariable, PlcVariableHistory, ScaleTotalizerHistor
 from app.models.measurement import MeasurementPoint, MeasurementReading
 from app.models.events import ProcessEvent, Alarm, AuditLog
 from app.models.settings import AppSetting
+from app.models.quality import QualityRecord, QualitySpecification, LotTraceability
+from app.models.maintenance import MaintenanceRequest, MaintenanceIncident, PreventiveMaintenanceTask
+from app.models.reporting import DailyReport, OEESnapshot, EnergyReading
 
 __all__ = [
     'BaseModelORM', 'Role', 'User', 'UserRole', 'Shift', 'UserSession', 'Line', 'Quarry', 'Product',
     'AuthThrottle',
     'QuarryProduct', 'Belt', 'Scale', 'Process', 'ProcessInput', 'ProcessOutput', 'ProcessScaleReading',
     'ProcessProductionSummary', 'QuarryStock', 'QuarryStockMovement', 'PlcVariable', 'PlcVariableHistory',
-    'ScaleTotalizerHistory', 'MeasurementPoint', 'MeasurementReading', 'ProcessEvent', 'Alarm', 'AuditLog', 'AppSetting'
+    'ScaleTotalizerHistory', 'MeasurementPoint', 'MeasurementReading', 'ProcessEvent', 'Alarm', 'AuditLog', 'AppSetting',
+    'QualityRecord', 'QualitySpecification', 'LotTraceability',
+    'MaintenanceRequest', 'MaintenanceIncident', 'PreventiveMaintenanceTask',
+    'DailyReport', 'OEESnapshot', 'EnergyReading'
 ]
