@@ -6,6 +6,8 @@ class QuarryStockItem(BaseModel):
     tons: float
     status: str
     last_movement: str
+    threshold_low: float = 80.0
+    threshold_critical: float = 40.0
 
 
 class StockIngressRequest(BaseModel):
@@ -20,3 +22,13 @@ class StockIngressResult(BaseModel):
     quarry: str
     quantity_ton: float
     new_stock_ton: float
+
+
+class StockThresholds(BaseModel):
+    low: float = 80.0
+    critical: float = 40.0
+
+
+class StockThresholdsConfig(BaseModel):
+    quarry: str
+    thresholds: StockThresholds

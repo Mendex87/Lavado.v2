@@ -251,6 +251,8 @@ CREATE TABLE quarry_stock (
     id                      BIGSERIAL PRIMARY KEY,
     quarry_id               BIGINT NOT NULL UNIQUE REFERENCES quarries(id) ON DELETE CASCADE,
     current_ton             NUMERIC(14,3) NOT NULL DEFAULT 0,
+    threshold_low           NUMERIC(14,3) NOT NULL DEFAULT 80.0,
+    threshold_critical      NUMERIC(14,3) NOT NULL DEFAULT 40.0,
     updated_at              TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 

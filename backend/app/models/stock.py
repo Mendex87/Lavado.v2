@@ -8,6 +8,8 @@ class QuarryStock(BaseModelORM):
     id: Mapped[int] = mapped_column(primary_key=True)
     quarry_id: Mapped[int] = mapped_column(ForeignKey('quarries.id', ondelete='CASCADE'), unique=True, nullable=False)
     current_ton: Mapped[float] = mapped_column(Numeric(14, 3), nullable=False, default=0)
+    threshold_low: Mapped[float] = mapped_column(Numeric(14, 3), nullable=False, default=80.0)
+    threshold_critical: Mapped[float] = mapped_column(Numeric(14, 3), nullable=False, default=40.0)
 
 
 class QuarryStockMovement(BaseModelORM):

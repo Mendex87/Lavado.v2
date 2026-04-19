@@ -375,6 +375,9 @@
         <div>
           <h2 id="screen-title">Dashboard operativo</h2>
           <div id="screen-subtitle" class="muted">Lectura rápida de líneas y alimentación.</div>
+          <div class="muted" style="font-size:12px; margin-top:4px;">
+            <span id="header-datetime">-</span> · <span id="header-shift">Turno: -</span>
+          </div>
         </div>
         <div class="top-actions">
           <span class="badge blue" id="header-api-badge">Backend pendiente</span>
@@ -461,7 +464,7 @@
         <div class="card">
           <div class="card-head"><h3>Stock de canteras</h3><span class="badge blue">Operación</span></div>
           <table>
-            <thead><tr><th>Cantera</th><th>Stock</th><th>Estado</th><th>Último movimiento</th></tr></thead>
+            <thead><tr><th>Cantera</th><th>Stock</th><th>Umbral Bajo</th><th>Umbral Crítico</th><th>Estado</th><th>Último movimiento</th></tr></thead>
             <tbody id="stock-body"></tbody>
           </table>
         </div>
@@ -472,6 +475,19 @@
             <label><span>Cantidad (tn)</span><input id="stock-ingress-qty" type="number" step="0.001" /></label>
           </div>
           <div class="actions" style="margin-top:12px;"><button class="btn secondary" id="stock-ingress-btn">Registrar ingreso</button></div>
+        </div>
+        <div class="card hidden" style="margin-top:16px;" id="stock-thresholds-box">
+          <div class="card-head"><h3>Configurar umbrales de alerta</h3><span class="badge yellow">Supervisor/Admin</span></div>
+          <div class="form-grid" style="grid-template-columns:repeat(3,minmax(0,1fr));">
+            <label><span>Cantera</span><select id="stock-threshold-quarry">
+              <option>Río Negro</option>
+              <option>Dolavon</option>
+              <option>Trelew Norte</option>
+            </select></label>
+            <label><span>Umbral Bajo (tn)</span><input id="stock-threshold-low" type="number" step="1" value="80" /></label>
+            <label><span>Umbral Crítico (tn)</span><input id="stock-threshold-critical" type="number" step="1" value="40" /></label>
+          </div>
+          <div class="actions" style="margin-top:12px;"><button class="btn primary" id="stock-threshold-btn">Guardar umbrales</button></div>
         </div>
       </section>
 
@@ -537,6 +553,7 @@
         flowIntervalMs: 500,
         coreTimer: null,
         flowTimer: null,
+        clockTimer: null,
       },
       liveFlow: {
         l1_input_tph: null,
@@ -749,6 +766,15 @@
       $('sidebar-user').textContent = state.user ? state.user.name : '-';
       $('sidebar-role').textContent = state.user ? (state.user.role || 'operador') : '-';
       $('sidebar-shift').textContent = state.user ? state.user.shift : '-';
+      $('header-shift').textContent = state.user ? `Turno: ${state.user.shift || '-'}` : 'Turno: -';
+      $('header-datetime').textContent = new Date().toLocaleString('es-AR', { 
+        hour12: false, 
+        year: 'numeric', 
+        month: '2-digit', 
+        day: '2-digit', 
+        hour: '2-digit', 
+        minute: '2-digit' 
+      });
       if (state.session.expEpochSec) {
         $('sidebar-session-exp').textContent = `Expira: ${new Date(state.session.expEpochSec * 1000).toLocaleString('es-AR', { hour12: false })}`;
       } else {
@@ -903,7 +929,16 @@
       $('stock-body').innerHTML = state.stock.map(s => {
         const cls = s.status === 'critical' ? 'red' : s.status === 'low' ? 'yellow' : 'green';
         const label = s.status === 'critical' ? 'Crítico' : s.status === 'low' ? 'Bajo' : 'Normal';
-        return `<tr><td>${s.quarry}</td><td>${formatTon(s.tons)}</td><td><span class="badge ${cls}">${label}</span></td><td>${s.last_movement}</td></tr>`;
+        const thresholdLow = s.threshold_low || 80;
+        const thresholdCritical = s.threshold_critical || 40;
+        return `<tr>
+          <td>${s.quarry}</td>
+          <td>${formatTon(s.tons)}</td>
+          <td>${thresholdLow} tn</td>
+          <td>${thresholdCritical} tn</td>
+          <td><span class="badge ${cls}">${label}</span></td>
+          <td>${s.last_movement}</td>
+        </tr>`;
       }).join('');
     }
 
@@ -1053,6 +1088,19 @@
       state.autoRefresh.flowTimer = setInterval(() => {
         refreshFlowData().catch(() => {});
       }, state.autoRefresh.flowIntervalMs);
+      
+      // Actualizar fecha/hora cada segundo
+      if (state.autoRefresh.clockTimer) clearInterval(state.autoRefresh.clockTimer);
+      state.autoRefresh.clockTimer = setInterval(() => {
+        $('header-datetime').textContent = new Date().toLocaleString('es-AR', { 
+          hour12: false, 
+          year: 'numeric', 
+          month: '2-digit', 
+          day: '2-digit', 
+          hour: '2-digit', 
+          minute: '2-digit' 
+        });
+      }, 1000);
     }
 
     function stopAutoRefresh() {
@@ -1179,6 +1227,34 @@
       }
     }
 
+    async function saveStockThresholds() {
+      try {
+        const quarry = $('stock-threshold-quarry').value;
+        const thresholdLow = Number($('stock-threshold-low').value || 80);
+        const thresholdCritical = Number($('stock-threshold-critical').value || 40);
+        
+        if (thresholdCritical >= thresholdLow) {
+          notify('El umbral crítico debe ser menor al umbral bajo');
+          return;
+        }
+        
+        const payload = {
+          quarry: quarry,
+          thresholds: {
+            low: thresholdLow,
+            critical: thresholdCritical
+          }
+        };
+        
+        const result = await request('/stock/thresholds', { method: 'PUT', body: JSON.stringify(payload) });
+        addUiEvent(`Umbrales actualizados: ${quarry} (Bajo: ${thresholdLow}t, Crítico: ${thresholdCritical}t)`);
+        await refreshData();
+        notify('Umbrales guardados correctamente');
+      } catch {
+        notify('No se pudieron guardar los umbrales');
+      }
+    }
+
     async function loadSettings() {
       try {
         const rows = await request('/settings');
@@ -1254,6 +1330,7 @@
       $('manual-box').classList.add('hidden');
       $('manual-toggle-btn').textContent = 'Contingencia técnica';
       $('stock-ingress-box').classList.toggle('hidden', !canManual);
+      $('stock-thresholds-box').classList.toggle('hidden', !canManual);
       const isAdmin = state.user.role === 'admin';
       $('nav-settings').classList.toggle('hidden', !isAdmin);
       if (isAdmin) loadSettings();
@@ -1271,6 +1348,7 @@
     $('manual-send-btn').addEventListener('click', sendManualMeasurement);
     $('manual-toggle-btn').addEventListener('click', toggleManualBox);
     $('stock-ingress-btn').addEventListener('click', sendStockIngress);
+    $('stock-threshold-btn').addEventListener('click', saveStockThresholds);
     $('cfg-save-btn').addEventListener('click', saveSettings);
     $('api-base').addEventListener('change', persistApiBase);
     loadApiBase();
