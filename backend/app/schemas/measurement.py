@@ -1,5 +1,6 @@
 from datetime import datetime
 from pydantic import BaseModel
+from typing import Optional
 
 
 class MeasurementPointItem(BaseModel):
@@ -42,25 +43,26 @@ class MeasurementLatestItem(BaseModel):
     code: str
     name: str
     line: int
-    source: str | None = None
-    captured_at: datetime | None = None
-    partial_ton: float | None = None
-    totalizer_ton: float | None = None
-    delta_ton: float | None = None
+    source: Optional[str] = None
+    captured_at: Optional[datetime] = None
+    partial_ton: Optional[float] = None
+    totalizer_ton: Optional[float] = None
+    delta_ton: Optional[float] = None
 
 
 class MeasurementManualOperationPayload(BaseModel):
     line: int
-    feed_l1_partial_ton: float | None = None
-    feed_l1_quarry: str | None = None
-    feed_l2_h1_partial_ton: float | None = None
-    feed_l2_h1_quarry: str | None = None
-    feed_l2_h2_partial_ton: float | None = None
-    feed_l2_h2_quarry: str | None = None
-    product_1_partial_ton: float | None = None
-    product_2_partial_ton: float | None = None
-    product_3_partial_ton: float | None = None
-    product_4_partial_ton: float | None = None
+    feed_l1_partial_ton: Optional[float] = None
+    feed_l1_quarry: Optional[str] = None
+    feed_l2_h1_partial_ton: Optional[float] = None
+    feed_l2_h1_quarry: Optional[str] = None
+    feed_l2_h2_partial_ton: Optional[float] = None
+    feed_l2_h2_quarry: Optional[str] = None
+    product_1_partial_ton: Optional[float] = None
+    product_2_partial_ton: Optional[float] = None
+    product_3_partial_ton: Optional[float] = None
+    product_4_partial_ton: Optional[float] = None
+    notes: Optional[str] = None
 
 
 class MeasurementManualResult(BaseModel):
@@ -69,3 +71,13 @@ class MeasurementManualResult(BaseModel):
     source: str
     readings_created: int
     stock_updates: list[dict] = []
+
+
+class MeasurementManualHistoryItem(BaseModel):
+    id: int
+    line: int
+    source: str
+    created_at: datetime
+    entered_by_user_id: int
+    readings_summary: str
+    stock_discount_summary: Optional[str] = None

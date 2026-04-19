@@ -9,6 +9,7 @@ from app.schemas.measurement import (
     MeasurementManualOperationPayload,
     MeasurementManualResult,
     MeasurementPointItem,
+    MeasurementManualHistoryItem,
 )
 from app.services.measurement_service import MeasurementService
 from app.services.audit_service import AuditService
@@ -58,7 +59,19 @@ def manual_measurements(
         after_json={
             'line': result.line,
             'readings_created': result.readings_created,
+            'notes': payload.notes,
         },
     )
     db.commit()
     return result
+
+
+@router.get('/history', response_model=list[MeasurementManualHistoryItem])
+def get_measurement_history(
+    limit: int = 20,
+    line: int | None = None,
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user),
+):
+    """Obtiene historial de mediciones manuales"""
+    return MeasurementService(db).get_manual_history(limit=limit, line=line)

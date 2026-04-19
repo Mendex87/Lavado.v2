@@ -458,6 +458,10 @@
           </div>
           <div class="actions" style="margin-top:12px;"><button class="btn secondary" id="manual-send-btn">Aplicar contingencia</button></div>
           <div class="muted" style="margin-top:10px;">Solo registrar lo faltante que no entró automático. La alimentación manual descuenta stock de las canteras del proceso activo.</div>
+          <div style="margin-top:16px; border-top:1px solid var(--border); padding-top:16px;">
+            <h4 style="margin:0 0 8px;">Historial de cargas manuales</h4>
+            <ul id="manual-history-list" class="timeline" style="max-height:150px; overflow-y:auto;"></ul>
+          </div>
         </div>
       </section>
 
@@ -1249,8 +1253,28 @@
         addUiEvent(`Contingencia manual L${line} (${result.readings_created} lecturas${stockInfo})`);
         await refreshData();
         notify('Contingencia aplicada');
+        loadManualHistory();
       } catch (e) {
         notify(e.message || 'No se pudo aplicar contingencia');
+      }
+    }
+
+    async function loadManualHistory() {
+      try {
+        const history = await request('/measurements/history?limit=10');
+        const list = $('manual-history-list');
+        if (!history || !history.length) {
+          list.innerHTML = '<li class="muted">Sin registros manuales</li>';
+          return;
+        }
+        list.innerHTML = history.map(h => {
+          const date = new Date(h.created_at).toLocaleString('es-AR', { 
+            month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' 
+          });
+          return `<li>${date} · L${h.line} · ${h.readings_summary}</li>`;
+        }).join('');
+      } catch (e) {
+        console.error('Error loading manual history:', e);
       }
     }
 

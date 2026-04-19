@@ -14,6 +14,7 @@ from app.schemas.measurement import (
     MeasurementManualOperationPayload,
     MeasurementManualResult,
     MeasurementPointItem,
+    MeasurementManualHistoryItem,
 )
 from app.services.plc_mock_state import plc_mock_state
 
@@ -221,3 +222,28 @@ class MeasurementService:
 
         self.db.commit()
         return updates
+
+    def get_manual_history(self, limit: int = 20, line: int | None = None) -> list[MeasurementManualHistoryItem]:
+        """Obtiene el historial de mediciones manuales"""
+        query = self.db.query(MeasurementReading).filter(
+            MeasurementReading.source == 'manual'
+        ).order_by(MeasurementReading.created_at.desc()).limit(limit)
+        
+        results = []
+        for r in query:
+            summary_parts = []
+            if r.partial_ton:
+                summary_parts.append(f"Parcial: {float(r.partial_ton):.2f} tn")
+            if r.totalizer_ton:
+                summary_parts.append(f"Total: {float(r.totalizer_ton):.2f} tn")
+            
+            results.append(MeasurementManualHistoryItem(
+                id=r.id,
+                line=1,  # Por ahora hardcodeado, luego mejorar
+                source=r.source or 'manual',
+                created_at=r.created_at or datetime.utcnow(),
+                entered_by_user_id=r.entered_by_user_id or 0,
+                readings_summary=', '.join(summary_parts) if summary_parts else 'Sin datos',
+            ))
+        
+        return results
