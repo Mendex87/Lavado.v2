@@ -349,6 +349,7 @@
         <button class="nav-link" data-screen="active-process">Procesos activos</button>
         <button class="nav-link" data-screen="stock">Stock</button>
         <button class="nav-link" data-screen="events">Eventos</button>
+        <button class="nav-link" data-screen="handover">Handover</button>
         <button class="nav-link" data-screen="alarms">Alarmas</button>
         <button class="nav-link hidden" data-screen="settings" id="nav-settings">Configuración</button>
       </div>
@@ -498,6 +499,51 @@
         </div>
       </section>
 
+      <section id="handover" class="screen">
+        <div class="card">
+          <div class="card-head">
+            <h3>Handover de Turno</h3>
+            <span class="badge blue">Transición</span>
+          </div>
+          <div id="handover-current" class="hidden">
+            <div class="summary-grid" style="margin-bottom:16px;">
+              <div class="summary"><span>Procesos activos</span><strong id="handover-procesos">0</strong></div>
+              <div class="summary"><span>Stock bajo/crítico</span><strong id="handover-stock">0</strong></div>
+            </div>
+            <h4 style="margin:16px 0 8px;"> Checklist de transferencia</h4>
+            <div id="handover-checklist"></div>
+            <label style="margin-top:16px;"><span>Notas adicionales</span>
+              <textarea id="handover-notes" rows="3" placeholder="Incidencias o comentarios para el próximo turno..."></textarea>
+            </label>
+            <div class="actions" style="margin-top:12px;">
+              <button class="btn success" id="handover-complete-btn">Completar Handover</button>
+            </div>
+          </div>
+          <div id="handover-empty">
+            <div class="muted" style="text-align:center; padding:24px;">No hay handover pendiente</div>
+          </div>
+        </div>
+        <div class="card" style="margin-top:16px;">
+          <div class="card-head"><h3>Iniciar Handover</h3><span class="badge yellow">Supervisor</span></div>
+          <div class="form-grid" style="grid-template-columns:repeat(2,minmax(0,1fr));">
+            <label><span>Operario entrante</span>
+              <select id="handover-to-user">
+                <option value="">Seleccionar...</option>
+              </select>
+            </label>
+            <label><span>Turno entrante</span>
+              <select id="handover-to-shift">
+                <option value="1">Turno A (06:00-18:00)</option>
+                <option value="2">Turno B (18:00-06:00)</option>
+              </select>
+            </label>
+          </div>
+          <div class="actions" style="margin-top:12px;">
+            <button class="btn primary" id="handover-start-btn">Iniciar Transferencia</button>
+          </div>
+        </div>
+      </section>
+
       <section id="alarms" class="screen">
         <div class="card">
           <div class="card-head"><h3>Alarmas y avisos</h3><span class="badge yellow" id="alarms-badge">0</span></div>
@@ -529,6 +575,7 @@
       'active-process': ['Procesos activos', 'Seguimiento de procesos abiertos por línea.'],
       stock: ['Stock', 'Stock actual y últimos movimientos de cantera.'],
       events: ['Eventos', 'Trazabilidad de acciones y backend.'],
+      handover: ['Handover', 'Transferencia de turno con checklist y resumen.'],
       alarms: ['Alarmas', 'Atención operativa.'],
       settings: ['Configuración', 'Parámetros base de operación (solo admin).'],
     };
@@ -540,9 +587,10 @@
       stock: [],
       latestMeasurements: [],
       backendEvents: [],
-      uiEvents: ['Preview v3.1 cargada'],
+      uiEvents: ['Preview v3.2 cargada'],
       token: null,
       alarms: [],
+      currentHandoverId: null,
       simulation: {
         1: { line: 1, running: false, tph_input: 120, split_product_a_pct: 70, split_product_b_pct: 20, split_discard_pct: 10, input_ton: 0, product_a_ton: 0, product_b_ton: 0, discard_ton: 0 },
         2: { line: 2, running: false, tph_input: 80, split_product_a_pct: 85, split_product_b_pct: 0, split_discard_pct: 15, input_ton: 0, product_a_ton: 0, product_b_ton: 0, discard_ton: 0 },
@@ -1255,6 +1303,123 @@
       }
     }
 
+    async function loadHandoverUsers() {
+      try {
+        // Cargar lista de usuarios para el selector
+        // Por ahora hardcodeado, luego se puede obtener del backend
+        const users = [
+          { id: 1, name: 'Diego' },
+          { id: 2, name: 'Juan' },
+          { id: 3, name: 'Ezequiel' },
+        ];
+        const select = $('handover-to-user');
+        select.innerHTML = '<option value="">Seleccionar...</option>' + 
+          users.map(u => `<option value="${u.id}">${u.name}</option>`).join('');
+      } catch (e) {
+        console.error('Error loading handover users:', e);
+      }
+    }
+
+    async function startHandover() {
+      const toUserId = Number($('handover-to-user').value);
+      const toShiftId = Number($('handover-to-shift').value);
+      
+      if (!toUserId) {
+        notify('Seleccione el operario entrante');
+        return;
+      }
+      
+      try {
+        const payload = {
+          to_user_id: toUserId,
+          from_shift_id: 1, // Por ahora hardcodeado
+          to_shift_id: toShiftId,
+        };
+        
+        const result = await request('/handover/start', { method: 'POST', body: JSON.stringify(payload) });
+        addUiEvent(`Handover iniciado hacia usuario ${toUserId}`);
+        notify('Handover iniciado');
+        await loadHandoverPending();
+      } catch {
+        notify('Error al iniciar handover');
+      }
+    }
+
+    async function loadHandoverPending() {
+      try {
+        const pending = await request('/handover/pending');
+        const currentDiv = $('handover-current');
+        const emptyDiv = $('handover-empty');
+        
+        if (pending) {
+          currentDiv.classList.remove('hidden');
+          emptyDiv.classList.add('hidden');
+          
+          // Mostrar resumen de procesos
+          $('handover-procesos').textContent = pending.process_summary?.length || 0;
+          
+          // Mostrar stock crítico
+          const criticalStock = (pending.stock_summary || []).filter(s => s.current_ton <= s.threshold_critical).length;
+          $('handover-stock').textContent = criticalStock;
+          
+          // Renderizar checklist
+          const checklistDiv = $('handover-checklist');
+          checklistDiv.innerHTML = (pending.checklist || []).map(item => `
+            <label style="display:flex; align-items:center; gap:8px; padding:8px 0; border-bottom:1px solid var(--border);">
+              <input type="checkbox" data-checklist-id="${item.id}" ${item.checked ? 'checked' : ''}>
+              <span>${item.text}</span>
+            </label>
+          `).join('');
+          
+          // Guardar ID del handover actual
+          state.currentHandoverId = pending.id;
+        } else {
+          currentDiv.classList.add('hidden');
+          emptyDiv.classList.remove('hidden');
+        }
+      } catch (e) {
+        // No hay handover pendiente, está bien
+        $('handover-current').classList.add('hidden');
+        $('handover-empty').classList.remove('hidden');
+      }
+    }
+
+    async function completeHandover() {
+      if (!state.currentHandoverId) {
+        notify('No hay handover activo');
+        return;
+      }
+      
+      // Recopilar resultados del checklist
+      const checklistResults = [];
+      document.querySelectorAll('#handover-checklist input[type="checkbox"]').forEach(cb => {
+        checklistResults.push({
+          id: Number(cb.dataset.checklistId),
+          checked: cb.checked,
+        });
+      });
+      
+      const notes = $('handover-notes').value;
+      
+      try {
+        const payload = {
+          checklist_results: checklistResults,
+          notes: notes,
+        };
+        
+        const result = await request('/handover/complete', { method: 'POST', body: JSON.stringify(payload) });
+        addUiEvent('Handover completado exitosamente');
+        notify('Handover completado');
+        
+        // Limpiar UI
+        state.currentHandoverId = null;
+        $('handover-notes').value = '';
+        await loadHandoverPending();
+      } catch {
+        notify('Error al completar handover');
+      }
+    }
+
     async function loadSettings() {
       try {
         const rows = await request('/settings');
@@ -1349,6 +1514,9 @@
     $('manual-toggle-btn').addEventListener('click', toggleManualBox);
     $('stock-ingress-btn').addEventListener('click', sendStockIngress);
     $('stock-threshold-btn').addEventListener('click', saveStockThresholds);
+    $('handover-start-btn').addEventListener('click', startHandover);
+    $('handover-complete-btn').addEventListener('click', completeHandover);
+    loadHandoverUsers();
     $('cfg-save-btn').addEventListener('click', saveSettings);
     $('api-base').addEventListener('change', persistApiBase);
     loadApiBase();

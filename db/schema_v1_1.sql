@@ -58,6 +58,39 @@ CREATE TABLE user_sessions (
 );
 
 -- =========================
+-- Handover de Turno
+-- =========================
+
+CREATE TABLE handover_records (
+    id                          BIGSERIAL PRIMARY KEY,
+    from_user_id                BIGINT NOT NULL REFERENCES users(id),
+    to_user_id                  BIGINT NOT NULL REFERENCES users(id),
+    from_shift_id               BIGINT REFERENCES shifts(id),
+    to_shift_id                 BIGINT REFERENCES shifts(id),
+    handover_started_at         TIMESTAMPTZ NOT NULL,
+    handover_completed_at       TIMESTAMPTZ,
+    status                      TEXT NOT NULL DEFAULT 'pending',
+    process_summary_json       JSONB,
+    stock_summary_json          JSONB,
+    pending_issues_json          JSONB,
+    notes                       TEXT,
+    created_at                  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    CHECK (status IN ('pending', 'completed', 'cancelled'))
+);
+
+CREATE TABLE handover_checklist_items (
+    id                      BIGSERIAL PRIMARY KEY,
+    handover_id             BIGINT NOT NULL REFERENCES handover_records(id) ON DELETE CASCADE,
+    item_text               TEXT NOT NULL,
+    checked                 BOOLEAN NOT NULL DEFAULT FALSE,
+    checked_at              TIMESTAMPTZ,
+    created_at              TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX idx_handover_records_status ON handover_records(status);
+CREATE INDEX idx_handover_records_datetime ON handover_records(handover_started_at DESC);
+
+-- =========================
 -- Estructura de planta
 -- =========================
 
