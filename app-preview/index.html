@@ -558,14 +558,65 @@
       <section id="settings" class="screen">
         <div class="card">
           <div class="card-head"><h3>Configuración de planta</h3><span class="badge yellow">Admin</span></div>
+          
+          <h4 style="margin:16px 0 8px; color:var(--blue);">Fecha y Hora</h4>
           <div class="form-grid" style="grid-template-columns:repeat(2,minmax(0,1fr));">
-            <label><span>Fecha/hora local</span><input id="cfg-now" type="text" disabled /></label>
-            <label><span>Zona horaria</span><input id="cfg-timezone" type="text" /></label>
-            <label><span>PLC host</span><input id="cfg-plc-host" type="text" /></label>
-            <label><span>PLC rack</span><input id="cfg-plc-rack" type="text" /></label>
-            <label><span>PLC slot</span><input id="cfg-plc-slot" type="text" /></label>
+            <label><span>Fecha</span><input id="cfg-date" type="date" /></label>
+            <label><span>Hora</span><input id="cfg-time" type="time" /></label>
+            <label><span>Zona horaria</span>
+              <select id="cfg-timezone">
+                <option value="America/Buenos_Aires">Argentina (UTC-3)</option>
+                <option value="America/Sao_Paulo">Brasil (UTC-3)</option>
+                <option value="America/New_York">Nueva York (UTC-5)</option>
+                <option value="UTC">UTC</option>
+              </select>
+            </label>
           </div>
-          <div class="actions" style="margin-top:12px;"><button class="btn secondary" id="cfg-save-btn">Guardar configuración</button></div>
+          
+          <h4 style="margin:24px 0 8px; color:var(--blue);">Comunicación PLC</h4>
+          <div class="form-grid" style="grid-template-columns:repeat(3,minmax(0,1fr));">
+            <label><span>PLC Host/IP</span><input id="cfg-plc-host" type="text" placeholder="192.168.1.100" /></label>
+            <label><span>PLC Rack</span>
+              <select id="cfg-plc-rack">
+                <option value="0">0</option>
+                <option value="1">1</option>
+              </select>
+            </label>
+            <label><span>PLC Slot</span>
+              <select id="cfg-plc-slot">
+                <option value="1">1</option>
+                <option value="2">2</option>
+              </select>
+            </label>
+          </div>
+          
+          <div id="plc-status-box" style="margin-top:16px; padding:12px; background:var(--bg-2); border-radius:8px;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <span><strong>Estado de conexión PLC:</strong></span>
+              <span class="badge" id="plc-connection-status">Desconectado</span>
+            </div>
+            <div style="margin-top:8px; font-size:12px;" class="muted">
+              <div>Última comunicación: <span id="plc-last-comm">-</span></div>
+              <div>Variables activas: <span id="plc-vars-count">0</span></div>
+            </div>
+            <button class="btn small secondary" style="margin-top:8px;" id="plc-test-btn">Probar conexión</button>
+          </div>
+          
+          <h4 style="margin:24px 0 8px; color:var(--blue);">Parámetros de Alarma</h4>
+          <div class="form-grid" style="grid-template-columns:repeat(2,minmax(0,1fr));">
+            <label><span>Tiempo stale (segundos)</span><input id="cfg-stale-seconds" type="number" min="5" max="300" /></label>
+            <label><span>Umbral caudal alto (tn/h)</span><input id="cfg-flow-high" type="number" min="50" max="500" /></label>
+          </div>
+          
+          <h4 style="margin:24px 0 8px; color:var(--blue);">Configuración de Turnos</h4>
+          <div class="form-grid" style="grid-template-columns:repeat(2,minmax(0,1fr));">
+            <label><span>Turno A inicio</span><input id="cfg-shift-a-start" type="time" value="06:00" /></label>
+            <label><span>Turno A fin</span><input id="cfg-shift-a-end" type="time" value="18:00" /></label>
+            <label><span>Turno B inicio</span><input id="cfg-shift-b-start" type="time" value="18:00" /></label>
+            <label><span>Turno B fin</span><input id="cfg-shift-b-end" type="time" value="06:00" /></label>
+          </div>
+          
+          <div class="actions" style="margin-top:16px;"><button class="btn primary" id="cfg-save-btn">Guardar configuración</button></div>
         </div>
       </section>
 
@@ -607,6 +658,9 @@
         flowTimer: null,
         clockTimer: null,
       },
+      plcConnected: false,
+      plcLastComm: null,
+      plcVarsCount: '0',
       liveFlow: {
         l1_input_tph: null,
         l2_input_tph: null,
@@ -1096,19 +1150,33 @@
           const ok = await testConnection();
           if (!ok) return;
         }
-        const [processes, stock, events, latestMeasurements, alarms] = await Promise.all([
+        const [processes, stock, events, latestMeasurements, alarms, plcStatus] = await Promise.all([
           request('/processes/active'),
           request('/stock/quarries'),
           request('/events/recent').catch(() => []),
           request('/measurements/latest').catch(() => []),
           request('/alarms/active').catch(() => []),
+          request('/plc/status').catch(() => null),
         ]);
         state.processes = processes;
         state.stock = stock;
         state.backendEvents = events;
         state.latestMeasurements = latestMeasurements;
         state.alarms = alarms;
+        
+        // Actualizar estado PLC
+        if (plcStatus) {
+          state.plcConnected = plcStatus.connected;
+          state.plcVarsCount = String(plcStatus.active_variables_count || 0);
+          if (plcStatus.last_communication) {
+            state.plcLastComm = new Date(plcStatus.last_communication).toLocaleString('es-AR', { hour12: false });
+          }
+        }
+        
         renderAll();
+        if (document.getElementById('settings').classList.contains('active')) {
+          updatePlcStatus();
+        }
       } finally {
         state.refreshBusy = false;
       }
@@ -1448,13 +1516,68 @@
       try {
         const rows = await request('/settings');
         const data = Object.fromEntries((rows || []).map(r => [r.key, r.value]));
-        $('cfg-now').value = new Date().toLocaleString('es-AR', { hour12: false });
-        $('cfg-timezone').value = data.plant_timezone || 'America/Sao_Paulo';
+        
+        // Fecha y hora
+        const now = new Date();
+        $('cfg-date').value = now.toISOString().split('T')[0];
+        $('cfg-time').value = now.toTimeString().slice(0, 5);
+        $('cfg-timezone').value = data.plant_timezone || 'America/Buenos_Aires';
+        
+        // PLC
         $('cfg-plc-host').value = data.plc_host || '';
         $('cfg-plc-rack').value = data.plc_rack || '0';
         $('cfg-plc-slot').value = data.plc_slot || '1';
+        
+        // Alarmas
+        $('cfg-stale-seconds').value = data.alarm_stale_seconds || '15';
+        $('cfg-flow-high').value = data.alarm_flow_high_threshold || '200';
+        
+        // Turnos
+        $('cfg-shift-a-start').value = data.shift_a_start || '06:00';
+        $('cfg-shift-a-end').value = data.shift_a_end || '18:00';
+        $('cfg-shift-b-start').value = data.shift_b_start || '18:00';
+        $('cfg-shift-b-end').value = data.shift_b_end || '06:00';
+        
+        // Estado PLC simulado (luego conectar con endpoint real)
+        updatePlcStatus();
       } catch {
         notify('No se pudo cargar configuración');
+      }
+    }
+
+    function updatePlcStatus() {
+      const connected = state.plcConnected || false;
+      const statusEl = $('plc-connection-status');
+      statusEl.textContent = connected ? 'Conectado' : 'Desconectado';
+      statusEl.className = 'badge ' + (connected ? 'green' : 'red');
+      $('plc-last-comm').textContent = state.plcLastComm || '-';
+      $('plc-vars-count').textContent = state.plcVarsCount || '0';
+    }
+
+    async function testPlcConnection() {
+      const btn = $('plc-test-btn');
+      btn.textContent = 'Probando...';
+      btn.disabled = true;
+      
+      try {
+        const result = await request('/plc/test-connection', { method: 'POST' });
+        
+        state.plcConnected = result.connected;
+        state.plcLastComm = new Date(result.timestamp).toLocaleString('es-AR', { hour12: false });
+        updatePlcStatus();
+        
+        if (result.success) {
+          notify(`Conexión exitosa (${result.response_time_ms}ms)`);
+        } else {
+          notify('Error al conectar con PLC');
+        }
+      } catch (e) {
+        state.plcConnected = false;
+        updatePlcStatus();
+        notify('Error al conectar con PLC');
+      } finally {
+        btn.textContent = 'Probar conexión';
+        btn.disabled = false;
       }
     }
 
@@ -1465,8 +1588,15 @@
           plc_host: $('cfg-plc-host').value,
           plc_rack: $('cfg-plc-rack').value,
           plc_slot: $('cfg-plc-slot').value,
+          alarm_stale_seconds: $('cfg-stale-seconds').value,
+          alarm_flow_high_threshold: $('cfg-flow-high').value,
+          shift_a_start: $('cfg-shift-a-start').value,
+          shift_a_end: $('cfg-shift-a-end').value,
+          shift_b_start: $('cfg-shift-b-start').value,
+          shift_b_end: $('cfg-shift-b-end').value,
         };
         await request('/settings', { method: 'PUT', body: JSON.stringify(payload) });
+        addUiEvent('Configuración de planta actualizada');
         notify('Configuración guardada');
       } catch (e) {
         notify(e.message || 'No se pudo guardar configuración');
@@ -1542,6 +1672,7 @@
     $('handover-complete-btn').addEventListener('click', completeHandover);
     loadHandoverUsers();
     $('cfg-save-btn').addEventListener('click', saveSettings);
+    $('plc-test-btn').addEventListener('click', testPlcConnection);
     $('api-base').addEventListener('change', persistApiBase);
     loadApiBase();
     applyProcessFormRules();

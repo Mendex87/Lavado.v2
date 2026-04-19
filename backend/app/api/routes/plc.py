@@ -20,6 +20,12 @@ def get_context():
     return service.get_context()
 
 
+@router.get('/status')
+def get_plc_status():
+    """Retorna el estado de conexión y comunicación con el PLC"""
+    return service.get_status()
+
+
 @router.get('/line/{line}/contract', response_model=PlcContractLineSnapshot)
 def get_line_contract(line: int, db: Session = Depends(get_db)):
     return PlcContractService(db).get_line_snapshot(line)
@@ -36,3 +42,9 @@ def reset_partials(payload: PlcPartialResetRequest):
         return service.request_partial_reset(payload)
     except ValueError as exc:
         raise HTTPException(status_code=422, detail=str(exc)) from exc
+
+
+@router.post('/test-connection')
+def test_plc_connection():
+    """Prueba de conexión con el PLC"""
+    return service.test_connection()
