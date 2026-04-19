@@ -339,7 +339,7 @@
         <div class="brand-mark">OC</div>
         <div>
           <h1>Prosil - Lavado</h1>
-          <div class="muted">Plant App Preview v3.1</div>
+          <div class="muted">Plant App Preview v3.2</div>
         </div>
       </div>
 
@@ -842,6 +842,7 @@
       },
       manualBoxOpen: false,
       refreshBusy: false,
+      flowRefreshBusy: false,
     };
 
     const $ = id => document.getElementById(id);
@@ -1309,22 +1310,22 @@
     async function refreshData() {
       if (state.refreshBusy) return;
       state.refreshBusy = true;
+      const startTime = performance.now();
       try {
         if (!state.connected) {
           const ok = await testConnection();
           if (!ok) return;
         }
-        const [processes, stock, events, latestMeasurements, alarms, plcStatus] = await Promise.all([
+        // Optimizado: solo datos necesarios para dashboard
+        const [processes, stock, latestMeasurements, alarms, plcStatus] = await Promise.all([
           request('/processes/active'),
           request('/stock/quarries'),
-          request('/events/recent').catch(() => []),
           request('/measurements/latest').catch(() => []),
           request('/alarms/active').catch(() => []),
           request('/plc/status').catch(() => null),
         ]);
         state.processes = processes;
         state.stock = stock;
-        state.backendEvents = events;
         state.latestMeasurements = latestMeasurements;
         state.alarms = alarms;
         
@@ -1336,21 +1337,26 @@
             state.plcLastComm = new Date(plcStatus.last_communication).toLocaleString('es-AR', { hour12: false });
           }
         } else {
-          // Si no hay respuesta, marcar como desconectado
           state.plcConnected = false;
         }
         
         renderAll();
+        const elapsed = Math.round(performance.now() - startTime);
+        if (elapsed > 50) console.log('refreshData:', elapsed, 'ms');
         if (document.getElementById('settings').classList.contains('active')) {
           updatePlcStatus();
         }
+      } catch (e) {
+        console.error('refreshData error:', e);
       } finally {
         state.refreshBusy = false;
       }
     }
 
     async function refreshFlowData() {
-      if (!state.connected) return;
+      if (!state.connected || state.flowRefreshBusy) return;
+      state.flowRefreshBusy = true;
+      const startTime = performance.now();
       try {
         const latest = await request('/measurements/latest').catch(() => []);
         if (!Array.isArray(latest)) return;
@@ -1361,8 +1367,12 @@
         state.liveFlow.l2_input_tph_b = byCode.l2_input_tph_b?.partial_ton ?? null;
         renderLineCard(1);
         renderLineCard(2);
-      } catch {
-        // noop
+        const elapsed = Math.round(performance.now() - startTime);
+        if (elapsed > 50) console.log('refreshFlow:', elapsed, 'ms');
+      } catch (e) {
+        console.error('refreshFlowData error:', e);
+      } finally {
+        state.flowRefreshBusy = false;
       }
     }
 
