@@ -394,6 +394,7 @@
             <button class="btn small secondary" id="logout-btn">Logout</button>
           </div>
           <button class="btn secondary" id="refresh-btn">Actualizar</button>
+          <button class="btn small secondary" id="toggle-refresh-btn" style="margin-left:4px;">⏸ Auto</button>
         </div>
       </header>
 
@@ -817,8 +818,8 @@
       },
       autoRefresh: {
         enabled: true,
-        coreIntervalMs: 100,
-        flowIntervalMs: 100,
+        coreIntervalMs: 10000,  // Datos principales cada 10s (lento parademo)
+        flowIntervalMs: 2000, // Flow de PLC cada 2s
         coreTimer: null,
         flowTimer: null,
         clockTimer: null,
@@ -1355,9 +1356,9 @@
     }
 
     async function refreshFlowData() {
+      // Flow refresh solo actualiza los valores de caudal, NO redibuja todo
       if (!state.connected || state.flowRefreshBusy) return;
       state.flowRefreshBusy = true;
-      const startTime = performance.now();
       try {
         const latest = await request('/measurements/latest').catch(() => []);
         if (!Array.isArray(latest)) return;
@@ -1366,15 +1367,23 @@
         state.liveFlow.l2_input_tph = byCode.l2_input_tph?.partial_ton ?? null;
         state.liveFlow.l2_input_tph_a = byCode.l2_input_tph_a?.partial_ton ?? null;
         state.liveFlow.l2_input_tph_b = byCode.l2_input_tph_b?.partial_ton ?? null;
-        renderLineCard(1);
-        renderLineCard(2);
-        const elapsed = Math.round(performance.now() - startTime);
-        if (elapsed > 50) console.log('refreshFlow:', elapsed, 'ms');
+        // Solo actualizar los elementos de caudal, NO todo el card
+        updateFlowDisplay(1);
+        updateFlowDisplay(2);
       } catch (e) {
-        console.error('refreshFlowData error:', e);
+        // Silencioso
       } finally {
         state.flowRefreshBusy = false;
       }
+    }
+    
+    function updateFlowDisplay(line) {
+      const el = document.getElementById(`line-${line}-feed`);
+      if (!el) return;
+      const val = line === 1 ? state.liveFlow.l1_input_tph : 
+        (state.liveFlow.l2_input_tph_a + state.liveFlow.l2_input_tph_b);
+      const display = el.querySelector('.feed-value');
+      if (display) display.textContent = val ? val.toFixed(1) + ' tn/h' : '-';
     }
 
     function startAutoRefresh() {
@@ -1870,6 +1879,19 @@
     });
     $('logout-btn').addEventListener('click', logout);
     $('refresh-btn').addEventListener('click', refreshData);
+    $('toggle-refresh-btn').addEventListener('click', () => {
+      state.autoRefresh.enabled = !state.autoRefresh.enabled;
+      const btn = $('toggle-refresh-btn');
+      if (state.autoRefresh.enabled) {
+        startAutoRefresh();
+        btn.textContent = '⏸ Auto';
+        notify('Auto-refresh activado');
+      } else {
+        stopAutoRefresh();
+        btn.textContent = '▶ Auto';
+        notify('Auto-refresh detenido');
+      }
+    });
     $('proc-line').addEventListener('change', applyProcessFormRules);
     $('proc-mode').addEventListener('change', applyProcessFormRules);
     $('create-process-btn').addEventListener('click', createProcess);
