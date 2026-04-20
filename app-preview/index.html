@@ -386,6 +386,7 @@
           </div>
         </div>
         <div class="top-actions">
+          <span class="badge" id="header-plc-badge" style="background:var(--red);">PLC Offline</span>
           <span class="badge blue" id="header-api-badge">Backend pendiente</span>
           <div class="user-menu">
             <span class="dot"></span>
@@ -1433,6 +1434,10 @@
     }
 
     async function createProcess() {
+      const btn = $('create-process-btn');
+      const origText = btn.textContent;
+      btn.textContent = 'Abriendo...';
+      btn.disabled = true;
       try {
         const line = Number($('proc-line').value);
         const mode = line === 1 ? 'simple' : $('proc-mode').value;
@@ -1451,19 +1456,32 @@
           ],
           notes: $('proc-notes').value || null,
         };
+        const start = performance.now();
         const created = await request('/processes', { method: 'POST', body: JSON.stringify(payload) });
+        console.log('createProcess:', Math.round(performance.now() - start), 'ms');
         addUiEvent(`Proceso ${created.code} abierto en línea ${created.line}`);
-        await refreshData();
+        // Optimizado: solo recargar procesos, no todo
+        state.processes = await request('/processes/active').catch(() => []);
+        renderProcesses();
         screenJump('active-process');
         notify('Proceso abierto');
       } catch (e) { notify(e.message); addUiEvent(`No se pudo abrir proceso: ${e.message}`); }
+      finally {
+        btn.textContent = origText;
+        btn.disabled = false;
+      }
     }
 
     async function closeProcess(code) {
+      if (!confirm(`Cerrar proceso ${code}?`)) return;
       try {
+        const start = performance.now();
         await request(`/processes/${code}/close`, { method: 'POST', body: JSON.stringify({ reason: 'Cierre desde preview', notes: null }) });
+        console.log('closeProcess:', Math.round(performance.now() - start), 'ms');
         addUiEvent(`Proceso ${code} cerrado`);
-        await refreshData();
+        // Optimizado: solo recargar procesos
+        state.processes = await request('/processes/active').catch(() => []);
+        renderProcesses();
         notify('Proceso cerrado');
       } catch (e) { notify('Falló cierre'); }
     }
@@ -1729,6 +1747,14 @@
       statusEl.className = 'badge ' + (connected ? 'green' : 'red');
       $('plc-last-comm').textContent = state.plcLastComm || '-';
       $('plc-vars-count').textContent = state.plcVarsCount || '0';
+      
+      // Actualizar indicador del header
+      const headerPlc = $('header-plc-badge');
+      if (headerPlc) {
+        headerPlc.textContent = connected ? 'PLC Online' : 'PLC Offline';
+        headerPlc.style.background = connected ? 'var(--green)' : 'var(--red)';
+        headerPlc.className = 'badge ' + (connected ? '' : '');
+      }
     }
 
     async function testPlcConnection() {
