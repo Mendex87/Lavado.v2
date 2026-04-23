@@ -30,4 +30,5 @@ __pycache__/
 # Runtime
 *.log
 backend/plant_app.db
+backend/plant_app.db-*
 backend/.apply_config_pending

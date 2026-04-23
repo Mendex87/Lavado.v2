@@ -135,6 +135,19 @@ class SeedService:
             )
             ensure_measurement_point(
                 line_1.id,
+                code='l1_totalizer_general',
+                name='Totalizador general línea 1',
+                point_kind='input',
+                role='totalizer_general',
+                source_mode='plc',
+                plc_tag='l1_totalizer_general',
+                affects_stock=False,
+                affects_production=False,
+                display_order=3,
+                notes='Totalizador general vivo de TIA (no dependiente de reset parcial)',
+            )
+            ensure_measurement_point(
+                line_1.id,
                 code='l1_output_1',
                 name='Salida 1 línea 1',
                 point_kind='output',
@@ -143,7 +156,7 @@ class SeedService:
                 plc_tag='l1_output_1',
                 affects_stock=False,
                 affects_production=True,
-                display_order=3,
+                display_order=4,
             )
             ensure_measurement_point(
                 line_1.id,
@@ -155,7 +168,7 @@ class SeedService:
                 plc_tag='l1_output_2',
                 affects_stock=False,
                 affects_production=True,
-                display_order=4,
+                display_order=5,
             )
             ensure_measurement_point(
                 line_1.id,
@@ -167,7 +180,7 @@ class SeedService:
                 plc_tag='l1_output_3',
                 affects_stock=False,
                 affects_production=True,
-                display_order=5,
+                display_order=6,
                 notes='Punto preparado para fallback manual o futura balanza',
             )
         if line_2:
@@ -224,6 +237,19 @@ class SeedService:
             )
             ensure_measurement_point(
                 line_2.id,
+                code='l2_totalizer_general',
+                name='Totalizador general línea 2',
+                point_kind='input',
+                role='totalizer_general',
+                source_mode='plc',
+                plc_tag='l2_totalizer_general',
+                affects_stock=False,
+                affects_production=False,
+                display_order=5,
+                notes='Totalizador general vivo de TIA (no dependiente de reset parcial)',
+            )
+            ensure_measurement_point(
+                line_2.id,
                 code='l2_input_hopper_2',
                 name='Tolva 2 línea 2',
                 point_kind='input',
@@ -232,7 +258,7 @@ class SeedService:
                 plc_tag='l2_input_hopper_2',
                 affects_stock=True,
                 affects_production=False,
-                display_order=5,
+                display_order=6,
             )
             ensure_measurement_point(
                 line_2.id,
@@ -244,7 +270,7 @@ class SeedService:
                 plc_tag='l2_output_1',
                 affects_stock=False,
                 affects_production=True,
-                display_order=6,
+                display_order=7,
                 notes='Puede venir desde PLC o carga manual',
             )
 

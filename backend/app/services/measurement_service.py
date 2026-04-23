@@ -92,7 +92,23 @@ class MeasurementService:
             reset_partials_ack=payload.reset_partials_ack,
         )
 
-    def list_latest(self, line: int | None = None) -> list[MeasurementLatestItem]:
+    def list_latest(self, line: int | None = None, codes: list[str] | None = None) -> list[MeasurementLatestItem]:
+        if codes:
+            raw_data = self.measurement_repository.get_latest_by_codes_optimized(codes)
+            return [
+                MeasurementLatestItem(
+                    code=point.code,
+                    name=point.name,
+                    line=point.line_id,
+                    source=last.source if last else None,
+                    captured_at=last.captured_at if last else None,
+                    partial_ton=float(last.partial_ton) if last and last.partial_ton is not None else None,
+                    totalizer_ton=float(last.totalizer_ton) if last and last.totalizer_ton is not None else None,
+                    delta_ton=float(last.delta_ton) if last and last.delta_ton is not None else None,
+                )
+                for point, last in raw_data
+            ]
+        
         points = []
         if line is None:
             for line_id in (1, 2):
@@ -100,9 +116,10 @@ class MeasurementService:
         else:
             points = self.measurement_repository.list_active_by_line(line)
 
+        latest_by_point = self.measurement_repository.get_latest_by_point_ids([p.id for p in points])
         items: list[MeasurementLatestItem] = []
         for point in points:
-            last = self.measurement_repository.get_last_reading(point.id)
+            last = latest_by_point.get(point.id)
             items.append(MeasurementLatestItem(
                 code=point.code,
                 name=point.name,

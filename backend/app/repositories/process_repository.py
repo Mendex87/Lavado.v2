@@ -26,5 +26,4 @@ class ProcessRepository:
     def add(self, process: Process) -> Process:
         self.db.add(process)
         self.db.flush()
-        self.db.refresh(process)
         return process

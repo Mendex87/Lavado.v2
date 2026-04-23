@@ -84,7 +84,7 @@ python -m plc_poller.main
 - `PLC_RACK=0`
 - `PLC_SLOT=1`
 - `BACKEND_URL=http://127.0.0.1:8010/api/v1`
-- `PLC_POLL_INTERVAL_SECONDS=1`
+- `PLC_POLL_INTERVAL_SECONDS=0.5`
 
 ### Mapping esperado (`backend\plc_poller\mapping.example.json`)
 

@@ -16,7 +16,7 @@ class ProcessService:
     def list_active(self):
         return self.repository.list_active()
 
-    def create(self, payload: ProcessCreateRequest) -> Process:
+    def create(self, payload: ProcessCreateRequest, operator_user_id: int | None = None) -> Process:
         if self.repository.get_active_by_line(payload.line):
             raise ValueError(f'La línea {payload.line} ya tiene un proceso activo')
         if payload.line == 1 and payload.mode != 'simple':
@@ -25,9 +25,11 @@ class ProcessService:
         shift = self.catalog_repository.get_default_shift()
         if not shift:
             raise ValueError('No hay turnos configurados')
-        user = self.catalog_repository.get_user_by_username(payload.operator.lower()) or self.catalog_repository.get_user_by_username('admin')
-        if not user:
-            raise ValueError('No hay usuario disponible para registrar el proceso')
+        if operator_user_id is None:
+            user = self.catalog_repository.get_user_by_username(payload.operator.lower()) or self.catalog_repository.get_user_by_username('admin')
+            if not user:
+                raise ValueError('No hay usuario disponible para registrar el proceso')
+            operator_user_id = user.id
 
         process = Process(
             code=f'PR-{datetime.utcnow().strftime("%Y-%H%M%S")}',
@@ -35,7 +37,7 @@ class ProcessService:
             shift_id=shift.id,
             shift_code_snapshot=shift.code,
             shift_name_snapshot=shift.name,
-            operator_user_id=user.id,
+            operator_user_id=operator_user_id,
             mode=payload.mode,
             status='active',
             started_at=datetime.utcnow(),
@@ -93,6 +95,4 @@ class ProcessService:
             message=f'Proceso {process.code} cerrado',
             payload={'reason': reason},
         )
-        self.repository.db.commit()
-        self.repository.db.refresh(process)
         return process

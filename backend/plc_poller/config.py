@@ -29,7 +29,7 @@ class PlcPollerSettings:
                     plc_slot=int(data.get('plc_slot', 1)),
                     backend_url=data.get('backend_url', 'http://127.0.0.1:8010/api/v1'),
                     mapping_path=os.getenv('PLC_MAPPING_PATH', 'plc_poller/mapping.example.json'),
-                    poll_interval_seconds=float(os.getenv('PLC_POLL_INTERVAL_SECONDS', '0.2')),
+                    poll_interval_seconds=float(os.getenv('PLC_POLL_INTERVAL_SECONDS', '0.1')),
                     _loaded_from_backend=True,
                 )
                 print('Configuración cargada desde backend')

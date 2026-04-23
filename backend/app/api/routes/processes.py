@@ -35,7 +35,7 @@ def create_process(
 ):
     service = ProcessService(ProcessRepository(db))
     try:
-        process = service.create(payload)
+        process = service.create(payload, operator_user_id=current_user.id)
         AuditService(db).log(
             user_id=current_user.id,
             entity_name='process',
@@ -78,4 +78,5 @@ def close_process(
         after_json={'reason': payload.reason},
     )
     db.commit()
+    db.refresh(process)
     return {'ok': True, 'code': process.code, 'status': process.status}

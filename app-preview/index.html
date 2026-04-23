@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <base href="/app-preview/" />
-  <title>Prosil - Lavado | Plant App Preview v3.2</title>
+  <title>Prosil - Lavado | Plant App Preview v3.2.1</title>
   <style>
     :root {
       --bg: #07101a;
@@ -315,7 +315,7 @@
         <div class="brand-mark">OC</div>
         <div>
           <h1>Prosil - Lavado</h1>
-          <div class="muted">Preview v3.2</div>
+          <div class="muted">Preview v3.2.1</div>
         </div>
       </div>
       <h2>Ingreso</h2>
@@ -323,7 +323,7 @@
       <div class="form-grid">
         <label><span>Usuario</span><input id="login-user" value="eze" autocomplete="username" /></label>
         <label><span>Contraseña</span><input id="login-pass" type="password" value="change-me" autocomplete="current-password" /></label>
-        <label><span>API base URL</span><input id="api-base" placeholder="Se detecta automáticamente (/plant-api)" /></label>
+        <label><span>API base URL</span><input id="api-base" placeholder="Se detecta automáticamente (/api/v1)" /></label>
         <div class="actions">
           <button class="btn primary" id="login-btn">Entrar</button>
           <button class="btn secondary" id="check-api-btn">Probar API</button>
@@ -339,7 +339,7 @@
         <div class="brand-mark">OC</div>
         <div>
           <h1>Prosil - Lavado</h1>
-          <div class="muted">Plant App Preview v3.2</div>
+          <div class="muted">Plant App Preview v3.2.1</div>
         </div>
       </div>
 
@@ -806,7 +806,7 @@
       stock: [],
       latestMeasurements: [],
       backendEvents: [],
-      uiEvents: ['Preview v3.2 cargada'],
+      uiEvents: ['Preview v3.2.1 cargada'],
       token: null,
       alarms: [],
       currentHandoverId: null,
@@ -818,8 +818,8 @@
       },
       autoRefresh: {
         enabled: true,
-        coreIntervalMs: 10000,  // Datos principales cada 10s (lento parademo)
-        flowIntervalMs: 2000, // Flow de PLC cada 2s
+        coreIntervalMs: 2000,
+        flowIntervalMs: 100,
         coreTimer: null,
         flowTimer: null,
         clockTimer: null,
@@ -852,12 +852,16 @@
     const screens = [...document.querySelectorAll('.screen')];
 
     function defaultApiBase() {
-      return `${window.location.origin}/plant-api`;
+      return `${window.location.origin}/api/v1`;
     }
 
     function loadApiBase() {
       const saved = localStorage.getItem('plant_app_api_base');
-      $('api-base').value = (saved || defaultApiBase()).replace(/\/$/, '');
+      const normalized = (saved || defaultApiBase()).replace(/\/$/, '');
+      // Migra bases viejas usadas en pruebas anteriores.
+      $('api-base').value = normalized.endsWith('/plant-api')
+        ? `${window.location.origin}/api/v1`
+        : normalized;
     }
 
     function persistApiBase() {
@@ -1059,7 +1063,7 @@
       $('sum-processes').textContent = state.processes.length;
       $('sum-alarms').textContent = state.alarms.length;
       $('sum-stock').textContent = state.stock.filter(s => s.status !== 'normal').length;
-      const l1Totalizer = latestValue(1, 'l1_input_main', 'totalizer_ton');
+      const l1Totalizer = latestValue(1, 'l1_totalizer_general', 'totalizer_ton') ?? latestValue(1, 'l1_input_main', 'totalizer_ton');
       $('sum-l1-totalizer').textContent = formatTon(l1Totalizer);
       $('active-count-badge').textContent = `${state.processes.length} activos`;
     }
@@ -1101,8 +1105,8 @@
         inputProcessPartial = (l2PartialA !== null || l2PartialB !== null) ? (a + b) : inputProcessPartial;
       }
       const inputTotalizer = line === 1
-        ? latestValue(1, 'l1_input_main', 'totalizer_ton')
-        : latestValue(2, 'l2_input_hopper_1', 'totalizer_ton');
+        ? (latestValue(1, 'l1_totalizer_general', 'totalizer_ton') ?? latestValue(1, 'l1_input_main', 'totalizer_ton'))
+        : (latestValue(2, 'l2_totalizer_general', 'totalizer_ton') ?? latestValue(2, 'l2_input_hopper_1', 'totalizer_ton'));
       const outputA = line === 1
         ? latestValue(1, 'l1_output_1')
         : latestValue(2, 'l2_output_1');
@@ -1143,7 +1147,7 @@
         <div class="hero">
           <div class="feed-block">
             <div class="mini-label">ALIMENTACIÓN ACTUAL</div>
-            <div class="feed-value">${formatTph(shownTph)}</div>
+            <div class="feed-value" id="line-${line}-feed-value">${formatTph(shownTph)}</div>
             <div class="muted">${isL2Blend ? 'Blend: suma de B2 + B3' : 'Dato protagonista de línea'}</div>
             ${sparkline}
             ${l2BlendFeedDetails}
@@ -1157,8 +1161,8 @@
           <div class="field"><span>Proceso</span><strong>${p ? p.code : '-'}</strong></div>
         </div>
         <div class="line-stats centered">
-          <div class="stat"><span>Entrada proceso (parcial)</span><strong>${formatTon(shownInput)}</strong></div>
-          <div class="stat"><span>Totalizador general</span><strong>${formatTon(inputTotalizer)}</strong></div>
+          <div class="stat"><span>Entrada proceso (parcial)</span><strong id="line-${line}-partial">${formatTon(shownInput)}</strong></div>
+          <div class="stat"><span>Totalizador general</span><strong id="line-${line}-totalizer">${formatTon(inputTotalizer)}</strong></div>
           <div class="stat"><span>Alimentación actual</span><strong>${formatTph(shownTph)}</strong></div>
         </div>
         <div class="split-strip">
@@ -1181,16 +1185,25 @@
         return;
       }
       wrap.innerHTML = state.processes.map(p => {
-        const sim = state.simulation[p.line];
+        const tph = p.line === 1
+          ? (state.liveFlow.l1_input_tph ?? latestValue(1, 'l1_input_tph', 'partial_ton') ?? 0)
+          : ((state.liveFlow.l2_input_tph_a ?? latestValue(2, 'l2_input_tph_a', 'partial_ton') ?? 0)
+            + (state.liveFlow.l2_input_tph_b ?? latestValue(2, 'l2_input_tph_b', 'partial_ton') ?? 0));
+        const inputTon = p.line === 1
+          ? (latestValue(1, 'l1_input_main') ?? 0)
+          : ((latestValue(2, 'l2_input_hopper_1') ?? 0) + (latestValue(2, 'l2_input_hopper_2') ?? 0));
+        const prodA = p.line === 1 ? (latestValue(1, 'l1_output_1') ?? 0) : (latestValue(2, 'l2_output_1') ?? 0);
+        const prodB = p.line === 1 ? (latestValue(1, 'l1_output_2') ?? 0) : 0;
+        const discard = p.line === 1 ? (latestValue(1, 'l1_output_3') ?? 0) : 0;
         return `
           <div class="card">
             <div class="card-head"><div><h3>${p.code}</h3><div class="muted">Línea ${p.line} · ${p.operator} · ${p.mode}</div></div><span class="badge green">${p.status}</span></div>
             <div class="kpi-grid">
-              <div class="kpi"><span>tn/h</span><strong>${formatTph(sim.tph_input)}</strong></div>
-              <div class="kpi"><span>Entrada</span><strong>${formatTon(sim.input_ton)}</strong></div>
-              <div class="kpi"><span>Prod A</span><strong>${formatTon(sim.product_a_ton)}</strong></div>
-              <div class="kpi"><span>Prod B</span><strong>${formatTon(sim.product_b_ton)}</strong></div>
-              <div class="kpi"><span>Desc</span><strong>${formatTon(sim.discard_ton)}</strong></div>
+              <div class="kpi"><span>tn/h</span><strong>${formatTph(tph)}</strong></div>
+              <div class="kpi"><span>Entrada</span><strong>${formatTon(inputTon)}</strong></div>
+              <div class="kpi"><span>Prod A</span><strong>${formatTon(prodA)}</strong></div>
+              <div class="kpi"><span>Prod B</span><strong>${formatTon(prodB)}</strong></div>
+              <div class="kpi"><span>Desc</span><strong>${formatTon(discard)}</strong></div>
             </div>
             <div class="actions" style="margin-top:14px;"><button class="btn small danger" onclick="closeProcess('${p.code}')">Cerrar proceso</button></div>
           </div>
@@ -1272,6 +1285,44 @@
       renderAlarms();
     }
 
+    function activeScreenId() {
+      const active = document.querySelector('.screen.active');
+      return active ? active.id : 'dashboard';
+    }
+
+    function renderCurrentScreen() {
+      const screen = activeScreenId();
+      renderHeader();
+
+      if (screen === 'dashboard') {
+        renderSummary();
+        renderLineCard(1);
+        renderLineCard(2);
+        renderDashboardProducts();
+        return;
+      }
+      if (screen === 'active-process') {
+        renderProcesses();
+        renderSummary();
+        return;
+      }
+      if (screen === 'stock') {
+        renderStock();
+        renderSummary();
+        return;
+      }
+      if (screen === 'events') {
+        renderEvents();
+        return;
+      }
+      if (screen === 'alarms') {
+        renderAlarms();
+        return;
+      }
+      // fallback para pantallas nuevas
+      renderAll();
+    }
+
     function screenJump(screen) {
       navLinks.forEach(n => n.classList.toggle('active', n.dataset.screen === screen));
       screens.forEach(s => s.classList.toggle('active', s.id === screen));
@@ -1287,14 +1338,13 @@
         return true;
       } catch (e) {
         try {
-          const candidate = `${window.location.origin}/plant-api`;
-          const prev = $('api-base').value;
+          const candidate = `${window.location.origin}/api/v1`;
           $('api-base').value = candidate;
           await request('/health');
           persistApiBase();
           setConnection(true);
           addUiEvent('Conexión backend OK (autocorrección API base)');
-          notify('API base corregida a /plant-api');
+          notify('API base corregida a /api/v1');
           return true;
         } catch {
           setConnection(false);
@@ -1342,7 +1392,7 @@
           state.plcConnected = false;
         }
         
-        renderAll();
+        renderCurrentScreen();
         const elapsed = Math.round(performance.now() - startTime);
         if (elapsed > 50) console.log('refreshData:', elapsed, 'ms');
         if (document.getElementById('settings').classList.contains('active')) {
@@ -1355,13 +1405,15 @@
       }
     }
 
-    async function refreshFlowData() {
+async function refreshFlowData() {
       // Flow refresh solo actualiza los valores de caudal, NO redibuja todo
       if (!state.connected || state.flowRefreshBusy) return;
       state.flowRefreshBusy = true;
+      const startTime = performance.now();
       try {
-        const latest = await request('/measurements/latest').catch(() => []);
+        const latest = await request('/measurements/latest?codes=l1_input_tph,l2_input_tph,l2_input_tph_a,l2_input_tph_b,l1_input_main,l2_input_hopper_1,l2_input_hopper_2,l1_totalizer_general,l2_totalizer_general').catch(() => []);
         if (!Array.isArray(latest)) return;
+        state.latestMeasurements = latest;
         const byCode = Object.fromEntries(latest.map(m => [m.code, m]));
         state.liveFlow.l1_input_tph = byCode.l1_input_tph?.partial_ton ?? null;
         state.liveFlow.l2_input_tph = byCode.l2_input_tph?.partial_ton ?? null;
@@ -1370,6 +1422,10 @@
         // Solo actualizar los elementos de caudal, NO todo el card
         updateFlowDisplay(1);
         updateFlowDisplay(2);
+        updateTotalizersDisplay(1, byCode);
+        updateTotalizersDisplay(2, byCode);
+        const elapsed = Math.round(performance.now() - startTime);
+        if (elapsed > 30) console.log('refreshFlow:', elapsed, 'ms');
       } catch (e) {
         // Silencioso
       } finally {
@@ -1377,13 +1433,41 @@
       }
     }
     
-    function updateFlowDisplay(line) {
-      const el = document.getElementById(`line-${line}-feed`);
-      if (!el) return;
-      const val = line === 1 ? state.liveFlow.l1_input_tph : 
-        (state.liveFlow.l2_input_tph_a + state.liveFlow.l2_input_tph_b);
-      const display = el.querySelector('.feed-value');
-      if (display) display.textContent = val ? val.toFixed(1) + ' tn/h' : '-';
+function updateFlowDisplay(line) {
+      const display = document.getElementById(`line-${line}-feed-value`);
+      if (!display) return;
+      let val = null;
+      if (line === 1) {
+        val = state.liveFlow.l1_input_tph;
+      } else {
+        const a = state.liveFlow.l2_input_tph_a ?? 0;
+        const b = state.liveFlow.l2_input_tph_b ?? 0;
+        if (state.liveFlow.l2_input_tph_a !== null || state.liveFlow.l2_input_tph_b !== null) {
+          val = a + b;
+        }
+      }
+      display.textContent = val !== null ? val.toFixed(1) + ' tn/h' : '-';
+    }
+
+    function updateTotalizersDisplay(line, byCode) {
+      const totalizerEl = document.getElementById(`line-${line}-totalizer`);
+      const partialEl = document.getElementById(`line-${line}-partial`);
+      if (!totalizerEl && !partialEl) return;
+
+      let totalizer = null;
+      let partial = null;
+      if (line === 1) {
+        totalizer = byCode.l1_totalizer_general?.totalizer_ton ?? byCode.l1_input_main?.totalizer_ton;
+        partial = byCode.l1_input_main?.partial_ton;
+      } else {
+        totalizer = byCode.l2_totalizer_general?.totalizer_ton ?? byCode.l2_input_hopper_1?.totalizer_ton;
+        const p1 = byCode.l2_input_hopper_1?.partial_ton ?? 0;
+        const p2 = byCode.l2_input_hopper_2?.partial_ton ?? 0;
+        partial = p1 + p2;
+      }
+
+      if (totalizerEl) totalizerEl.textContent = formatTon(totalizer);
+      if (partialEl) partialEl.textContent = formatTon(partial);
     }
 
     function startAutoRefresh() {
@@ -1469,9 +1553,12 @@
         const created = await request('/processes', { method: 'POST', body: JSON.stringify(payload) });
         console.log('createProcess:', Math.round(performance.now() - start), 'ms');
         addUiEvent(`Proceso ${created.code} abierto en línea ${created.line}`);
-        // Optimizado: solo recargar procesos, no todo
-        state.processes = await request('/processes/active').catch(() => []);
+        state.processes = state.processes.filter(p => Number(p.line) !== Number(created.line));
+        state.processes.push(created);
+        state.processes.sort((a, b) => Number(a.line) - Number(b.line));
         renderProcesses();
+        renderSummary();
+        renderLineCard(created.line);
         screenJump('active-process');
         notify('Proceso abierto');
       } catch (e) { notify(e.message); addUiEvent(`No se pudo abrir proceso: ${e.message}`); }
@@ -1484,15 +1571,31 @@
     async function closeProcess(code) {
       if (!confirm(`Cerrar proceso ${code}?`)) return;
       try {
+        const target = state.processes.find(p => p.code === code);
         const start = performance.now();
         await request(`/processes/${code}/close`, { method: 'POST', body: JSON.stringify({ reason: 'Cierre desde preview', notes: null }) });
         console.log('closeProcess:', Math.round(performance.now() - start), 'ms');
         addUiEvent(`Proceso ${code} cerrado`);
-        // Optimizado: solo recargar procesos
-        state.processes = await request('/processes/active').catch(() => []);
+        state.processes = state.processes.filter(p => p.code !== code);
         renderProcesses();
+        renderSummary();
+        if (target) renderLineCard(target.line);
         notify('Proceso cerrado');
       } catch (e) { notify('Falló cierre'); }
+    }
+
+    async function loadCriticalState() {
+      if (!state.connected) return;
+      try {
+        const processes = await request('/processes/active');
+        state.processes = processes;
+        renderSummary();
+        renderLineCard(1);
+        renderLineCard(2);
+        renderProcesses();
+      } catch (e) {
+        console.error('loadCriticalState error:', e);
+      }
     }
 
     async function sendManualMeasurement() {
@@ -1873,7 +1976,8 @@
       $('nav-settings').classList.toggle('hidden', !isAdmin);
       if (isAdmin) loadSettings();
       renderHeader();
-      await refreshData();
+      await loadCriticalState();
+      refreshData().catch(() => {});
       startAutoRefresh();
       notify('Sesión iniciada');
     });

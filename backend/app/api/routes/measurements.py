@@ -34,10 +34,12 @@ def ingest_measurements(payload: MeasurementIngestRequest, db: Session = Depends
 @router.get('/latest', response_model=list[MeasurementLatestItem])
 def list_latest_measurements(
     line: int | None = None,
+    codes: str | None = None,
     db: Session = Depends(get_db),
     _user=Depends(get_current_user),
 ):
-    return MeasurementService(db).list_latest(line=line)
+    code_list = [c.strip() for c in (codes or '').split(',') if c.strip()]
+    return MeasurementService(db).list_latest(line=line, codes=code_list or None)
 
 
 @router.post('/manual', response_model=MeasurementManualResult)

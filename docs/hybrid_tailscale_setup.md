@@ -61,7 +61,7 @@ PLC_RACK=0
 PLC_SLOT=1
 BACKEND_URL=http://NOMBRE-O-IP-TAILSCALE:8010/api/v1
 PLC_MAPPING_PATH=plc_poller/mapping.example.json
-PLC_POLL_INTERVAL_SECONDS=2
+PLC_POLL_INTERVAL_SECONDS=0.5
 ```
 
 ## Flujo de prueba recomendado

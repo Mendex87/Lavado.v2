@@ -16,8 +16,9 @@ class PlcService:
     
     def get_status(self):
         """Retorna el estado de conexión con el PLC"""
-        variables_count = len(plc_mock_state.get('variables', []))
-        active_vars = [v for v in variables_count if v.get('is_active', True)]
+        variables = plc_mock_state.get('variables', [])
+        variables_count = len(variables)
+        active_vars = [v for v in variables if v.get('is_active', True)]
         
         return {
             'connected': self.is_connected,
