@@ -8,6 +8,7 @@ class SettingsService:
         'plc_host': '192.168.10.77',
         'plc_rack': '0',
         'plc_slot': '1',
+        'plc_poll_interval_seconds': '5',
         'plant_timezone': 'America/Sao_Paulo',
     }
 

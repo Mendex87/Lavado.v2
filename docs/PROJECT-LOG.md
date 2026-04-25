@@ -1,21 +1,26 @@
 # Project Log - Prosil Lavado MES App
 
-## v3.2.1 (2026-04-23) - Release Actual
+## Base 2.0 / App v4 (2026-04-25) - Punto de Partida
 
-### Frontend Fixes:
-- `updateFlowDisplay()` corregido para evitar NaN cuando ambos flow L2 son null
-- Verificación de null antes de sumar flows en L2 blend
-- Logging de timing (>30ms) en refreshFlowData
+### Estado consolidado:
+- **Solo guarda cuando hay proceso activo**: Si no hay proceso, no guarda nada
+- **Intervalos**: Todo a 5 segundos
+- **Módulos fuera de foco**: Handover, Calidad, Mantenimiento, OEE, Reportes, Energía
+- **Debug limpio**: Menos output en cmd del poller
+- **DB limpia**:measurement_readings reseteada
+- **App de operación**: login, procesos, stock, dashboard PLC, eventos y alarmas admin
 
-### Backend Optimización:
-- Nuevo método `get_latest_by_codes_optimized()` en repository
-- `list_latest()` ahora hace UNA sola query cuando se pasan códigos (antes hacía 2)
-- Esto acelera significativamente el refresh de flow
+### Flags implementados:
+- status: "active" o "idle" en respuesta del backend
+- Si status = "idle" → 0 registros guardados
 
-### Estado operativo:
-- Flow refresh: 100ms
-- Core refresh: 2000ms  
-- IDs específicos para actualización directa
+### Objetivo de esta base:
+Dejar una versión estable para continuar la arquitectura `live + histórico` sin perder el trabajo ya validado en planta.
+
+### Para probar:
+1. Abrir proceso en la app
+2. Ejecutar poller
+3. Verificar que solo guarda cuando hay proceso activo
 
 ---
 

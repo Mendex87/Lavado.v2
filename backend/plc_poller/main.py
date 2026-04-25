@@ -55,11 +55,9 @@ def poll_with_apply_button(backend_url):
     mapping = load_mapping(settings.mapping_path)
     current_host = settings.plc_host
     
-    print('PLC poller base listo')
-    print(json.dumps(settings.__dict__, indent=2))
-    print('Mapa cargado desde', settings.mapping_path)
-    print(f"Polling continuo cada {settings.poll_interval_seconds}s (Ctrl+C para salir)")
-    print("Esperando botón 'Aplicar configuración'...")
+    print('PLC poller iniciado')
+    print(f'Intervalo: {settings.poll_interval_seconds}s | PLC: {settings.plc_host}')
+    print('Esperando botón "Aplicar" o abra un proceso para guardar datos...')
     
     while True:
         # Check if apply button was pressed
@@ -75,16 +73,17 @@ def poll_with_apply_button(backend_url):
             payloads = read_line_payloads(client, mapping)
             for payload in payloads:
                 response = post_json(f"{settings.backend_url}/measurements/ingest", payload)
-                print(json.dumps({'payload': payload, 'response': response}, indent=2))
+                status = response.get('status', 'unknown')
+                reads = response.get('readings_created', 0)
+                if status == 'idle':
+                    print(f"L{payload['line']}: idle (no proceso activo)")
+                else:
+                    print(f"L{payload['line']}: {reads} guardados [{status}]")
             client.close()
         except RuntimeError as exc:
-            print(f"Fallo de conexión: {exc}")
-            print('Intentando con config actual:', settings.plc_host)
-            print('Presiona "Aplicar" en la app para recargar')
-            for payload in build_demo_payloads(mapping):
-                print(json.dumps(payload, indent=2))
+            print(f"Error conexión: {settings.plc_host}")
         except Exception as exc:
-            print(f'Error de poll/publicación: {exc}')
+            print(f"Error: {exc}")
         time.sleep(settings.poll_interval_seconds)
 
 

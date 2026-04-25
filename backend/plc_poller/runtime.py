@@ -25,19 +25,25 @@ def read_line_payloads(client: Snap7PlcClient, mapping: dict) -> list[dict]:
 
     payloads: list[dict] = []
     for line_cfg in mapping.get('lines', []):
+        line_num = line_cfg['line']
         channels = []
         for channel in line_cfg.get('channels', []):
-            item = {'code': channel['code']}
+            code = channel['code']
+            item = {'code': code}
             partial_address = channel.get('partial')
             totalizer_address = channel.get('totalizer')
+            
             if partial_address:
-                item['partial_ton'] = _safe_float(client.read(PlcAddress(**partial_address)))
+                val = _safe_float(client.read(PlcAddress(**partial_address)))
+                item['partial_ton'] = val
             if totalizer_address:
-                item['totalizer_ton'] = _safe_float(client.read(PlcAddress(**totalizer_address)))
+                val = _safe_float(client.read(PlcAddress(**totalizer_address)))
+                item['totalizer_ton'] = val
             channels.append(item)
+        
         payloads.append({
             'captured_at': now,
-            'line': line_cfg['line'],
+            'line': line_num,
             'source': 'plc',
             'reset_partials_ack': reset_ack,
             'channels': channels,

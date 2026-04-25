@@ -35,6 +35,7 @@ class MeasurementIngestResult(BaseModel):
     ok: bool
     line: int
     process_code: str | None = None
+    status: str = "active"  # "active" o "idle"
     readings_created: int
     reset_partials_ack: bool
 

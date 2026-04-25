@@ -51,6 +51,21 @@ class MeasurementService:
 
     def ingest(self, payload: MeasurementIngestRequest, entered_by_user_id: int | None = None) -> MeasurementIngestResult:
         process = self.process_repository.get_active_by_line(payload.line)
+        
+        # Determinar status: si hay proceso activo = "active", si no = "idle"
+        status = "active" if process else "idle"
+        
+        # Si no hay proceso activo, no guardar registros (ahorrar registros)
+        if status == "idle":
+            return MeasurementIngestResult(
+                ok=True,
+                line=payload.line,
+                process_code=None,
+                status=status,
+                readings_created=0,
+                reset_partials_ack=False,
+            )
+        
         points = {point.code: point for point in self.measurement_repository.get_by_codes(payload.line, [item.code for item in payload.channels])}
         created = 0
 
@@ -88,6 +103,7 @@ class MeasurementService:
             ok=True,
             line=payload.line,
             process_code=process.code if process else None,
+            status=status,
             readings_created=created,
             reset_partials_ack=payload.reset_partials_ack,
         )

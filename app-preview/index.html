@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <base href="/app-preview/" />
-  <title>Prosil - Lavado | Plant App Preview v3.2.1</title>
+  <title>Prosil - Lavado | App v4</title>
   <style>
     :root {
       --bg: #07101a;
@@ -211,6 +211,7 @@
       padding: 16px;
     }
     .feed-value { font-size: 38px; font-weight: 900; line-height: 1; margin-top: 8px; }
+    .feed-value.inactive { opacity: 0.4; font-size: 28px; }
     .feed-bar, .split-bar {
       width: 100%;
       height: 14px;
@@ -315,7 +316,7 @@
         <div class="brand-mark">OC</div>
         <div>
           <h1>Prosil - Lavado</h1>
-          <div class="muted">Preview v3.2.1</div>
+          <div class="muted">App v4</div>
         </div>
       </div>
       <h2>Ingreso</h2>
@@ -339,7 +340,7 @@
         <div class="brand-mark">OC</div>
         <div>
           <h1>Prosil - Lavado</h1>
-          <div class="muted">Plant App Preview v3.2.1</div>
+          <div class="muted">App v4</div>
         </div>
       </div>
 
@@ -348,14 +349,14 @@
         <button class="nav-link" data-screen="new-process">Abrir proceso</button>
         <button class="nav-link" data-screen="active-process">Procesos activos</button>
         <button class="nav-link" data-screen="stock">Stock</button>
-        <button class="nav-link" data-screen="events">Eventos</button>
-        <button class="nav-link" data-screen="handover">Handover</button>
-        <button class="nav-link" data-screen="alarms">Alarmas</button>
-        <button class="nav-link" data-screen="quality">Calidad</button>
-        <button class="nav-link" data-screen="maintenance">Mantenimiento</button>
-        <button class="nav-link" data-screen="oee">OEE</button>
-        <button class="nav-link" data-screen="reporting">Reportes</button>
-        <button class="nav-link" data-screen="energy">Energía</button>
+        <button class="nav-link hidden" data-screen="events" id="nav-events">Eventos</button>
+        <button class="nav-link hidden" data-screen="alarms" id="nav-alarms">Alarmas</button>
+        <button class="nav-link hidden" data-screen="handover">Handover</button>
+        <button class="nav-link hidden" data-screen="quality">Calidad</button>
+        <button class="nav-link hidden" data-screen="maintenance">Mantenimiento</button>
+        <button class="nav-link hidden" data-screen="oee">OEE</button>
+        <button class="nav-link hidden" data-screen="reporting">Reportes</button>
+        <button class="nav-link hidden" data-screen="energy">Energía</button>
         <button class="nav-link hidden" data-screen="settings" id="nav-settings">Configuración</button>
       </div>
 
@@ -403,9 +404,9 @@
       <section id="dashboard" class="screen active">
         <div class="summary-grid">
           <div class="summary"><span>Procesos activos</span><strong id="sum-processes">0</strong></div>
-          <div class="summary"><span>Alarmas activas</span><strong id="sum-alarms">0</strong></div>
           <div class="summary"><span>Stock bajo/crítico</span><strong id="sum-stock">0</strong></div>
           <div class="summary"><span>Totalizador alim. L1</span><strong id="sum-l1-totalizer">0.0 t</strong></div>
+          <div class="summary"><span>Totalizador alim. L2</span><strong id="sum-l2-totalizer">0.0 t</strong></div>
         </div>
 
         <div class="grid two-col" style="margin-top:16px;">
@@ -414,7 +415,7 @@
         </div>
 
         <div class="card" style="margin-top:16px;">
-          <div class="card-head"><h3>Salidas / productos</h3><span class="badge blue">Resumen planta</span></div>
+          <div class="card-head"><h3>Salidas y stock operativo</h3><span class="badge blue">Resumen planta</span></div>
           <div id="dashboard-products-row" class="products-grid"></div>
         </div>
       </section>
@@ -503,13 +504,6 @@
         </div>
       </section>
 
-      <section id="events" class="screen">
-        <div class="card">
-          <div class="card-head"><h3>Eventos</h3><span class="badge blue">Trazabilidad</span></div>
-          <ul id="events-list" class="timeline"></ul>
-        </div>
-      </section>
-
       <section id="handover" class="screen">
         <div class="card">
           <div class="card-head">
@@ -552,13 +546,6 @@
           <div class="actions" style="margin-top:12px;">
             <button class="btn primary" id="handover-start-btn">Iniciar Transferencia</button>
           </div>
-        </div>
-      </section>
-
-      <section id="alarms" class="screen">
-        <div class="card">
-          <div class="card-head"><h3>Alarmas y avisos</h3><span class="badge yellow" id="alarms-badge">0</span></div>
-          <ul id="alarms-list" class="alarm-list"></ul>
         </div>
       </section>
 
@@ -784,13 +771,11 @@
 
   <script>
     const titles = {
-      dashboard: ['Dashboard operativo', 'Lectura rápida de líneas, alimentación y estado general.'],
+      dashboard: ['Dashboard operativo', 'Producción en línea y stock de cantera para operación real.'],
       'new-process': ['Abrir proceso', 'Alta operativa con reglas de línea, blend y canteras.'],
       'active-process': ['Procesos activos', 'Seguimiento de procesos abiertos por línea.'],
       stock: ['Stock', 'Stock actual y últimos movimientos de cantera.'],
-      events: ['Eventos', 'Trazabilidad de acciones y backend.'],
       handover: ['Handover', 'Transferencia de turno con checklist y resumen.'],
-      alarms: ['Alarmas', 'Atención operativa.'],
       quality: ['Calidad', 'Registros de calidad, especificaciones y trazabilidad de lotes.'],
       maintenance: ['Mantenimiento', 'Solicitudes de mantenimiento e incidencias.'],
       oee: ['OEE', 'Métricas de disponibilidad, rendimiento y calidad.'],
@@ -806,7 +791,7 @@
       stock: [],
       latestMeasurements: [],
       backendEvents: [],
-      uiEvents: ['Preview v3.2.1 cargada'],
+      uiEvents: ['App v4 cargada'],
       token: null,
       alarms: [],
       currentHandoverId: null,
@@ -818,8 +803,8 @@
       },
       autoRefresh: {
         enabled: true,
-        coreIntervalMs: 2000,
-        flowIntervalMs: 100,
+coreIntervalMs: 5000,
+        flowIntervalMs: 5000,
         coreTimer: null,
         flowTimer: null,
         clockTimer: null,
@@ -871,7 +856,12 @@
     const apiBase = () => $('api-base').value.replace(/\/$/, '');
     const api = path => `${apiBase()}${path}`;
     const formatTon = v => `${Number(v || 0).toFixed(1)} t`;
-    const formatTph = v => `${Number(v || 0).toFixed(1)} tn/h`;
+    const formatTph = (v, hasProcess = true) => {
+        if (!hasProcess) return 'Inactivo';
+        if (v == null || v === undefined) return '0.0 tn/h';
+        return Number(v).toFixed(1) + ' tn/h';
+    };
+    const formatTphValue = (v, hasProcess) => formatTph(v, hasProcess);
     const formatDate = v => { try { return new Date(v).toLocaleString('es-AR', { hour12: false }); } catch { return v || '-'; } };
     const activeProcess = line => state.processes.find(p => Number(p.line) === Number(line)) || null;
     const latestByLine = line => state.latestMeasurements.filter(m => Number(m.line) === Number(line));
@@ -970,7 +960,6 @@
     function addUiEvent(msg) {
       const stamp = new Date().toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
       state.uiEvents.unshift(`${stamp} · ${msg}`);
-      renderEvents();
     }
 
     function parseJwtExp(token) {
@@ -1061,10 +1050,11 @@
 
     function renderSummary() {
       $('sum-processes').textContent = state.processes.length;
-      $('sum-alarms').textContent = state.alarms.length;
       $('sum-stock').textContent = state.stock.filter(s => s.status !== 'normal').length;
       const l1Totalizer = latestValue(1, 'l1_totalizer_general', 'totalizer_ton') ?? latestValue(1, 'l1_input_main', 'totalizer_ton');
+      const l2Totalizer = latestValue(2, 'l2_totalizer_general', 'totalizer_ton') ?? latestValue(2, 'l2_input_hopper_1', 'totalizer_ton');
       $('sum-l1-totalizer').textContent = formatTon(l1Totalizer);
+      $('sum-l2-totalizer').textContent = formatTon(l2Totalizer);
       $('active-count-badge').textContent = `${state.processes.length} activos`;
     }
 
@@ -1072,30 +1062,29 @@
       const el = $(`line-${line}-card`);
       const p = activeProcess(line);
       const sim = state.simulation[line];
-      el.classList.toggle('inactive', !p);
       const isL2Blend = line === 2 && p?.mode === 'blend';
       const processBadge = p ? '<span class="badge green">Proceso activo</span>' : '<span class="badge yellow">Sin proceso</span>';
       const lineLatest = latestByLine(line);
       const lineLatestSorted = [...lineLatest].filter(m => m.captured_at).sort((a, b) => new Date(b.captured_at) - new Date(a.captured_at));
       const latestSource = lineLatestSorted[0]?.source || null;
       const sourceBadge = latestSource === 'manual'
-        ? '<span class="badge yellow">Fuente manual</span>'
+        ? '<span class="badge yellow">Manual</span>'
         : latestSource
-          ? '<span class="badge blue">Fuente PLC</span>'
-          : '<span class="badge yellow">Sin fuente</span>';
+          ? '<span class="badge blue">PLC</span>'
+          : '<span class="badge yellow">Sin datos</span>';
       const plcBadge = lineLatest.length
-        ? `<span class="badge blue">${lineLatest.length} canales · ${latestCapturedAt(line) || 'sin fecha'}</span>`
-        : '<span class="badge yellow">Sin lectura reciente</span>';
+        ? `<span class="badge blue">${latestCapturedAt(line) || 'sin fecha'}</span>`
+        : '<span class="badge yellow">Sin lectura</span>';
 
-      const plcTph = line === 1
-        ? (state.liveFlow.l1_input_tph ?? latestValue(1, 'l1_input_tph', 'partial_ton'))
-        : null;
-      const l2FlowA = state.liveFlow.l2_input_tph_a ?? latestValue(2, 'l2_input_tph_a', 'partial_ton');
-      const l2FlowB = state.liveFlow.l2_input_tph_b ?? latestValue(2, 'l2_input_tph_b', 'partial_ton');
-      const l2FlowLegacy = state.liveFlow.l2_input_tph ?? latestValue(2, 'l2_input_tph', 'partial_ton');
+      const l1Flow = p && line === 1 ? (state.liveFlow.l1_input_tph ?? latestValue(1, 'l1_input_tph', 'partial_ton')) : null;
+      const l2FlowA = p && line === 2 ? (state.liveFlow.l2_input_tph_a ?? latestValue(2, 'l2_input_tph_a', 'partial_ton')) : null;
+      const l2FlowB = p && line === 2 ? (state.liveFlow.l2_input_tph_b ?? latestValue(2, 'l2_input_tph_b', 'partial_ton')) : null;
+      const shownTph = line === 1
+        ? l1Flow
+        : (l2FlowA !== null || l2FlowB !== null ? (Number(l2FlowA || 0) + Number(l2FlowB || 0)) : null);
+
       const l2PartialA = latestValue(2, 'l2_input_hopper_1', 'partial_ton');
       const l2PartialB = latestValue(2, 'l2_input_hopper_2', 'partial_ton');
-
       let inputProcessPartial = line === 1
         ? latestValue(1, 'l1_input_main', 'partial_ton')
         : latestValue(2, 'l2_input_hopper_1', 'partial_ton');
@@ -1107,48 +1096,30 @@
       const inputTotalizer = line === 1
         ? (latestValue(1, 'l1_totalizer_general', 'totalizer_ton') ?? latestValue(1, 'l1_input_main', 'totalizer_ton'))
         : (latestValue(2, 'l2_totalizer_general', 'totalizer_ton') ?? latestValue(2, 'l2_input_hopper_1', 'totalizer_ton'));
-      const outputA = line === 1
-        ? latestValue(1, 'l1_output_1')
-        : latestValue(2, 'l2_output_1');
-      const outputB = line === 1
-        ? latestValue(1, 'l1_output_2')
-        : null;
-      const discard = line === 1
-        ? latestValue(1, 'l1_output_3')
-        : null;
 
-      const shownInput = inputProcessPartial ?? sim.input_ton;
-      let shownTph = plcTph ?? sim.tph_input;
-      if (line === 2) {
-        if (p?.mode === 'blend') {
-          const a = l2FlowA ?? 0;
-          const b = l2FlowB ?? 0;
-          shownTph = (l2FlowA !== null || l2FlowB !== null) ? (a + b) : (l2FlowLegacy ?? shownTph);
-        } else {
-          shownTph = l2FlowA ?? l2FlowLegacy ?? shownTph;
-        }
-      }
-      pushFeedPoint(line, shownTph);
-      const sparkline = renderSparkline(line);
+      pushFeedPoint(line, shownTph ?? 0);
+      const sparkline = p ? renderSparkline(line) : '';
       const l2BlendFeedDetails = isL2Blend ? `
         <div class="line-meta" style="margin-top:12px;">
-          <div class="field"><span>B2 caudal/parcial</span><strong>${formatTph(l2FlowA)} · ${formatTon(l2PartialA)}</strong></div>
-          <div class="field"><span>B3 caudal/parcial</span><strong>${formatTph(l2FlowB)} · ${formatTon(l2PartialB)}</strong></div>
+          <div class="field"><span>B2 caudal/parcial</span><strong>${formatTph(l2FlowA, !!p)} · ${formatTon(l2PartialA)}</strong></div>
+          <div class="field"><span>B3 caudal/parcial</span><strong>${formatTph(l2FlowB, !!p)} · ${formatTon(l2PartialB)}</strong></div>
         </div>
       ` : '';
+
+      el.classList.toggle('inactive', !p);
       el.innerHTML = `
         <div class="card-head">
           <div>
             <h3>Línea ${line}</h3>
-            <div class="muted">${p ? p.code : 'Sin proceso'} · ${p ? (p.mode === 'blend' ? 'Blend' : 'Simple') : 'Sin modo'}</div>
+            <div class="muted">${p ? p.code : 'Sin proceso'}${p ? ` · ${p.mode === 'blend' ? 'Blend' : 'Simple'}` : ''}</div>
           </div>
           <div class="actions">${processBadge}${sourceBadge}${plcBadge}</div>
         </div>
         <div class="hero">
           <div class="feed-block">
             <div class="mini-label">ALIMENTACIÓN ACTUAL</div>
-            <div class="feed-value" id="line-${line}-feed-value">${formatTph(shownTph)}</div>
-            <div class="muted">${isL2Blend ? 'Blend: suma de B2 + B3' : 'Dato protagonista de línea'}</div>
+            <div class="feed-value${p ? '' : ' inactive'}" id="line-${line}-feed-value">${formatTph(shownTph, !!p)}</div>
+            <div class="muted">${isL2Blend ? 'Alimentación combinada B2 + B3' : 'Lectura en tiempo real'}</div>
             ${sparkline}
             ${l2BlendFeedDetails}
           </div>
@@ -1161,9 +1132,9 @@
           <div class="field"><span>Proceso</span><strong>${p ? p.code : '-'}</strong></div>
         </div>
         <div class="line-stats centered">
-          <div class="stat"><span>Entrada proceso (parcial)</span><strong id="line-${line}-partial">${formatTon(shownInput)}</strong></div>
+          <div class="stat"><span>Entrada proceso (parcial)</span><strong id="line-${line}-partial">${formatTon(inputProcessPartial)}</strong></div>
           <div class="stat"><span>Totalizador general</span><strong id="line-${line}-totalizer">${formatTon(inputTotalizer)}</strong></div>
-          <div class="stat"><span>Alimentación actual</span><strong>${formatTph(shownTph)}</strong></div>
+          <div class="stat"><span>Alimentación actual</span><strong>${formatTph(shownTph, !!p)}</strong></div>
         </div>
         <div class="split-strip">
           <div class="mini-label">Salidas / split</div>
@@ -1244,9 +1215,11 @@
     function renderEvents() {
       const merged = [
         ...state.backendEvents.map(e => ({ text: `${e.process_code ? e.process_code + ' · ' : ''}${e.message}`, meta: `${e.event_type} · ${formatDate(e.created_at)}` })),
-        ...state.uiEvents.map(e => ({ text: e, meta: 'ui' }))
+        ...state.uiEvents.map(e => ({ text: e, meta: 'ui' })),
       ].slice(0, 50);
-      $('events-list').innerHTML = merged.length ? merged.map(e => `<li><strong>${e.text}</strong><br><span class="muted">${e.meta}</span></li>`).join('') : '<li>Sin eventos.</li>';
+      $('events-list').innerHTML = merged.length
+        ? merged.map(e => `<li><strong>${e.text}</strong><br><span class="muted">${e.meta}</span></li>`).join('')
+        : '<li>Sin eventos.</li>';
     }
 
     function renderAlarms() {
@@ -1406,8 +1379,37 @@
     }
 
 async function refreshFlowData() {
-      // Flow refresh solo actualiza los valores de caudal, NO redibuja todo
+      // Flow refresh solo si hay proceso activo (al menos uno)
       if (!state.connected || state.flowRefreshBusy) return;
+      
+      const hasActiveL1 = state.processes.some(p => Number(p.line) === 1 && p.status === 'active');
+      const hasActiveL2 = state.processes.some(p => Number(p.line) === 2 && p.status === 'active');
+      
+      // Si ningún proceso activo, mostrar Inactivo y SALIR sin buscar datos
+      if (!hasActiveL1 && !hasActiveL2) {
+        state.liveFlow.l1_input_tph = null;
+        state.liveFlow.l2_input_tph = null;
+        state.liveFlow.l2_input_tph_a = null;
+        state.liveFlow.l2_input_tph_b = null;
+        updateFlowDisplay(1);
+        updateFlowDisplay(2);
+        return;
+      }
+      
+      // Si hay proceso(s) activo(s), pero esta línea específica NO tiene proceso, marcar inactiva
+      if (!hasActiveL1) {
+        state.liveFlow.l1_input_tph = null;
+      }
+      if (!hasActiveL2) {
+        state.liveFlow.l2_input_tph = null;
+        state.liveFlow.l2_input_tph_a = null;
+        state.liveFlow.l2_input_tph_b = null;
+      }
+      
+      // Actualizar display para mostrar estado actual antes de buscar nuevos datos
+      updateFlowDisplay(1);
+      updateFlowDisplay(2);
+      
       state.flowRefreshBusy = true;
       const startTime = performance.now();
       try {
@@ -1415,11 +1417,27 @@ async function refreshFlowData() {
         if (!Array.isArray(latest)) return;
         state.latestMeasurements = latest;
         const byCode = Object.fromEntries(latest.map(m => [m.code, m]));
-        state.liveFlow.l1_input_tph = byCode.l1_input_tph?.partial_ton ?? null;
-        state.liveFlow.l2_input_tph = byCode.l2_input_tph?.partial_ton ?? null;
-        state.liveFlow.l2_input_tph_a = byCode.l2_input_tph_a?.partial_ton ?? null;
-        state.liveFlow.l2_input_tph_b = byCode.l2_input_tph_b?.partial_ton ?? null;
-        // Solo actualizar los elementos de caudal, NO todo el card
+        
+        // Solo actualizar flow si hay proceso activo en esa línea
+        const hasL1 = state.processes.some(p => Number(p.line) === 1 && p.status === 'active');
+        const hasL2 = state.processes.some(p => Number(p.line) === 2 && p.status === 'active');
+        
+        if (hasL1) {
+          state.liveFlow.l1_input_tph = byCode.l1_input_tph?.partial_ton ?? null;
+        } else {
+          state.liveFlow.l1_input_tph = null;
+        }
+        
+        if (hasL2) {
+          state.liveFlow.l2_input_tph = byCode.l2_input_tph?.partial_ton ?? null;
+          state.liveFlow.l2_input_tph_a = byCode.l2_input_tph_a?.partial_ton ?? null;
+          state.liveFlow.l2_input_tph_b = byCode.l2_input_tph_b?.partial_ton ?? null;
+        } else {
+          state.liveFlow.l2_input_tph = null;
+          state.liveFlow.l2_input_tph_a = null;
+          state.liveFlow.l2_input_tph_b = null;
+        }
+        
         updateFlowDisplay(1);
         updateFlowDisplay(2);
         updateTotalizersDisplay(1, byCode);
@@ -1436,6 +1454,21 @@ async function refreshFlowData() {
 function updateFlowDisplay(line) {
       const display = document.getElementById(`line-${line}-feed-value`);
       if (!display) return;
+      
+      // Verificar si hay proceso activo en esta línea específica
+      const lineProcess = state.processes.find(p => Number(p.line) === line && p.status === 'active');
+      
+      if (!lineProcess) {
+        // LIMPIAR valores cuando no hay proceso
+        if (line === 1) state.liveFlow.l1_input_tph = null;
+        if (line === 2) { state.liveFlow.l2_input_tph = null; state.liveFlow.l2_input_tph_a = null; state.liveFlow.l2_input_tph_b = null; }
+        
+        display.textContent = 'Inactivo';
+        display.classList.add('inactive');
+        return;
+      }
+      
+      display.classList.remove('inactive');
       let val = null;
       if (line === 1) {
         val = state.liveFlow.l1_input_tph;
@@ -1974,6 +2007,8 @@ function updateFlowDisplay(line) {
       $('stock-thresholds-box').classList.toggle('hidden', !canManual);
       const isAdmin = state.user.role === 'admin';
       $('nav-settings').classList.toggle('hidden', !isAdmin);
+      $('nav-events').classList.toggle('hidden', !isAdmin);
+      $('nav-alarms').classList.toggle('hidden', !isAdmin);
       if (isAdmin) loadSettings();
       renderHeader();
       await loadCriticalState();

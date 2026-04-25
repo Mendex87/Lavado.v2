@@ -32,6 +32,12 @@ class MeasurementRepository:
         )
         return self.db.scalar(stmt)
 
+    def add_reading(self, reading: MeasurementReading) -> MeasurementReading:
+        self.db.add(reading)
+        self.db.flush()
+        self.db.refresh(reading)
+        return reading
+
     def get_latest_by_point_ids(self, point_ids: list[int]) -> dict[int, MeasurementReading]:
         if not point_ids:
             return {}

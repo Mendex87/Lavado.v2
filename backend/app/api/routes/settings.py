@@ -25,13 +25,14 @@ def get_plc_config_public(db: Session = Depends(get_db)):
     """Endpoint público para que el PLC poller lea la configuración sin auth."""
     from app.models.settings import AppSetting
     
-    rows = db.query(AppSetting).filter(AppSetting.key.in_(['plc_host', 'plc_rack', 'plc_slot'])).all()
+    rows = db.query(AppSetting).filter(AppSetting.key.in_(['plc_host', 'plc_rack', 'plc_slot', 'plc_poll_interval_seconds'])).all()
     config = {r.key: r.value for r in rows}
     
     return {
         'plc_host': config.get('plc_host', '192.168.10.77'),
         'plc_rack': config.get('plc_rack', '0'),
         'plc_slot': config.get('plc_slot', '1'),
+        'poll_interval_seconds': '5',
         'backend_url': 'http://127.0.0.1:8010/api/v1',
     }
 
